@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Tracker Dashboard</title>
+    <!-- Ganti href dengan path file Antigravity CSS milikmu -->
+    <link rel="stylesheet" href="antigravity.css">
+    
+    <!-- Import Supabase JS dari CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header>
+        <h1>Ringkasan Hari Ini</h1>
+    </header>
+
+    <main class="dashboard-grid">
+        <!-- Kartu Target & Kalori -->
+        <section class="card">
+            <h2>Asupan Kalori</h2>
+            <p>Target: 2000 kcal</p>
+            <p>Masuk: <span id="cal-in">0</span> kcal</p>
+            <p>Terbakar: <span id="cal-out">0</span> kcal (Olahraga)</p>
+            <progress id="cal-progress" value="0" max="2000"></progress>
+        </section>
+
+        <!-- Kartu Hidrasi Air -->
+        <section class="card">
+            <h2>Hidrasi</h2>
+            <p>Target: 2000 ml</p>
+            <p>Diminum: <span id="water-in">0</span> ml</p>
+            <progress id="water-progress" value="0" max="2000"></progress>
+            <button onclick="addWater(250)">+250ml Air</button>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
