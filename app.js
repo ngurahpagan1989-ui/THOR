@@ -1,6 +1,6 @@
 // Dapatkan URL dan Key dari menu 'Project Settings > API' di Supabase
-const supabaseUrl = 'URL_PROYEK_SUPABASE_MU';
-const supabaseKey = 'ANON_KEY_PROYEK_SUPABASE_MU';
+const supabaseUrl = 'https://cvzjnrnnegdqoyuzkwhq.supabase.co/rest/v1/';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2empucm5uZWdkcW95dXprd2hxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MTI4OTIsImV4cCI6MjEwNjA4ODg5Mn0.94FH2z2hhAdxF_1SNoqyhPtuWj8NHtHKzJXN9JgTais';
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 // Fungsi sementara untuk dummy user (karena sistem login belum dibuat)
