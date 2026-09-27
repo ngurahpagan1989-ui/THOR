@@ -3,38 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Health Tracker Dashboard</title>
-    <!-- Ganti href dengan path file Antigravity CSS milikmu -->
-    <link rel="stylesheet" href="antigravity.css">
-    
-    <!-- Import Supabase JS dari CDN -->
+    <title>Vital Tracker</title>
+    <!-- Import Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Desain Sangar: Dark Theme + Neon Accents */
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --accent-green: #10b981; 
+            --accent-blue: #3b82f6;
+            --danger: #ef4444;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: #000;
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 2px solid var(--accent-green);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        header h1 { margin: 0; font-size: 1.8rem; }
+        
+        /* Navigasi Menu */
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        nav button {
+            background: transparent;
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            padding: 0.5rem 1.5rem;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        nav button:hover, nav button.active {
+            background: var(--accent-green);
+            color: #000;
+            box-shadow: 0 0 10px var(--accent-green);
+        }
+
+        /* Kontainer Utama */
+        .container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Kartu Dashboard */
+        .card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border-left: 4px solid var(--accent-green);
+        }
+        .card.water-card { border-left-color: var(--accent-blue); }
+        .card h2 { margin-top: 0; font-size: 1.4rem; }
+        
+        /* Bar Progres */
+        progress {
+            width: 100%;
+            height: 22px;
+            appearance: none;
+            margin-top: 10px;
+        }
+        progress::-webkit-progress-bar {
+            background-color: #334155;
+            border-radius: 10px;
+        }
+        progress::-webkit-progress-value {
+            background-color: var(--danger); /* Warna kalori */
+            border-radius: 10px;
+        }
+        #water-progress::-webkit-progress-value {
+            background-color: var(--accent-blue); /* Warna air */
+        }
+
+        /* Tombol Aksi */
+        button.action-btn {
+            background: var(--accent-blue);
+            color: #fff;
+            border: none;
+            padding: 0.8rem;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            transition: 0.2s;
+        }
+        button.action-btn:hover { filter: brightness(1.2); }
+        button.btn-green { background: var(--accent-green); color: #000; }
+
+        input[type="file"] {
+            display: block;
+            margin: 15px 0;
+            color: var(--text-main);
+            padding: 10px;
+            background: #0f172a;
+            border-radius: 4px;
+            width: 90%;
+        }
+    </style>
 </head>
 <body>
+
     <header>
-        <h1>Ringkasan Hari Ini</h1>
+        <h1>⚡ Tracker Pro</h1>
     </header>
 
-    <main class="dashboard-grid">
-        <!-- Kartu Target & Kalori -->
-        <section class="card">
-            <h2>Asupan Kalori</h2>
-            <p>Target: 2000 kcal</p>
-            <p>Masuk: <span id="cal-in">0</span> kcal</p>
-            <p>Terbakar: <span id="cal-out">0</span> kcal (Olahraga)</p>
-            <progress id="cal-progress" value="0" max="2000"></progress>
-        </section>
+    <nav>
+        <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+        <button class="tab-btn" onclick="switchTab('makanan')">Scan Foto</button>
+    </nav>
 
-        <!-- Kartu Hidrasi Air -->
-        <section class="card">
-            <h2>Hidrasi</h2>
-            <p>Target: 2000 ml</p>
-            <p>Diminum: <span id="water-in">0</span> ml</p>
-            <progress id="water-progress" value="0" max="2000"></progress>
-            <button onclick="addWater(250)">+250ml Air</button>
-        </section>
-    </main>
+    <div class="container">
+        <!-- TAB 1: DASHBOARD -->
+        <div id="dashboard" class="tab-content active">
+            <div class="card">
+                <h2>🔥 Asupan Kalori</h2>
+                <p>Target: 2000 kcal</p>
+                <p>Masuk: <span id="cal-in">0</span> kcal</p>
+                <progress id="cal-progress" value="0" max="2000"></progress>
+            </div>
 
-    <script src="app.js"></script>
+            <div class="card water-card">
+                <h2>💧 Hidrasi Harian</h2>
+                <p>Target: 2000 ml</p>
+                <p>Diminum: <span id="water-in">0</span> ml</p>
+                <progress id="water-progress" value="0" max="2000"></progress>
+                <button class="action-btn" onclick="addWater(250)">+ Catat 250ml Air</button>
+            </div>
+        </div>
+
+        <!-- TAB 2: SCAN MAKANAN -->
+        <div id="makanan" class="tab-content">
+            <div class="card" style="border-left-color: #f59e0b;">
+                <h2>📸 AI Food Scanner</h2>
+                <p>Ambil foto makananmu lewat kamera untuk estimasi kalori otomatis.</p>
+                <!-- Atribut capture="environment" akan langsung membuka kamera belakang di HP -->
+                <input type="file" id="food-image" accept="image/*" capture="environment">
+                <button class="action-btn btn-green" onclick="simulateScan()">Scan Makanan</button>
+                <p id="scan-result" style="margin-top: 15px; font-weight: bold; color: var(--accent-green);"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. LOGIKA PINDAH MENU TAB ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // --- 2. KONEKSI SUPABASE ---
+        // Ganti dengan URL dan ANON KEY dari proyek Supabase/Docker milikmu
+        const supabaseUrl = 'URL_PROYEK_SUPABASE_MU_DISINI';
+        const supabaseKey = 'ANON_KEY_PROYEK_SUPABASE_MU_DISINI';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // Menggunakan ID Dummy User yang sudah kita eksekusi di SQL sebelumnya
+        const DUMMY_USER_ID = '11111111-1111-1111-1111-111111111111';
+        
+        let currentWater = 0;
+        let currentCalories = 0;
+
+        // --- 3. FITUR TAMBAH AIR ---
+        async function addWater(amount) {
+            currentWater += amount;
+            document.getElementById('water-in').innerText = currentWater;
+            document.getElementById('water-progress').value = currentWater;
+
+            // Menyimpan data ke Supabase di latar belakang
+            const { error } = await supabase
+                .from('water_logs')
+                .insert([{ user_id: DUMMY_USER_ID, amount_ml: amount }]);
+                
+            if (error) console.error("Gagal menyimpan data air ke database:", error);
+        }
+
+        // --- 4. SIMULASI FITUR SCAN FOTO ---
+        async function simulateScan() {
+            const fileInput = document.getElementById('food-image');
+            const resultText = document.getElementById('scan-result');
+            
+            if (!fileInput.files.length) {
+                resultText.innerText = "Pilih atau ambil foto makanan terlebih dahulu!";
+                resultText.style.color = "var(--danger)";
+                return;
+            }
+
+            resultText.style.color = "var(--text-main)";
+            resultText.innerText = "Menganalisis gambar...";
+
+            // Simulasi delay proses AI selama 1.5 detik
+            setTimeout(() => {
+                // Generate kalori acak antara 150 - 600 untuk keperluan testing
+                const randomCalories = Math.floor(Math.random() * (600 - 150 + 1)) + 150;
+                
+                // Memperbarui UI Kalori di Dashboard
+                currentCalories += randomCalories;
+                document.getElementById('cal-in').innerText = currentCalories;
+                document.getElementById('cal-progress').value = currentCalories;
+
+                resultText.style.color = "var(--accent-green)";
+                resultText.innerText = `[SUCCESS] Makanan terdeteksi. ${randomCalories} kcal ditambahkan ke dashboard!`;
+                
+                // Setelah storage bucket 'food-images' milikmu siap, 
+                // kode upload gambar ke Supabase bisa dimasukkan di blok ini.
+            }, 1500);
+        }
+    </script>
 </body>
 </html>
