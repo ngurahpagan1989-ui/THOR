@@ -3,244 +3,614 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vital Tracker</title>
-    <!-- Import Supabase JS -->
+    <title>Vital Tracker Pro</title>
+    <!-- Supabase JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Desain Sangar: Dark Theme + Neon Accents */
         :root {
-            --bg-main: #0f172a;
-            --bg-card: #1e293b;
-            --text-main: #f8fafc;
-            --accent-green: #10b981; 
-            --accent-blue: #3b82f6;
-            --danger: #ef4444;
+            --bg-dark: #090d16;
+            --card-bg: rgba(22, 30, 49, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --neon-flame: #ff5722;
+            --neon-water: #00d2ff;
+            --neon-green: #10b981;
+            --neon-purple: #a855f7;
+            --text-muted: #8892b0;
+            --text-light: #f8fafc;
         }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: radial-gradient(circle at top right, #1a2035, var(--bg-dark));
+            color: var(--text-light);
             margin: 0;
             padding: 0;
+            min-height: 100vh;
         }
+
         header {
-            background: #000;
-            padding: 1.5rem;
+            padding: 1.8rem 1rem 0.5rem;
             text-align: center;
-            border-bottom: 2px solid var(--accent-green);
-            letter-spacing: 2px;
-            text-transform: uppercase;
         }
-        header h1 { margin: 0; font-size: 1.8rem; }
-        
-        /* Navigasi Menu */
+        .app-badge {
+            display: inline-block;
+            background: rgba(0, 210, 255, 0.1);
+            color: var(--neon-water);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 20px;
+            letter-spacing: 1.5px;
+            margin-bottom: 6px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 1.7rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            background: linear-gradient(90deg, #ffffff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Navigasi Tab */
         nav {
             display: flex;
             justify-content: center;
-            gap: 1rem;
-            padding: 1rem;
-            background: var(--bg-card);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-        nav button {
-            background: transparent;
-            border: 1px solid var(--accent-green);
-            color: var(--accent-green);
-            padding: 0.5rem 1.5rem;
-            cursor: pointer;
-            border-radius: 4px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-        nav button:hover, nav button.active {
-            background: var(--accent-green);
-            color: #000;
-            box-shadow: 0 0 10px var(--accent-green);
-        }
-
-        /* Kontainer Utama */
-        .container {
-            max-width: 600px;
-            margin: 2rem auto;
+            gap: 0.4rem;
+            margin: 1.2rem auto;
+            max-width: 500px;
             padding: 0 1rem;
         }
+        nav button {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            padding: 0.65rem 0.5rem;
+            cursor: pointer;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            transition: all 0.3s ease;
+        }
+        nav button.active {
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35);
+        }
+
+        .container {
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 0 1.2rem 3rem;
+        }
         .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
-        
-        @keyframes fadeIn {
+        .tab-content.active { display: block; animation: slideUp 0.3s ease; }
+
+        @keyframes slideUp {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Kartu Dashboard */
-        .card {
-            background: var(--bg-card);
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            border-left: 4px solid var(--accent-green);
+        /* Kartu Glassmorphism */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.4rem;
+            margin-bottom: 1.2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+            position: relative;
+            overflow: hidden;
         }
-        .card.water-card { border-left-color: var(--accent-blue); }
-        .card h2 { margin-top: 0; font-size: 1.4rem; }
-        
-        /* Bar Progres */
-        progress {
-            width: 100%;
-            height: 22px;
-            appearance: none;
-            margin-top: 10px;
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
         }
-        progress::-webkit-progress-bar {
-            background-color: #334155;
-            border-radius: 10px;
+        .glass-card.calorie::before { background: linear-gradient(90deg, #ff416c, var(--neon-flame)); }
+        .glass-card.water::before { background: linear-gradient(90deg, #0072ff, var(--neon-water)); }
+        .glass-card.exercise::before { background: linear-gradient(90deg, #8b5cf6, var(--neon-purple)); }
+        .glass-card.scan::before { background: linear-gradient(90deg, #10b981, #059669); }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
         }
-        progress::-webkit-progress-value {
-            background-color: var(--danger); /* Warna kalori */
-            border-radius: 10px;
-        }
-        #water-progress::-webkit-progress-value {
-            background-color: var(--accent-blue); /* Warna air */
+        .card-header h2 {
+            margin: 0;
+            font-size: 1.15rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        /* Tombol Aksi */
-        button.action-btn {
-            background: var(--accent-blue);
+        /* Stat Grid (Read-only Numbers) */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.28);
+            padding: 10px;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+        .stat-grid.two-col {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .stat-box small {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .stat-box span {
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        /* Progress Bar Modern */
+        .progress-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .custom-bar-track {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            height: 12px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .custom-bar-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 20px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .calorie .custom-bar-fill {
+            background: linear-gradient(90deg, #ff416c, var(--neon-flame));
+            box-shadow: 0 0 10px rgba(255, 87, 34, 0.5);
+        }
+        .water .custom-bar-fill {
+            background: linear-gradient(90deg, #0072ff, var(--neon-water));
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+        }
+
+        /* List Riwayat / Log Mini di Dashboard */
+        .log-list {
+            margin-top: 10px;
+            max-height: 180px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .log-item {
+            background: rgba(0,0,0,0.25);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid var(--text-muted);
+        }
+
+        /* Form & Input Style untuk Tab Non-Dashboard */
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 10px 0 4px;
+            font-weight: 600;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--neon-water);
+        }
+        
+        .pill-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .pill-btn {
+            flex: 1;
+            background: rgba(0, 210, 255, 0.1);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            color: var(--neon-water);
+            padding: 10px 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .pill-btn:hover {
+            background: var(--neon-water);
+            color: #000;
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, #10b981, #059669);
             color: #fff;
             border: none;
-            padding: 0.8rem;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 4px;
+            padding: 0.9rem;
+            font-size: 0.95rem;
+            font-weight: 800;
+            border-radius: 10px;
             cursor: pointer;
             width: 100%;
             margin-top: 15px;
             transition: 0.2s;
         }
-        button.action-btn:hover { filter: brightness(1.2); }
-        button.btn-green { background: var(--accent-green); color: #000; }
-
-        input[type="file"] {
-            display: block;
-            margin: 15px 0;
-            color: var(--text-main);
-            padding: 10px;
-            background: #0f172a;
-            border-radius: 4px;
-            width: 90%;
+        .btn-action.btn-purple {
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
         }
+        .btn-action:hover { filter: brightness(1.15); }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>⚡ Tracker Pro</h1>
+        <div class="app-badge">METRICS MONITOR</div>
+        <h1>VITAL TRACKER</h1>
     </header>
 
     <nav>
-        <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
-        <button class="tab-btn" onclick="switchTab('makanan')">Scan Foto</button>
+        <button class="active" onclick="switchTab(this, 'dashboard')">📊 Dashboard</button>
+        <button onclick="switchTab(this, 'makanan')">📸 Scan Makanan</button>
+        <button onclick="switchTab(this, 'aktivitas')">⚡ Log Aktivitas</button>
     </nav>
 
     <div class="container">
-        <!-- TAB 1: DASHBOARD -->
+        
+        <!-- ================= TAB 1: DASHBOARD (PURE READ-ONLY DISPLAY) ================= -->
         <div id="dashboard" class="tab-content active">
-            <div class="card">
-                <h2>🔥 Asupan Kalori</h2>
-                <p>Target: 2000 kcal</p>
-                <p>Masuk: <span id="cal-in">0</span> kcal</p>
-                <progress id="cal-progress" value="0" max="2000"></progress>
+            
+            <!-- RINGKASAN ASUPAN MAKANAN -->
+            <div class="glass-card calorie">
+                <div class="card-header">
+                    <h2>🔥 Asupan Kalori</h2>
+                </div>
+                <div class="stat-grid">
+                    <div class="stat-box">
+                        <small>Masuk</small>
+                        <span id="dash-cal-in">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <small>Target</small>
+                        <span>2000</span>
+                    </div>
+                    <div class="stat-box">
+                        <small>Sisa</small>
+                        <span id="dash-cal-rem" style="color: var(--neon-flame);">2000</span>
+                    </div>
+                </div>
+                <div class="progress-meta">
+                    <span>Progres Target</span>
+                    <span id="dash-cal-pct">0%</span>
+                </div>
+                <div class="custom-bar-track">
+                    <div id="dash-cal-bar" class="custom-bar-fill"></div>
+                </div>
             </div>
 
-            <div class="card water-card">
-                <h2>💧 Hidrasi Harian</h2>
-                <p>Target: 2000 ml</p>
-                <p>Diminum: <span id="water-in">0</span> ml</p>
-                <progress id="water-progress" value="0" max="2000"></progress>
-                <button class="action-btn" onclick="addWater(250)">+ Catat 250ml Air</button>
+            <!-- RINGKASAN OLAHRAGA / PEMBAKARAN KALORI -->
+            <div class="glass-card exercise">
+                <div class="card-header">
+                    <h2>⚡ Kalori Terbakar</h2>
+                </div>
+                <div class="stat-grid two-col">
+                    <div class="stat-box">
+                        <small>Total Terbakar</small>
+                        <span id="dash-ex-cal" style="color: var(--neon-purple);">0</span><small style="display:inline"> kcal</small>
+                    </div>
+                    <div class="stat-box">
+                        <small>Durasi Olahraga</small>
+                        <span id="dash-ex-dur">0</span><small style="display:inline"> mnt</small>
+                    </div>
+                </div>
             </div>
+
+            <!-- RINGKASAN HIDRASI AIR -->
+            <div class="glass-card water">
+                <div class="card-header">
+                    <h2>💧 Hidrasi Tubuh</h2>
+                </div>
+                <div class="stat-grid">
+                    <div class="stat-box">
+                        <small>Diminum</small>
+                        <span id="dash-water-in">0</span><small style="display:inline">ml</small>
+                    </div>
+                    <div class="stat-box">
+                        <small>Target</small>
+                        <span>2000</span><small style="display:inline">ml</small>
+                    </div>
+                    <div class="stat-box">
+                        <small>Frekuensi</small>
+                        <span id="dash-water-count" style="color: var(--neon-water);">0</span><small style="display:inline">x</small>
+                    </div>
+                </div>
+                <div class="progress-meta">
+                    <span>Progres Target</span>
+                    <span id="dash-water-pct">0%</span>
+                </div>
+                <div class="custom-bar-track">
+                    <div id="dash-water-bar" class="custom-bar-fill"></div>
+                </div>
+            </div>
+
+            <!-- RIWAYAT AKTIVITAS HARI INI -->
+            <div class="glass-card" style="border-left: 3px solid #64748b;">
+                <div class="card-header">
+                    <h2 style="font-size: 1rem; color: var(--text-muted);">📋 Riwayat Aktivitas Terkini</h2>
+                </div>
+                <div id="activity-log" class="log-list">
+                    <div style="color: var(--text-muted); font-size: 0.8rem; text-align: center; padding: 10px;">Belum ada aktivitas hari ini.</div>
+                </div>
+            </div>
+
         </div>
 
-        <!-- TAB 2: SCAN MAKANAN -->
+        <!-- ================= TAB 2: SCAN MAKANAN ================= -->
         <div id="makanan" class="tab-content">
-            <div class="card" style="border-left-color: #f59e0b;">
-                <h2>📸 AI Food Scanner</h2>
-                <p>Ambil foto makananmu lewat kamera untuk estimasi kalori otomatis.</p>
-                <!-- Atribut capture="environment" akan langsung membuka kamera belakang di HP -->
+            <div class="glass-card scan">
+                <div class="card-header">
+                    <h2>📸 AI Food Scanner</h2>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin-top:0;">
+                    Ambil foto makanan melalui kamera untuk mendeteksi estimasi kalori secara otomatis.
+                </p>
                 <input type="file" id="food-image" accept="image/*" capture="environment">
-                <button class="action-btn btn-green" onclick="simulateScan()">Scan Makanan</button>
-                <p id="scan-result" style="margin-top: 15px; font-weight: bold; color: var(--accent-green);"></p>
+                <button class="btn-action" onclick="handleScanFood()">Scan & Catat Kalori</button>
+                <p id="scan-status" style="margin-top: 15px; font-weight: bold; font-size: 0.9rem;"></p>
             </div>
         </div>
+
+        <!-- ================= TAB 3: LOG AKTIVITAS (INPUT DATA) ================= -->
+        <div id="aktivitas" class="tab-content">
+            
+            <!-- INPUT AIR MINUM -->
+            <div class="glass-card water">
+                <div class="card-header">
+                    <h2>💧 Catat Minum Air</h2>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top:0;">Pilih takaran air yang baru saja diminum:</p>
+                <div class="pill-group">
+                    <button class="pill-btn" onclick="logWater(150)">+150ml (Gelas)</button>
+                    <button class="pill-btn" onclick="logWater(250)">+250ml (Cangkir)</button>
+                    <button class="pill-btn" onclick="logWater(600)">+600ml (Botol)</button>
+                </div>
+            </div>
+
+            <!-- INPUT OLAHRAGA -->
+            <div class="glass-card exercise">
+                <div class="card-header">
+                    <h2>🏋️ Catat Olahraga</h2>
+                </div>
+                <label>Jenis Kegiatan / Olahraga</label>
+                <select id="ex-type">
+                    <option value="Jalan Santai">Jalan Kaki / Santai</option>
+                    <option value="Latihan Dumbbell">Latihan Dumbbell / Angkat Beban</option>
+                    <option value="Lari / Jogging">Lari / Jogging</option>
+                    <option value="Bersepeda">Bersepeda</option>
+                    <option value="Senam / Workout Rumah">Workout Rumah</option>
+                </select>
+
+                <label>Durasi (Menit)</label>
+                <input type="number" id="ex-duration" placeholder="Contoh: 30" min="1">
+
+                <button class="btn-action btn-purple" onclick="logExercise()">Simpan Sesi Olahraga</button>
+                <p id="exercise-status" style="margin-top: 12px; font-weight: bold; font-size: 0.88rem;"></p>
+            </div>
+
+        </div>
+
     </div>
 
     <script>
-        // --- 1. LOGIKA PINDAH MENU TAB ---
-        function switchTab(tabId) {
+        // ================= KREDENSIAL SUPABASE =================
+        const SUPABASE_URL = 'PASTE_URL_PROYEK_SUPABASE_DISINI';
+        const SUPABASE_KEY = 'PASTE_ANON_KEY_DISINI';
+        
+        let db = null;
+        if (SUPABASE_URL.startsWith('http') && SUPABASE_KEY.length > 20) {
+            db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+
+        const DUMMY_USER_ID = '11111111-1111-1111-1111-111111111111';
+
+        // State Penyimpan Data Realtime
+        const appState = {
+            targetCalories: 2000,
+            targetWater: 2000,
+            caloriesIn: 0,
+            caloriesBurned: 0,
+            exerciseMinutes: 0,
+            waterIn: 0,
+            waterCount: 0,
+            logs: []
+        };
+
+        // ================= NAVIGASI TAB =================
+        function switchTab(btn, tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
             
             document.getElementById(tabId).classList.add('active');
-            event.target.classList.add('active');
+            btn.classList.add('active');
+
+            if (tabId === 'dashboard') {
+                updateDashboardView();
+            }
         }
 
-        // --- 2. KONEKSI SUPABASE ---
-        // Ganti dengan URL dan ANON KEY dari proyek Supabase/Docker milikmu
-        const supabaseUrl = 'URL_PROYEK_SUPABASE_MU_DISINI';
-        const supabaseKey = 'ANON_KEY_PROYEK_SUPABASE_MU_DISINI';
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-        
-        // Menggunakan ID Dummy User yang sudah kita eksekusi di SQL sebelumnya
-        const DUMMY_USER_ID = '11111111-1111-1111-1111-111111111111';
-        
-        let currentWater = 0;
-        let currentCalories = 0;
+        // ================= UPDATE TAMPILAN DASHBOARD =================
+        function updateDashboardView() {
+            // Hitung Kalori
+            const calRem = Math.max(0, appState.targetCalories - appState.caloriesIn);
+            const calPct = Math.min(100, Math.round((appState.caloriesIn / appState.targetCalories) * 100));
+            document.getElementById('dash-cal-in').innerText = appState.caloriesIn;
+            document.getElementById('dash-cal-rem').innerText = calRem;
+            document.getElementById('dash-cal-pct').innerText = `${calPct}%`;
+            document.getElementById('dash-cal-bar').style.width = `${calPct}%`;
 
-        // --- 3. FITUR TAMBAH AIR ---
-        async function addWater(amount) {
-            currentWater += amount;
-            document.getElementById('water-in').innerText = currentWater;
-            document.getElementById('water-progress').value = currentWater;
+            // Olahraga
+            document.getElementById('dash-ex-cal').innerText = appState.caloriesBurned;
+            document.getElementById('dash-ex-dur').innerText = appState.exerciseMinutes;
 
-            // Menyimpan data ke Supabase di latar belakang
-            const { error } = await supabase
-                .from('water_logs')
-                .insert([{ user_id: DUMMY_USER_ID, amount_ml: amount }]);
-                
-            if (error) console.error("Gagal menyimpan data air ke database:", error);
+            // Hidrasi Air
+            const waterPct = Math.min(100, Math.round((appState.waterIn / appState.targetWater) * 100));
+            document.getElementById('dash-water-in').innerText = appState.waterIn;
+            document.getElementById('dash-water-count').innerText = appState.waterCount;
+            document.getElementById('dash-water-pct').innerText = `${waterPct}%`;
+            document.getElementById('dash-water-bar').style.width = `${waterPct}%`;
+
+            // List Riwayat Terkini
+            const logContainer = document.getElementById('activity-log');
+            if (appState.logs.length === 0) {
+                logContainer.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem; text-align: center; padding: 10px;">Belum ada aktivitas hari ini.</div>';
+            } else {
+                logContainer.innerHTML = appState.logs.slice(-5).reverse().map(item => `
+                    <div class="log-item" style="border-left-color: ${item.color};">
+                        <div>
+                            <strong>${item.title}</strong><br>
+                            <small style="color: var(--text-muted);">${item.time}</small>
+                        </div>
+                        <span style="font-weight: bold; color: ${item.color};">${item.detail}</span>
+                    </div>
+                `).join('');
+            }
         }
 
-        // --- 4. SIMULASI FITUR SCAN FOTO ---
-        async function simulateScan() {
-            const fileInput = document.getElementById('food-image');
-            const resultText = document.getElementById('scan-result');
+        // ================= INPUT MINUM AIR =================
+        async function logWater(amount) {
+            appState.waterIn += amount;
+            appState.waterCount += 1;
             
-            if (!fileInput.files.length) {
-                resultText.innerText = "Pilih atau ambil foto makanan terlebih dahulu!";
-                resultText.style.color = "var(--danger)";
+            const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            appState.logs.push({
+                title: 'Minum Air',
+                time: now,
+                detail: `+${amount}ml`,
+                color: 'var(--neon-water)'
+            });
+
+            alert(`✅ Tercatat: +${amount}ml air.`);
+
+            if (db) {
+                await db.from('water_logs').insert([{ user_id: DUMMY_USER_ID, amount_ml: amount }]);
+            }
+        }
+
+        // ================= INPUT OLAHRAGA =================
+        async function logExercise() {
+            const type = document.getElementById('ex-type').value;
+            const duration = parseInt(document.getElementById('ex-duration').value);
+            const status = document.getElementById('exercise-status');
+
+            if (!duration || duration <= 0) {
+                status.style.color = "#ef4444";
+                status.innerText = "Masukkan durasi olahraga yang valid!";
                 return;
             }
 
-            resultText.style.color = "var(--text-main)";
-            resultText.innerText = "Menganalisis gambar...";
+            // Estimasi kalori kasar: rata-rata ~6 kcal per menit
+            const burned = duration * 6;
+            appState.caloriesBurned += burned;
+            appState.exerciseMinutes += duration;
 
-            // Simulasi delay proses AI selama 1.5 detik
-            setTimeout(() => {
-                // Generate kalori acak antara 150 - 600 untuk keperluan testing
-                const randomCalories = Math.floor(Math.random() * (600 - 150 + 1)) + 150;
-                
-                // Memperbarui UI Kalori di Dashboard
-                currentCalories += randomCalories;
-                document.getElementById('cal-in').innerText = currentCalories;
-                document.getElementById('cal-progress').value = currentCalories;
+            const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            appState.logs.push({
+                title: type,
+                time: now,
+                detail: `-${burned} kcal (${duration} mnt)`,
+                color: 'var(--neon-purple)'
+            });
 
-                resultText.style.color = "var(--accent-green)";
-                resultText.innerText = `[SUCCESS] Makanan terdeteksi. ${randomCalories} kcal ditambahkan ke dashboard!`;
-                
-                // Setelah storage bucket 'food-images' milikmu siap, 
-                // kode upload gambar ke Supabase bisa dimasukkan di blok ini.
-            }, 1500);
+            status.style.color = "var(--neon-green)";
+            status.innerText = `✅ Berhasil dicatat: -${burned} kcal!`;
+            document.getElementById('ex-duration').value = '';
+
+            if (db) {
+                await db.from('exercise_logs').insert([{
+                    user_id: DUMMY_USER_ID,
+                    exercise_type: type,
+                    duration_minutes: duration,
+                    calories_burned: burned
+                }]);
+            }
         }
+
+        // ================= SCAN FOTO MAKANAN =================
+        function handleScanFood() {
+            const fileInput = document.getElementById('food-image');
+            const status = document.getElementById('scan-status');
+
+            if (!fileInput.files.length) {
+                status.style.color = "#ef4444";
+                status.innerText = "Pilih atau ambil foto makanan terlebih dahulu!";
+                return;
+            }
+
+            status.style.color = "var(--text-light)";
+            status.innerText = "Menganalisis nutrisi foto makanan...";
+
+            setTimeout(async () => {
+                // Simulasi hasil kalori
+                const randomCal = Math.floor(Math.random() * (500 - 250 + 1)) + 250;
+                appState.caloriesIn += randomCal;
+
+                const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                appState.logs.push({
+                    title: 'Scan Makanan',
+                    time: now,
+                    detail: `+${randomCal} kcal`,
+                    color: 'var(--neon-flame)'
+                });
+
+                status.style.color = "var(--neon-green)";
+                status.innerText = `✅ Makanan terdeteksi: +${randomCal} kcal masuk ke dashboard!`;
+                fileInput.value = '';
+
+                if (db) {
+                    await db.from('food_logs').insert([{
+                        user_id: DUMMY_USER_ID,
+                        food_name: 'Scan Foto',
+                        calories: randomCal
+                    }]);
+                }
+            }, 1200);
+        }
+
+        // Panggil pertama kali saat halaman dimuat
+        updateDashboardView();
     </script>
 </body>
 </html>
