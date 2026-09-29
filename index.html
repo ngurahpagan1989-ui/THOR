@@ -4,32 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THOR - Tracker Kesehatan</title>
-    <!-- CSS Sederhana untuk Tampilan -->
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9; display: flex; justify-content: center;}
-        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        button { padding: 10px 20px; margin: 10px 0; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%;}
-        #btn-login { background-color: #4285F4; color: white; }
-        #btn-login:hover { background-color: #357ae8; }
-        #btn-logout { background-color: #e53935; color: white; }
-        #btn-logout:hover { background-color: #c62828; }
-        #user-info { margin-top: 20px; display: none; background: #e3f2fd; padding: 15px; border-radius: 8px; }
-    </style>
+    <!-- Tailwind CSS untuk desain cepat & rapi -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js untuk grafik lingkaran -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 font-sans">
 
-    <div class="card">
-        <h2>Aplikasi THOR</h2>
-        <p id="status-text">Silakan login untuk mulai mencatat asupan dan targetmu hari ini.</p>
+    <!-- ================= LAYAR LOGIN ================= -->
+    <div id="login-view" class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md text-center">
+        <h2 class="text-3xl font-bold text-gray-800 mb-2">THOR</h2>
+        <p class="text-gray-500 mb-6">Tracker Kesehatan IDEP</p>
+        <button onclick="loginDenganGoogle()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200">
+            Login dengan Google
+        </button>
+    </div>
+
+    <!-- ================= LAYAR DASHBOARD ================= -->
+    <div id="dashboard-view" class="hidden bg-white rounded-xl shadow-lg w-full max-w-md overflow-hidden">
         
-        <!-- Tombol Login & Logout -->
-        <button id="btn-login" onclick="loginDenganGoogle()">Login dengan Google</button>
-        <button id="btn-logout" onclick="logout()" style="display: none;">Logout</button>
+        <!-- Header Profil -->
+        <div class="bg-blue-600 p-5 text-white flex justify-between items-center">
+            <div>
+                <p class="text-sm opacity-80">Halo,</p>
+                <p id="user-name" class="font-bold text-lg">Nama User</p>
+            </div>
+            <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-xs py-2 px-3 rounded-md font-bold transition">
+                Logout
+            </button>
+        </div>
 
-        <!-- Area untuk menampilkan profil Google setelah berhasil login -->
-        <div id="user-info">
-            <p>Selamat datang, <br><strong id="user-name" style="font-size: 20px;"></strong>!</p>
-            <p>Email: <span id="user-email"></span></p>
+        <!-- Area Grafik Setengah Lingkaran -->
+        <div class="p-6 text-center">
+            <h3 class="text-gray-600 font-semibold mb-2">Sisa Kalori Harian</h3>
+            <div class="relative w-48 h-48 mx-auto">
+                <canvas id="calorieChart"></canvas>
+                <!-- Angka di tengah grafik -->
+                <div class="absolute inset-0 flex flex-col items-center justify-center mt-10">
+                    <span id="sisa-kalori" class="text-3xl font-bold text-gray-800">1200</span>
+                    <span class="text-xs text-gray-500">kcal</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Area Makronutrisi & Air -->
+        <div class="grid grid-cols-4 gap-2 border-t border-gray-100 p-4 text-center">
+            <div class="bg-blue-50 rounded-lg p-2">
+                <p class="text-xs text-gray-500">Air</p>
+                <p class="font-bold text-blue-600 text-sm">1.5L</p>
+            </div>
+            <div class="bg-red-50 rounded-lg p-2">
+                <p class="text-xs text-gray-500">Protein</p>
+                <p class="font-bold text-red-600 text-sm">45g</p>
+            </div>
+            <div class="bg-yellow-50 rounded-lg p-2">
+                <p class="text-xs text-gray-500">Karbo</p>
+                <p class="font-bold text-yellow-600 text-sm">150g</p>
+            </div>
+            <div class="bg-green-50 rounded-lg p-2">
+                <p class="text-xs text-gray-500">Lemak</p>
+                <p class="font-bold text-green-600 text-sm">30g</p>
+            </div>
+        </div>
+
+        <!-- Tombol Aksi Cepat -->
+        <div class="p-4 grid grid-cols-3 gap-2 border-t border-gray-100">
+            <button class="bg-gray-800 hover:bg-gray-900 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
+                <span>🍽️</span> Makan
+            </button>
+            <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
+                <span>💧</span> Minum
+            </button>
+            <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
+                <span>🏃</span> Olahraga
+            </button>
         </div>
     </div>
 
@@ -37,71 +85,93 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
-        // 1. Inisialisasi Koneksi ke Supabase
+        // --- 1. INISIALISASI SUPABASE ---
         const supabaseUrl = 'https://cvzjnrnnegdqoyuzkwhq.supabase.co'; 
-        
-        // GANTI INI: Masukkan kunci 'anon / public' dari pengaturan API Supabase-mu
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2empucm5uZWdkcW95dXprd2hxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MTI4OTIsImV4cCI6MjEwNjA4ODg5Mn0.94FH2z2hhAdxF_1SNoqyhPtuWj8NHtHKzJXN9JgTais'; 
-        
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // 2. Fungsi Login dengan Google (Versi GitHub Pages /THOR)
+        // Variabel global untuk menampung objek grafik agar bisa di-update nanti
+        let myChart = null;
+
+        // --- 2. FUNGSI AUTENTIKASI ---
         async function loginDenganGoogle() {
-            const { data, error } = await supabaseClient.auth.signInWithOAuth({
+            const { error } = await supabaseClient.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    // Paksa redirect kembali secara spesifik ke URL GitHub Pages-mu
                     redirectTo: 'https://ngurahpagan1989-ui.github.io/THOR/'
                 }
             });
-            
-            if (error) {
-                alert("Gagal login: " + error.message);
-                console.error(error);
-            }
+            if (error) alert("Gagal login: " + error.message);
         }
 
-        // 3. Fungsi Logout
         async function logout() {
-            const { error } = await supabaseClient.auth.signOut();
-            if (error) {
-                alert("Gagal logout: " + error.message);
-            } else {
-                cekSesi(); // Perbarui tampilan setelah logout berhasil
-            }
+            await supabaseClient.auth.signOut();
+            cekSesi();
         }
 
-        // 4. Fungsi Mengecek Status User (Sudah login atau belum?)
+        // --- 3. FUNGSI RENDER GRAFIK SPIDOMETER ---
+        function renderGrafik(kaloriMasuk, targetKalori) {
+            const ctx = document.getElementById('calorieChart').getContext('2d');
+            const sisaKalori = targetKalori - kaloriMasuk;
+            
+            // Hapus grafik lama jika ada (mencegah tumpang tindih saat refresh)
+            if (myChart != null) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Terpakai', 'Sisa'],
+                    datasets: [{
+                        data: [kaloriMasuk, sisaKalori > 0 ? sisaKalori : 0],
+                        backgroundColor: ['#3b82f6', '#e5e7eb'], // Biru untuk terpakai, Abu untuk sisa
+                        borderWidth: 0,
+                        cutout: '75%',
+                        circumference: 180, // Membuatnya jadi setengah lingkaran
+                        rotation: 270       // Memutar posisinya ke atas
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: true }
+                    }
+                }
+            });
+
+            // Update teks angka di tengah grafik
+            document.getElementById('sisa-kalori').innerText = sisaKalori > 0 ? sisaKalori : 0;
+        }
+
+        // --- 4. PENGECEKAN SESI & UI ---
         async function cekSesi() {
-            // Tarik data sesi dari Supabase
             const { data: { session } } = await supabaseClient.auth.getSession();
             
-            // Ambil elemen HTML yang ingin kita ubah
-            const btnLogin = document.getElementById('btn-login');
-            const btnLogout = document.getElementById('btn-logout');
-            const userInfo = document.getElementById('user-info');
-            const statusText = document.getElementById('status-text');
+            const loginView = document.getElementById('login-view');
+            const dashboardView = document.getElementById('dashboard-view');
 
             if (session) {
-                // JIKA SUDAH LOGIN:
-                btnLogin.style.display = 'none';           
-                btnLogout.style.display = 'block';         
-                userInfo.style.display = 'block';          
-                statusText.style.display = 'none';         
+                // Sembunyikan login, tampilkan dashboard
+                loginView.classList.add('hidden');
+                dashboardView.classList.remove('hidden');
                 
-                // Tampilkan nama dan email dari Google
-                document.getElementById('user-name').innerText = session.user.user_metadata.full_name;
-                document.getElementById('user-email').innerText = session.user.email;
+                // Set data profil
+                document.getElementById('user-name').innerText = session.user.user_metadata.full_name.split(" ")[0]; // Ambil nama depan saja
+                
+                // Render grafik dengan data statis (Dummy Data sementara)
+                // Nanti angka ini kita tarik dari database Supabase
+                renderGrafik(800, 2000); 
+
             } else {
-                // JIKA BELUM LOGIN / SUDAH LOGOUT:
-                btnLogin.style.display = 'block';
-                btnLogout.style.display = 'none';
-                userInfo.style.display = 'none';
-                statusText.style.display = 'block';
+                // Tampilkan login, sembunyikan dashboard
+                loginView.classList.remove('hidden');
+                dashboardView.classList.add('hidden');
             }
         }
 
-        // Jalankan pengecekan otomatis setiap kali halaman web dibuka atau di-refresh
         window.onload = cekSesi;
     </script>
 </body>
