@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THOR - Tracker Kesehatan</title>
-    <!-- Tambahan sedikit CSS agar tampilannya rapi -->
+    <!-- CSS Sederhana untuk Tampilan -->
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9; display: flex; justify-content: center;}
         .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
@@ -45,14 +45,12 @@
         
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // 2. Fungsi Login dengan Google
+        // 2. Fungsi Login dengan Google (Versi GitHub Pages)
         async function loginDenganGoogle() {
             const { data, error } = await supabaseClient.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    // Pastikan URL ini sama persis dengan URL Live Server kamu!
-                    redirectTo: 'http://127.0.0.1:5500/index.html' 
-                }
+                provider: 'google'
+                // Opsi redirectTo sengaja dihapus agar Supabase otomatis 
+                // mengembalikan pengguna ke alamat website asalnya (GitHub Pages)
             });
             
             if (error) {
@@ -84,10 +82,10 @@
 
             if (session) {
                 // JIKA SUDAH LOGIN:
-                btnLogin.style.display = 'none';           // Sembunyikan tombol login
-                btnLogout.style.display = 'block';         // Munculkan tombol logout
-                userInfo.style.display = 'block';          // Munculkan area profil
-                statusText.style.display = 'none';         // Sembunyikan teks sambutan awal
+                btnLogin.style.display = 'none';           
+                btnLogout.style.display = 'block';         
+                userInfo.style.display = 'block';          
+                statusText.style.display = 'none';         
                 
                 // Tampilkan nama dan email dari Google
                 document.getElementById('user-name').innerText = session.user.user_metadata.full_name;
