@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 font-sans">
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 font-sans text-gray-800">
 
     <!-- ================= LAYAR LOGIN ================= -->
     <div id="login-view" class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md text-center">
@@ -19,8 +19,9 @@
     </div>
 
     <!-- ================= LAYAR DASHBOARD ================= -->
-    <div id="dashboard-view" class="hidden bg-white rounded-xl shadow-lg w-full max-w-md overflow-hidden">
+    <div id="dashboard-view" class="hidden bg-white rounded-xl shadow-lg w-full max-w-md overflow-hidden relative">
         
+        <!-- Header -->
         <div class="bg-blue-600 p-5 text-white flex justify-between items-center">
             <div>
                 <p class="text-sm opacity-80">Halo,</p>
@@ -31,49 +32,95 @@
             </button>
         </div>
 
-        <!-- Area Grafik Setengah Lingkaran -->
+        <!-- Area Grafik -->
         <div class="p-6 text-center">
             <h3 class="text-gray-600 font-semibold mb-2">Sisa Kalori Harian</h3>
             <div class="relative w-48 h-48 mx-auto">
                 <canvas id="calorieChart"></canvas>
                 <div class="absolute inset-0 flex flex-col items-center justify-center mt-10">
-                    <span id="sisa-kalori" class="text-3xl font-bold text-gray-800">0</span>
-                    <span class="text-xs text-gray-500">kcal</span>
+                    <span id="sisa-kalori" class="text-4xl font-bold text-gray-800">0</span>
+                    <span class="text-xs text-gray-500 font-medium">kcal</span>
                 </div>
             </div>
         </div>
 
-        <!-- Area Makronutrisi & Air (Dilengkapi ID agar bisa di-update) -->
+        <!-- Area Makro -->
         <div class="grid grid-cols-4 gap-2 border-t border-gray-100 p-4 text-center">
             <div class="bg-blue-50 rounded-lg p-2">
                 <p class="text-xs text-gray-500">Air</p>
                 <p id="water-val" class="font-bold text-blue-600 text-sm">0 L</p>
             </div>
             <div class="bg-red-50 rounded-lg p-2">
-                <p class="text-xs text-gray-500">Protein</p>
+                <p class="text-xs text-gray-500">Pro</p>
                 <p id="protein-val" class="font-bold text-red-600 text-sm">0 g</p>
             </div>
             <div class="bg-yellow-50 rounded-lg p-2">
-                <p class="text-xs text-gray-500">Karbo</p>
+                <p class="text-xs text-gray-500">Karb</p>
                 <p id="carbo-val" class="font-bold text-yellow-600 text-sm">0 g</p>
             </div>
             <div class="bg-green-50 rounded-lg p-2">
-                <p class="text-xs text-gray-500">Lemak</p>
+                <p class="text-xs text-gray-500">Lem</p>
                 <p id="fat-val" class="font-bold text-green-600 text-sm">0 g</p>
             </div>
         </div>
 
         <!-- Tombol Aksi Cepat -->
         <div class="p-4 grid grid-cols-3 gap-2 border-t border-gray-100">
-            <button onclick="addFood()" class="bg-gray-800 hover:bg-gray-900 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
-                <span>🍽️</span> Makan
+            <button onclick="bukaModal('modal-makan')" class="bg-gray-800 hover:bg-gray-900 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
+                <span class="text-lg">🍽️</span> Makan
             </button>
-            <button onclick="addWater(250)" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
-                <span>💧</span> Minum
+            <button onclick="bukaModal('modal-minum')" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
+                <span class="text-lg">💧</span> Minum
             </button>
-            <button onclick="addExercise()" class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
-                <span>🏃</span> Olahraga
+            <button onclick="bukaModal('modal-olahraga')" class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
+                <span class="text-lg">🏃</span> Olahraga
             </button>
+        </div>
+
+        <!-- Riwayat Hari Ini -->
+        <div class="bg-gray-50 p-4 border-t border-gray-200">
+            <h4 class="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">Riwayat Hari Ini</h4>
+            <ul id="history-list" class="space-y-2 text-sm max-h-40 overflow-y-auto">
+                <li class="text-gray-400 text-center italic text-xs py-2">Belum ada aktivitas hari ini.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ================= MODAL MAKAN ================= -->
+    <div id="modal-makan" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-sm">
+            <h3 class="font-bold text-lg mb-4">Catat Makanan 🍽️</h3>
+            <input id="input-makanan" type="text" placeholder="Nama makanan (Mendoan, Nasi Goreng)" class="w-full border rounded-lg p-3 mb-3 bg-gray-50">
+            <input id="input-kalori" type="number" placeholder="Perkiraan Kalori (kcal)" class="w-full border rounded-lg p-3 mb-4 bg-gray-50">
+            <div class="flex gap-2">
+                <button onclick="tutupModal('modal-makan')" class="w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 rounded-lg">Batal</button>
+                <button onclick="simpanMakan()" class="w-1/2 bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 rounded-lg">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL MINUM ================= -->
+    <div id="modal-minum" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-sm">
+            <h3 class="font-bold text-lg mb-4">Catat Minum 💧</h3>
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <button onclick="simpanMinum(250)" class="bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold py-3 rounded-lg border border-blue-200">Gelas (250ml)</button>
+                <button onclick="simpanMinum(600)" class="bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold py-3 rounded-lg border border-blue-200">Botol (600ml)</button>
+            </div>
+            <button onclick="tutupModal('modal-minum')" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 rounded-lg">Batal</button>
+        </div>
+    </div>
+
+    <!-- ================= MODAL OLAHRAGA ================= -->
+    <div id="modal-olahraga" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-sm">
+            <h3 class="font-bold text-lg mb-4">Catat Olahraga 🏃</h3>
+            <input id="input-olahraga" type="text" placeholder="Jenis olahraga (Lari, Gym)" class="w-full border rounded-lg p-3 mb-3 bg-gray-50">
+            <input id="input-bakar" type="number" placeholder="Kalori terbakar (kcal)" class="w-full border rounded-lg p-3 mb-4 bg-gray-50">
+            <div class="flex gap-2">
+                <button onclick="tutupModal('modal-olahraga')" class="w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 rounded-lg">Batal</button>
+                <button onclick="simpanOlahraga()" class="w-1/2 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 rounded-lg">Simpan</button>
+            </div>
         </div>
     </div>
 
@@ -88,7 +135,7 @@
 
         let myChart = null;
         let currentUser = null; 
-        const TARGET_KALORI = 2000; // Target statis sementara
+        const TARGET_KALORI = 2000; 
 
         // --- 2. FUNGSI AUTENTIKASI ---
         async function loginDenganGoogle() {
@@ -105,124 +152,129 @@
             cekSesi();
         }
 
-        // --- 3. FUNGSI LOGIKA APLIKASI (CRUD) ---
+        // --- 3. KONTROL MODAL ---
+        function bukaModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function tutupModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        // --- 4. FUNGSI SIMPAN DATA (CRUD) ---
         
-        // A. Tambah Minum
-        async function addWater(amount) {
-            if (!currentUser) return alert('Silakan login terlebih dahulu!');
+        async function simpanMakan() {
+            const nama = document.getElementById('input-makanan').value;
+            const kalori = document.getElementById('input-kalori').value;
             
-            const { error } = await supabaseClient
-                .from('water_logs')
-                .insert([{ user_id: currentUser.id, amount_ml: amount }]);
+            if (!nama || !kalori) return alert("Mohon isi nama makanan dan kalori!");
+
+            const { error } = await supabaseClient.from('food_logs').insert([{ 
+                user_id: currentUser.id, food_name: nama, calories: parseInt(kalori) 
+            }]);
                 
             if (error) alert(`Gagal: ${error.message}`);
             else {
-                alert(`Berhasil menambah ${amount}ml air!`);
-                loadDataHariIni(); // Segarkan dashboard
-            }
-        }
-
-        // B. Tambah Makan
-        async function addFood() {
-            if (!currentUser) return alert('Silakan login terlebih dahulu!');
-            
-            const foodName = prompt("Apa yang kamu makan? (contoh: Nasi Goreng)");
-            if (!foodName) return; // Batal jika kosong
-            
-            const calories = prompt(`Berapa perkiraan kalori ${foodName}? (masukkan angka saja, misal: 400)`);
-            if (!calories || isNaN(calories)) return alert('Kalori harus berupa angka!');
-
-            const { error } = await supabaseClient
-                .from('food_logs')
-                .insert([{ 
-                    user_id: currentUser.id, 
-                    food_name: foodName, 
-                    calories: parseInt(calories) 
-                }]);
-                
-            if (error) alert(`Gagal: ${error.message}`);
-            else {
-                alert('Makanan berhasil dicatat!');
+                document.getElementById('input-makanan').value = '';
+                document.getElementById('input-kalori').value = '';
+                tutupModal('modal-makan');
                 loadDataHariIni(); 
             }
         }
 
-        // C. Tambah Olahraga
-        async function addExercise() {
-            if (!currentUser) return alert('Silakan login terlebih dahulu!');
+        async function simpanMinum(jumlah) {
+            const { error } = await supabaseClient.from('water_logs').insert([{ 
+                user_id: currentUser.id, amount_ml: jumlah 
+            }]);
             
-            const exerciseName = prompt("Olahraga apa hari ini? (contoh: Lari pagi)");
-            if (!exerciseName) return;
-            
-            const burned = prompt("Berapa kalori yang terbakar? (angka saja)");
-            if (!burned || isNaN(burned)) return alert('Kalori harus berupa angka!');
-
-            // Menggunakan nilai default 30 menit jika tidak diisi karena kolom duration_minutes wajib diisi
-            const { error } = await supabaseClient
-                .from('exercise_logs')
-                .insert([{ 
-                    user_id: currentUser.id, 
-                    exercise_name: exerciseName, 
-                    calories_burned: parseInt(burned),
-                    duration_minutes: 30 
-                }]);
-                
             if (error) alert(`Gagal: ${error.message}`);
             else {
-                alert('Olahraga berhasil dicatat!');
-                loadDataHariIni();
+                tutupModal('modal-minum');
+                loadDataHariIni(); 
             }
         }
 
-        // --- 4. FUNGSI TARIK DATA (REAL-TIME DASHBOARD) ---
+        async function simpanOlahraga() {
+            const nama = document.getElementById('input-olahraga').value;
+            const kalori = document.getElementById('input-bakar').value;
+            
+            if (!nama || !kalori) return alert("Mohon isi olahraga dan kalori!");
+
+            const { error } = await supabaseClient.from('exercise_logs').insert([{ 
+                user_id: currentUser.id, exercise_name: nama, calories_burned: parseInt(kalori), duration_minutes: 30 
+            }]);
+                
+            if (error) alert(`Gagal: ${error.message}`);
+            else {
+                document.getElementById('input-olahraga').value = '';
+                document.getElementById('input-bakar').value = '';
+                tutupModal('modal-olahraga');
+                loadDataHariIni(); 
+            }
+        }
+
+        // --- 5. TARIK DATA & RENDER RIWAYAT ---
         async function loadDataHariIni() {
             if (!currentUser) return;
             
-            // Dapatkan rentang waktu hari ini (mulai jam 00:00 sampai 23:59)
             const today = new Date().toISOString().split('T')[0];
             const startOfDay = `${today}T00:00:00.000Z`;
             const endOfDay = `${today}T23:59:59.999Z`;
 
-            // A. Tarik Data Air
-            const { data: waterData } = await supabaseClient
-                .from('water_logs')
-                .select('amount_ml')
-                .eq('user_id', currentUser.id)
-                .gte('logged_at', startOfDay)
-                .lte('logged_at', endOfDay);
-            
-            let totalWater = 0;
-            if (waterData) waterData.forEach(w => totalWater += w.amount_ml);
+            // Eksekusi 3 query berbarengan agar lebih cepat
+            const [reqAir, reqMakan, reqOlahraga] = await Promise.all([
+                supabaseClient.from('water_logs').select('*').eq('user_id', currentUser.id).gte('logged_at', startOfDay).lte('logged_at', endOfDay),
+                supabaseClient.from('food_logs').select('*').eq('user_id', currentUser.id).gte('logged_at', startOfDay).lte('logged_at', endOfDay),
+                supabaseClient.from('exercise_logs').select('*').eq('user_id', currentUser.id).gte('logged_at', startOfDay).lte('logged_at', endOfDay)
+            ]);
 
-            // B. Tarik Data Makanan
-            const { data: foodData } = await supabaseClient
-                .from('food_logs')
-                .select('calories, protein_g, carbs_g, fat_g')
-                .eq('user_id', currentUser.id)
-                .gte('logged_at', startOfDay)
-                .lte('logged_at', endOfDay);
+            let totalWater = 0, totalCalIn = 0, totalPro = 0, totalCarb = 0, totalFat = 0;
+            let riwayatGabungan = []; // Tempat menampung data untuk list di UI
 
-            let totalCalIn = 0, totalPro = 0, totalCarb = 0, totalFat = 0;
-            if (foodData) {
-                foodData.forEach(f => {
-                    totalCalIn += Number(f.calories);
-                    totalPro += Number(f.protein_g);
-                    totalCarb += Number(f.carbs_g);
-                    totalFat += Number(f.fat_g);
-                });
-            }
+            if (reqAir.data) reqAir.data.forEach(w => {
+                totalWater += w.amount_ml;
+                riwayatGabungan.push({ waktu: w.logged_at, teks: `💧 Minum Air (+${w.amount_ml}ml)`, warna: 'text-blue-600' });
+            });
 
-            // Perbarui UI Dasbor
+            if (reqMakan.data) reqMakan.data.forEach(f => {
+                totalCalIn += Number(f.calories);
+                totalPro += Number(f.protein_g);
+                totalCarb += Number(f.carbs_g);
+                totalFat += Number(f.fat_g);
+                riwayatGabungan.push({ waktu: f.logged_at, teks: `🍽️ ${f.food_name} (+${f.calories} kcal)`, warna: 'text-gray-800' });
+            });
+
+            if (reqOlahraga.data) reqOlahraga.data.forEach(e => {
+                // Kalori olahraga tidak mengurangi totalCalIn (kalori masuk), tapi bisa ditampilkan di UI
+                riwayatGabungan.push({ waktu: e.logged_at, teks: `🏃 ${e.exercise_name} (-${e.calories_burned} kcal)`, warna: 'text-orange-600' });
+            });
+
+            // Update UI Dasbor
             document.getElementById('water-val').innerText = (totalWater / 1000).toFixed(1) + ' L';
             document.getElementById('protein-val').innerText = totalPro + ' g';
             document.getElementById('carbo-val').innerText = totalCarb + ' g';
             document.getElementById('fat-val').innerText = totalFat + ' g';
 
-            // Perbarui Grafik
             renderGrafik(totalCalIn, TARGET_KALORI);
+
+            // Render Daftar Riwayat
+            const ulRiwayat = document.getElementById('history-list');
+            ulRiwayat.innerHTML = ''; // Kosongkan daftar lama
+            
+            if (riwayatGabungan.length === 0) {
+                ulRiwayat.innerHTML = `<li class="text-gray-400 text-center italic text-xs py-2">Belum ada aktivitas hari ini.</li>`;
+            } else {
+                // Urutkan riwayat dari yang paling baru
+                riwayatGabungan.sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
+                
+                riwayatGabungan.forEach(item => {
+                    const jam = new Date(item.waktu).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    ulRiwayat.innerHTML += `
+                        <li class="flex justify-between items-center bg-white p-2 rounded border border-gray-100 shadow-sm">
+                            <span class="${item.warna} font-medium">${item.teks}</span>
+                            <span class="text-xs text-gray-400">${jam}</span>
+                        </li>
+                    `;
+                });
+            }
         }
 
-        // --- 5. FUNGSI RENDER GRAFIK SPIDOMETER ---
+        // --- 6. RENDER GRAFIK SPIDOMETER ---
         function renderGrafik(kaloriMasuk, targetKalori) {
             const ctx = document.getElementById('calorieChart').getContext('2d');
             const sisaKalori = targetKalori - kaloriMasuk;
@@ -243,8 +295,7 @@
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { display: false }, tooltip: { enabled: true } }
                 }
             });
@@ -252,7 +303,7 @@
             document.getElementById('sisa-kalori').innerText = sisaKalori > 0 ? sisaKalori : 0;
         }
 
-        // --- 6. PENGECEKAN SESI AWAL ---
+        // --- 7. PENGECEKAN SESI AWAL ---
         async function cekSesi() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             const loginView = document.getElementById('login-view');
@@ -263,8 +314,6 @@
                 loginView.classList.add('hidden');
                 dashboardView.classList.remove('hidden');
                 document.getElementById('user-name').innerText = session.user.user_metadata.full_name.split(" ")[0]; 
-                
-                // Segarkan data dasbor begitu berhasil login
                 loadDataHariIni(); 
             } else {
                 loginView.classList.remove('hidden');
