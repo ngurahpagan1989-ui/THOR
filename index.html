@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THOR - Tracker Kesehatan</title>
-    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-    <script src="[https://cdn.jsdelivr.net/npm/chart.js](https://cdn.jsdelivr.net/npm/chart.js)"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 font-sans text-gray-800">
 
@@ -27,9 +27,14 @@
                 <p class="text-sm opacity-80">Halo,</p>
                 <p id="user-name" class="font-bold text-lg">Nama User</p>
             </div>
-            <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-xs py-2 px-3 rounded-md font-bold transition">
-                Logout
-            </button>
+            <div class="flex items-center gap-2">
+                <button onclick="aturApiKey()" title="Atur Gemini API Key" class="bg-blue-700 hover:bg-blue-800 text-xs py-2 px-2.5 rounded-md font-bold transition">
+                    ⚙️ Key
+                </button>
+                <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-xs py-2 px-3 rounded-md font-bold transition">
+                    Logout
+                </button>
+            </div>
         </div>
 
         <!-- Area Grafik -->
@@ -64,22 +69,22 @@
             </div>
         </div>
 
-        <!-- Input Kamera Tersembunyi -->
+        <!-- Input Kamera Tersembunyi (Langsung buka kamera di HP) -->
         <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" onchange="prosesFotoMakanan(event)">
 
-        <!-- Tombol Aksi Cepat -->
+        <!-- Tombol Aksi Cepat (4 Kolom Utama) -->
         <div class="p-4 grid grid-cols-4 gap-2 border-t border-gray-100">
-            <button onclick="document.getElementById('camera-input').click()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
+            <button onclick="bukaKamera()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition shadow-sm">
                 <span class="text-lg">📸</span> Scan AI
             </button>
             <button onclick="bukaModal('modal-makan')" class="bg-gray-800 hover:bg-gray-900 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
-                <span class="text-lg">🍽️</span> Manual
+                <span class="text-lg">🍽️</span> Makan
             </button>
             <button onclick="bukaModal('modal-minum')" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
                 <span class="text-lg">💧</span> Minum
             </button>
             <button onclick="bukaModal('modal-olahraga')" class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
-                <span class="text-lg">🏃</span> Latihan
+                <span class="text-lg">🏃</span> Olahraga
             </button>
         </div>
 
@@ -92,20 +97,20 @@
         </div>
     </div>
 
-    <!-- ================= MODAL LOADING ================= -->
+    <!-- ================= MODAL LOADING / PROSES AI ================= -->
     <div id="modal-loading" class="hidden fixed inset-0 bg-black bg-opacity-60 flex flex-col items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl p-6 text-center shadow-2xl max-w-xs w-full flex flex-col items-center">
             <div class="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"></div>
             <p class="font-bold text-gray-800 text-base">Gemini Menganalisis...</p>
-            <p class="text-xs text-gray-500 mt-1">Mengidentifikasi nutrisi lewat Supabase</p>
+            <p class="text-xs text-gray-500 mt-1">Memperkirakan kalori & makro dari foto</p>
         </div>
     </div>
 
-    <!-- ================= MODAL MAKAN MANUAL ================= -->
+    <!-- ================= MODAL CATAT MAKAN MANUAL ================= -->
     <div id="modal-makan" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl p-6 w-full max-w-sm">
             <h3 class="font-bold text-lg mb-4">Catat Makanan 🍽️</h3>
-            <input id="input-makanan" type="text" placeholder="Nama makanan (Mendoan, Nasi Campur)" class="w-full border rounded-lg p-3 mb-3 bg-gray-50">
+            <input id="input-makanan" type="text" placeholder="Nama makanan (Mendoan, Nasi Goreng)" class="w-full border rounded-lg p-3 mb-3 bg-gray-50">
             <input id="input-kalori" type="number" placeholder="Perkiraan Kalori (kcal)" class="w-full border rounded-lg p-3 mb-4 bg-gray-50">
             <div class="flex gap-2">
                 <button onclick="tutupModal('modal-makan')" class="w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 rounded-lg">Batal</button>
@@ -140,11 +145,11 @@
     </div>
 
     <!-- Script library Supabase -->
-    <script src="[https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2](https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2)"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
         // --- 1. INISIALISASI SUPABASE ---
-        const supabaseUrl = '[https://cvzjnrnnegdqoyuzkwhq.supabase.co](https://cvzjnrnnegdqoyuzkwhq.supabase.co)'; 
+        const supabaseUrl = 'https://cvzjnrnnegdqoyuzkwhq.supabase.co'; 
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2empucm5uZWdkcW95dXprd2hxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MTI4OTIsImV4cCI6MjEwNjA4ODg5Mn0.94FH2z2hhAdxF_1SNoqyhPtuWj8NHtHKzJXN9JgTais'; 
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
@@ -152,48 +157,89 @@
         let currentUser = null; 
         const TARGET_KALORI = 2000; 
 
-        // --- 2. AUTENTIKASI ---
-        async function loginDenganGoogle() {
-            const { error } = await supabaseClient.auth.signInWithOAuth({
-                provider: 'google',
-                options: { redirectTo: '[https://ngurahpagan1989-ui.github.io/THOR/](https://ngurahpagan1989-ui.github.io/THOR/)' }
-            });
-            if (error) alert("Gagal login: " + error.message);
+        // --- 2. MANAJEMEN GEMINI API KEY DI LOCALSTORAGE ---
+        function ambilApiKey() {
+            let key = localStorage.getItem("THOR_GEMINI_KEY");
+            if (!key) {
+                key = prompt("Masukkan Gemini API Key Anda untuk mengaktifkan AI Vision:");
+                if (key && key.trim() !== "") {
+                    localStorage.setItem("THOR_GEMINI_KEY", key.trim());
+                }
+            }
+            return key;
         }
 
-        async function logout() {
-            await supabaseClient.auth.signOut();
-            currentUser = null;
-            cekSesi();
+        function aturApiKey() {
+            const current = localStorage.getItem("THOR_GEMINI_KEY") || "";
+            const baru = prompt("Ubah atau perbarui Gemini API Key:", current);
+            if (baru !== null && baru.trim() !== "") {
+                localStorage.setItem("THOR_GEMINI_KEY", baru.trim());
+                alert("Gemini API Key berhasil disimpan di perangkat ini!");
+            }
         }
 
-        // --- 3. MODAL KONTROL ---
-        function bukaModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function tutupModal(id) { document.getElementById(id).classList.add('hidden'); }
+        // --- 3. KONTROL KAMERA & AI VISION ---
+        function bukaKamera() {
+            const key = ambilApiKey();
+            if (!key) {
+                alert("API Key diperlukan untuk memproses foto.");
+                return;
+            }
+            document.getElementById('camera-input').click();
+        }
 
-        // --- 4. PEMROSESAN KAMERA VIA EDGE FUNCTION (AMAN) ---
         async function prosesFotoMakanan(event) {
             const file = event.target.files[0];
             if (!file) return;
+
+            const apiKey = ambilApiKey();
+            if (!apiKey) return;
 
             bukaModal('modal-loading');
 
             try {
                 const base64Data = await resizeDanKonversiBase64(file);
 
-                const response = await fetch(`${supabaseUrl}/functions/v1/analyze-food`, {
+                const prompt = "Kamu adalah nutrisionis ahli. Analisis foto ini (makanan, minuman, atau kemasan berlabel). " +
+                               "Perkirakan nama item, total kalori (kcal), protein (g), karbohidrat (g), dan lemak (g). " +
+                               "WAJIB keluarkan HANYA JSON murni tanpa markdown: " +
+                               '{"food_name": "Nama Item", "calories": 250, "protein_g": 10, "carbs_g": 30, "fat_g": 5}';
+
+                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        image: base64Data,
-                        user_id: currentUser.id
+                        contents: [{
+                            parts: [
+                                { text: prompt },
+                                { inlineData: { mimeType: "image/jpeg", data: base64Data } }
+                            ]
+                        }],
+                        generationConfig: { responseMimeType: "application/json" }
                     })
                 });
 
-                const result = await response.json();
-                if (result.error) throw new Error(result.error);
+                const resJson = await response.json();
+                if (resJson.error) throw new Error(resJson.error.message || "Gagal dari API Gemini");
 
-                alert(`✅ Berhasil dicatat: ${result.item.food_name} (${result.item.calories} kcal)`);
+                const rawText = resJson.candidates[0].content.parts[0].text;
+                const aiData = JSON.parse(rawText.replace(/```json/g, "").replace(/```/g, "").trim());
+
+                // Simpan langsung ke database Supabase
+                const { error: dbError } = await supabaseClient.from('food_logs').insert([{
+                    user_id: currentUser.id,
+                    food_name: aiData.food_name || "Makanan Terdeteksi",
+                    calories: Number(aiData.calories) || 0,
+                    protein_g: Number(aiData.protein_g) || 0,
+                    carbs_g: Number(aiData.carbs_g) || 0,
+                    fat_g: Number(aiData.fat_g) || 0
+                }]);
+
+                if (dbError) throw dbError;
+
+                alert(`✅ Makanan Tercatat!\n🍽️ ${aiData.food_name}\n🔥 ${aiData.calories} kcal`);
                 loadDataHariIni();
 
             } catch (err) {
@@ -204,6 +250,7 @@
             }
         }
 
+        // Kompres foto ke resolusi max 800px agar respons cepat
         function resizeDanKonversiBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -239,7 +286,26 @@
             });
         }
 
-        // --- 5. FUNGSI SIMPAN MANUAL ---
+        // --- 4. AUTENTIKASI ---
+        async function loginDenganGoogle() {
+            const { error } = await supabaseClient.auth.signInWithOAuth({
+                provider: 'google',
+                options: { redirectTo: 'https://ngurahpagan1989-ui.github.io/THOR/' }
+            });
+            if (error) alert("Gagal login: " + error.message);
+        }
+
+        async function logout() {
+            await supabaseClient.auth.signOut();
+            currentUser = null;
+            cekSesi();
+        }
+
+        // --- 5. MODAL KONTROL ---
+        function bukaModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function tutupModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        // --- 6. SIMPAN DATA MANUAL ---
         async function simpanMakan() {
             const nama = document.getElementById('input-makanan').value;
             const kalori = document.getElementById('input-kalori').value;
@@ -290,7 +356,7 @@
             }
         }
 
-        // --- 6. MEMUAT DATA HARIAN ---
+        // --- 7. LOAD DATA HARIAN ---
         async function loadDataHariIni() {
             if (!currentUser) return;
             
@@ -350,7 +416,7 @@
             }
         }
 
-        // --- 7. GRAFIK SPIDOMETER ---
+        // --- 8. GRAFIK SPIDOMETER ---
         function renderGrafik(kaloriMasuk, targetKalori) {
             const ctx = document.getElementById('calorieChart').getContext('2d');
             const sisaKalori = targetKalori - kaloriMasuk;
@@ -379,7 +445,7 @@
             document.getElementById('sisa-kalori').innerText = sisaKalori > 0 ? sisaKalori : 0;
         }
 
-        // --- 8. PENGECEKAN SESI ---
+        // --- 9. PENGECEKAN SESI ---
         async function cekSesi() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             const loginView = document.getElementById('login-view');
