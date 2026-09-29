@@ -157,7 +157,6 @@
         function tutupModal(id) { document.getElementById(id).classList.add('hidden'); }
 
         // --- 4. FUNGSI SIMPAN DATA (CRUD) ---
-        
         async function simpanMakan() {
             const nama = document.getElementById('input-makanan').value;
             const kalori = document.getElementById('input-kalori').value;
@@ -216,7 +215,6 @@
             const startOfDay = `${today}T00:00:00.000Z`;
             const endOfDay = `${today}T23:59:59.999Z`;
 
-            // Eksekusi 3 query berbarengan agar lebih cepat
             const [reqAir, reqMakan, reqOlahraga] = await Promise.all([
                 supabaseClient.from('water_logs').select('*').eq('user_id', currentUser.id).gte('logged_at', startOfDay).lte('logged_at', endOfDay),
                 supabaseClient.from('food_logs').select('*').eq('user_id', currentUser.id).gte('logged_at', startOfDay).lte('logged_at', endOfDay),
@@ -224,7 +222,7 @@
             ]);
 
             let totalWater = 0, totalCalIn = 0, totalPro = 0, totalCarb = 0, totalFat = 0;
-            let riwayatGabungan = []; // Tempat menampung data untuk list di UI
+            let riwayatGabungan = [];
 
             if (reqAir.data) reqAir.data.forEach(w => {
                 totalWater += w.amount_ml;
@@ -240,11 +238,9 @@
             });
 
             if (reqOlahraga.data) reqOlahraga.data.forEach(e => {
-                // Kalori olahraga tidak mengurangi totalCalIn (kalori masuk), tapi bisa ditampilkan di UI
                 riwayatGabungan.push({ waktu: e.logged_at, teks: `🏃 ${e.exercise_name} (-${e.calories_burned} kcal)`, warna: 'text-orange-600' });
             });
 
-            // Update UI Dasbor
             document.getElementById('water-val').innerText = (totalWater / 1000).toFixed(1) + ' L';
             document.getElementById('protein-val').innerText = totalPro + ' g';
             document.getElementById('carbo-val').innerText = totalCarb + ' g';
@@ -252,16 +248,13 @@
 
             renderGrafik(totalCalIn, TARGET_KALORI);
 
-            // Render Daftar Riwayat
             const ulRiwayat = document.getElementById('history-list');
-            ulRiwayat.innerHTML = ''; // Kosongkan daftar lama
+            ulRiwayat.innerHTML = '';
             
             if (riwayatGabungan.length === 0) {
                 ulRiwayat.innerHTML = `<li class="text-gray-400 text-center italic text-xs py-2">Belum ada aktivitas hari ini.</li>`;
             } else {
-                // Urutkan riwayat dari yang paling baru
                 riwayatGabungan.sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
-                
                 riwayatGabungan.forEach(item => {
                     const jam = new Date(item.waktu).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
                     ulRiwayat.innerHTML += `
@@ -303,7 +296,7 @@
             document.getElementById('sisa-kalori').innerText = sisaKalori > 0 ? sisaKalori : 0;
         }
 
-        // --- 7. PENGECEKAN SESI AWAL ---
+        // --- 7. PENGECEKAN SESI ---
         async function cekSesi() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             const loginView = document.getElementById('login-view');
@@ -313,7 +306,7 @@
                 currentUser = session.user;
                 loginView.classList.add('hidden');
                 dashboardView.classList.remove('hidden');
-                document.getElementById('user-name').innerText = session.user.user_metadata.full_name.split(" ")[0]; 
+                document.getElementById('user-name').innerText = session.user.user_metadata.full_name ? session.user.user_metadata.full_name.split(" ")[0] : 'User'; 
                 loadDataHariIni(); 
             } else {
                 loginView.classList.remove('hidden');
