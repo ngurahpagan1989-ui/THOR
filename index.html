@@ -45,12 +45,14 @@
         
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // 2. Fungsi Login dengan Google (Versi GitHub Pages)
+        // 2. Fungsi Login dengan Google (Versi GitHub Pages /THOR)
         async function loginDenganGoogle() {
             const { data, error } = await supabaseClient.auth.signInWithOAuth({
-                provider: 'google'
-                // Opsi redirectTo sengaja dihapus agar Supabase otomatis 
-                // mengembalikan pengguna ke alamat website asalnya (GitHub Pages)
+                provider: 'google',
+                options: {
+                    // Paksa redirect kembali secara spesifik ke URL GitHub Pages-mu
+                    redirectTo: 'https://ngurahpagan1989-ui.github.io/THOR/'
+                }
             });
             
             if (error) {
