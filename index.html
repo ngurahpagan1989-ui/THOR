@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THOR - Tracker Kesehatan</title>
-    <!-- Tailwind CSS untuk desain cepat & rapi -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js untuk grafik lingkaran -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 font-sans">
@@ -23,7 +21,6 @@
     <!-- ================= LAYAR DASHBOARD ================= -->
     <div id="dashboard-view" class="hidden bg-white rounded-xl shadow-lg w-full max-w-md overflow-hidden">
         
-        <!-- Header Profil -->
         <div class="bg-blue-600 p-5 text-white flex justify-between items-center">
             <div>
                 <p class="text-sm opacity-80">Halo,</p>
@@ -34,12 +31,10 @@
             </button>
         </div>
 
-        <!-- Area Grafik Setengah Lingkaran -->
         <div class="p-6 text-center">
             <h3 class="text-gray-600 font-semibold mb-2">Sisa Kalori Harian</h3>
             <div class="relative w-48 h-48 mx-auto">
                 <canvas id="calorieChart"></canvas>
-                <!-- Angka di tengah grafik -->
                 <div class="absolute inset-0 flex flex-col items-center justify-center mt-10">
                     <span id="sisa-kalori" class="text-3xl font-bold text-gray-800">1200</span>
                     <span class="text-xs text-gray-500">kcal</span>
@@ -47,7 +42,6 @@
             </div>
         </div>
 
-        <!-- Area Makronutrisi & Air -->
         <div class="grid grid-cols-4 gap-2 border-t border-gray-100 p-4 text-center">
             <div class="bg-blue-50 rounded-lg p-2">
                 <p class="text-xs text-gray-500">Air</p>
@@ -67,14 +61,17 @@
             </div>
         </div>
 
-        <!-- Tombol Aksi Cepat -->
+        <!-- Tombol Aksi Cepat dengan fungsi onClick terpasang -->
         <div class="p-4 grid grid-cols-3 gap-2 border-t border-gray-100">
             <button class="bg-gray-800 hover:bg-gray-900 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
                 <span>🍽️</span> Makan
             </button>
-            <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
-                <span>💧</span> Minum
+            
+            <!-- Tombol Minum kini memanggil fungsi addWater(250) saat diklik -->
+            <button onclick="addWater(250)" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
+                <span>💧</span> Minum (+250ml)
             </button>
+            
             <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
                 <span>🏃</span> Olahraga
             </button>
@@ -86,12 +83,13 @@
     
     <script>
         // --- 1. INISIALISASI SUPABASE ---
+        // Catatan: Hapus bagian '/rest/v1/' dari URL karena supabase-js v2 sudah menangani itu
         const supabaseUrl = 'https://cvzjnrnnegdqoyuzkwhq.supabase.co'; 
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2empucm5uZWdkcW95dXprd2hxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MTI4OTIsImV4cCI6MjEwNjA4ODg5Mn0.94FH2z2hhAdxF_1SNoqyhPtuWj8NHtHKzJXN9JgTais'; 
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // Variabel global untuk menampung objek grafik agar bisa di-update nanti
         let myChart = null;
+        let currentUser = null; // Menyimpan data pengguna aktif
 
         // --- 2. FUNGSI AUTENTIKASI ---
         async function loginDenganGoogle() {
@@ -106,15 +104,38 @@
 
         async function logout() {
             await supabaseClient.auth.signOut();
+            currentUser = null;
             cekSesi();
         }
 
-        // --- 3. FUNGSI RENDER GRAFIK SPIDOMETER ---
+        // --- 3. FUNGSI LOGIKA APLIKASI (Tambahan dari app.js) ---
+        // Fungsi untuk mencatat asupan air
+        async function addWater(amount) {
+            if (!currentUser) {
+                alert('Silakan login terlebih dahulu!');
+                return;
+            }
+
+            // Gunakan insert seperti pada app.js, namun ambil user_id daricurrentUser
+            const { data, error } = await supabaseClient
+                .from('water_logs')
+                .insert([
+                    { user_id: currentUser.id, amount_ml: amount } 
+                ]);
+                
+            if (error) {
+                console.error('Gagal mencatat air:', error);
+                alert(`Gagal menambah data! Pesan: ${error.message}`);
+            } else {
+                alert(`Berhasil menambah ${amount}ml air!`);
+            }
+        }
+
+        // --- 4. FUNGSI RENDER GRAFIK SPIDOMETER ---
         function renderGrafik(kaloriMasuk, targetKalori) {
             const ctx = document.getElementById('calorieChart').getContext('2d');
             const sisaKalori = targetKalori - kaloriMasuk;
             
-            // Hapus grafik lama jika ada (mencegah tumpang tindih saat refresh)
             if (myChart != null) {
                 myChart.destroy();
             }
@@ -125,11 +146,11 @@
                     labels: ['Terpakai', 'Sisa'],
                     datasets: [{
                         data: [kaloriMasuk, sisaKalori > 0 ? sisaKalori : 0],
-                        backgroundColor: ['#3b82f6', '#e5e7eb'], // Biru untuk terpakai, Abu untuk sisa
+                        backgroundColor: ['#3b82f6', '#e5e7eb'], 
                         borderWidth: 0,
                         cutout: '75%',
-                        circumference: 180, // Membuatnya jadi setengah lingkaran
-                        rotation: 270       // Memutar posisinya ke atas
+                        circumference: 180,
+                        rotation: 270      
                     }]
                 },
                 options: {
@@ -142,11 +163,10 @@
                 }
             });
 
-            // Update teks angka di tengah grafik
             document.getElementById('sisa-kalori').innerText = sisaKalori > 0 ? sisaKalori : 0;
         }
 
-        // --- 4. PENGECEKAN SESI & UI ---
+        // --- 5. PENGECEKAN SESI & UI ---
         async function cekSesi() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             
@@ -154,19 +174,17 @@
             const dashboardView = document.getElementById('dashboard-view');
 
             if (session) {
-                // Sembunyikan login, tampilkan dashboard
+                // Simpan profil pengguna untuk digunakan di fungsi addWater
+                currentUser = session.user;
+                
                 loginView.classList.add('hidden');
                 dashboardView.classList.remove('hidden');
                 
-                // Set data profil
-                document.getElementById('user-name').innerText = session.user.user_metadata.full_name.split(" ")[0]; // Ambil nama depan saja
+                document.getElementById('user-name').innerText = session.user.user_metadata.full_name.split(" ")[0]; 
                 
-                // Render grafik dengan data statis (Dummy Data sementara)
-                // Nanti angka ini kita tarik dari database Supabase
                 renderGrafik(800, 2000); 
 
             } else {
-                // Tampilkan login, sembunyikan dashboard
                 loginView.classList.remove('hidden');
                 dashboardView.classList.add('hidden');
             }
