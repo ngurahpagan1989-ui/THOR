@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THOR - Tracker Kesehatan</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+    <script src="[https://cdn.jsdelivr.net/npm/chart.js](https://cdn.jsdelivr.net/npm/chart.js)"></script>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 font-sans text-gray-800">
 
     <!-- ================= LAYAR LOGIN ================= -->
     <div id="login-view" class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md text-center">
         <h2 class="text-3xl font-bold text-gray-800 mb-2">THOR</h2>
-        <p class="text-gray-500 mb-6">Tracker Kesehatan IDEP</p>
+        <p class="text-gray-500 mb-6">Tracker Kesehatan Mandiri</p>
         <button onclick="loginDenganGoogle()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200">
             Login dengan Google
         </button>
@@ -64,16 +64,22 @@
             </div>
         </div>
 
+        <!-- Input Kamera Tersembunyi -->
+        <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" onchange="prosesFotoMakanan(event)">
+
         <!-- Tombol Aksi Cepat -->
-        <div class="p-4 grid grid-cols-3 gap-2 border-t border-gray-100">
+        <div class="p-4 grid grid-cols-4 gap-2 border-t border-gray-100">
+            <button onclick="document.getElementById('camera-input').click()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
+                <span class="text-lg">📸</span> Scan AI
+            </button>
             <button onclick="bukaModal('modal-makan')" class="bg-gray-800 hover:bg-gray-900 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
-                <span class="text-lg">🍽️</span> Makan
+                <span class="text-lg">🍽️</span> Manual
             </button>
             <button onclick="bukaModal('modal-minum')" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
                 <span class="text-lg">💧</span> Minum
             </button>
             <button onclick="bukaModal('modal-olahraga')" class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
-                <span class="text-lg">🏃</span> Olahraga
+                <span class="text-lg">🏃</span> Latihan
             </button>
         </div>
 
@@ -86,11 +92,20 @@
         </div>
     </div>
 
-    <!-- ================= MODAL MAKAN ================= -->
+    <!-- ================= MODAL LOADING ================= -->
+    <div id="modal-loading" class="hidden fixed inset-0 bg-black bg-opacity-60 flex flex-col items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 text-center shadow-2xl max-w-xs w-full flex flex-col items-center">
+            <div class="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p class="font-bold text-gray-800 text-base">Gemini Menganalisis...</p>
+            <p class="text-xs text-gray-500 mt-1">Mengidentifikasi nutrisi lewat Supabase</p>
+        </div>
+    </div>
+
+    <!-- ================= MODAL MAKAN MANUAL ================= -->
     <div id="modal-makan" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl p-6 w-full max-w-sm">
             <h3 class="font-bold text-lg mb-4">Catat Makanan 🍽️</h3>
-            <input id="input-makanan" type="text" placeholder="Nama makanan (Mendoan, Nasi Goreng)" class="w-full border rounded-lg p-3 mb-3 bg-gray-50">
+            <input id="input-makanan" type="text" placeholder="Nama makanan (Mendoan, Nasi Campur)" class="w-full border rounded-lg p-3 mb-3 bg-gray-50">
             <input id="input-kalori" type="number" placeholder="Perkiraan Kalori (kcal)" class="w-full border rounded-lg p-3 mb-4 bg-gray-50">
             <div class="flex gap-2">
                 <button onclick="tutupModal('modal-makan')" class="w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 rounded-lg">Batal</button>
@@ -125,11 +140,11 @@
     </div>
 
     <!-- Script library Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="[https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2](https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2)"></script>
     
     <script>
         // --- 1. INISIALISASI SUPABASE ---
-        const supabaseUrl = 'https://cvzjnrnnegdqoyuzkwhq.supabase.co'; 
+        const supabaseUrl = '[https://cvzjnrnnegdqoyuzkwhq.supabase.co](https://cvzjnrnnegdqoyuzkwhq.supabase.co)'; 
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2empucm5uZWdkcW95dXprd2hxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MTI4OTIsImV4cCI6MjEwNjA4ODg5Mn0.94FH2z2hhAdxF_1SNoqyhPtuWj8NHtHKzJXN9JgTais'; 
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
@@ -137,11 +152,11 @@
         let currentUser = null; 
         const TARGET_KALORI = 2000; 
 
-        // --- 2. FUNGSI AUTENTIKASI ---
+        // --- 2. AUTENTIKASI ---
         async function loginDenganGoogle() {
             const { error } = await supabaseClient.auth.signInWithOAuth({
                 provider: 'google',
-                options: { redirectTo: 'https://ngurahpagan1989-ui.github.io/THOR/' }
+                options: { redirectTo: '[https://ngurahpagan1989-ui.github.io/THOR/](https://ngurahpagan1989-ui.github.io/THOR/)' }
             });
             if (error) alert("Gagal login: " + error.message);
         }
@@ -152,11 +167,79 @@
             cekSesi();
         }
 
-        // --- 3. KONTROL MODAL ---
+        // --- 3. MODAL KONTROL ---
         function bukaModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function tutupModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-        // --- 4. FUNGSI SIMPAN DATA (CRUD) ---
+        // --- 4. PEMROSESAN KAMERA VIA EDGE FUNCTION (AMAN) ---
+        async function prosesFotoMakanan(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            bukaModal('modal-loading');
+
+            try {
+                const base64Data = await resizeDanKonversiBase64(file);
+
+                const response = await fetch(`${supabaseUrl}/functions/v1/analyze-food`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        image: base64Data,
+                        user_id: currentUser.id
+                    })
+                });
+
+                const result = await response.json();
+                if (result.error) throw new Error(result.error);
+
+                alert(`✅ Berhasil dicatat: ${result.item.food_name} (${result.item.calories} kcal)`);
+                loadDataHariIni();
+
+            } catch (err) {
+                alert("Gagal memproses foto: " + err.message);
+            } finally {
+                tutupModal('modal-loading');
+                event.target.value = '';
+            }
+        }
+
+        function resizeDanKonversiBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (readerEvent) => {
+                    const img = new Image();
+                    img.src = readerEvent.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const maxDim = 800;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height && width > maxDim) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        } else if (height > maxDim) {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                        resolve(dataUrl.split(',')[1]);
+                    };
+                    img.onerror = (e) => reject(e);
+                };
+                reader.onerror = (e) => reject(e);
+            });
+        }
+
+        // --- 5. FUNGSI SIMPAN MANUAL ---
         async function simpanMakan() {
             const nama = document.getElementById('input-makanan').value;
             const kalori = document.getElementById('input-kalori').value;
@@ -207,7 +290,7 @@
             }
         }
 
-        // --- 5. TARIK DATA & RENDER RIWAYAT ---
+        // --- 6. MEMUAT DATA HARIAN ---
         async function loadDataHariIni() {
             if (!currentUser) return;
             
@@ -267,7 +350,7 @@
             }
         }
 
-        // --- 6. RENDER GRAFIK SPIDOMETER ---
+        // --- 7. GRAFIK SPIDOMETER ---
         function renderGrafik(kaloriMasuk, targetKalori) {
             const ctx = document.getElementById('calorieChart').getContext('2d');
             const sisaKalori = targetKalori - kaloriMasuk;
@@ -296,7 +379,7 @@
             document.getElementById('sisa-kalori').innerText = sisaKalori > 0 ? sisaKalori : 0;
         }
 
-        // --- 7. PENGECEKAN SESI ---
+        // --- 8. PENGECEKAN SESI ---
         async function cekSesi() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             const loginView = document.getElementById('login-view');
