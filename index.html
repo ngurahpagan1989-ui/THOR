@@ -31,48 +31,47 @@
             </button>
         </div>
 
+        <!-- Area Grafik Setengah Lingkaran -->
         <div class="p-6 text-center">
             <h3 class="text-gray-600 font-semibold mb-2">Sisa Kalori Harian</h3>
             <div class="relative w-48 h-48 mx-auto">
                 <canvas id="calorieChart"></canvas>
                 <div class="absolute inset-0 flex flex-col items-center justify-center mt-10">
-                    <span id="sisa-kalori" class="text-3xl font-bold text-gray-800">1200</span>
+                    <span id="sisa-kalori" class="text-3xl font-bold text-gray-800">0</span>
                     <span class="text-xs text-gray-500">kcal</span>
                 </div>
             </div>
         </div>
 
+        <!-- Area Makronutrisi & Air (Dilengkapi ID agar bisa di-update) -->
         <div class="grid grid-cols-4 gap-2 border-t border-gray-100 p-4 text-center">
             <div class="bg-blue-50 rounded-lg p-2">
                 <p class="text-xs text-gray-500">Air</p>
-                <p class="font-bold text-blue-600 text-sm">1.5L</p>
+                <p id="water-val" class="font-bold text-blue-600 text-sm">0 L</p>
             </div>
             <div class="bg-red-50 rounded-lg p-2">
                 <p class="text-xs text-gray-500">Protein</p>
-                <p class="font-bold text-red-600 text-sm">45g</p>
+                <p id="protein-val" class="font-bold text-red-600 text-sm">0 g</p>
             </div>
             <div class="bg-yellow-50 rounded-lg p-2">
                 <p class="text-xs text-gray-500">Karbo</p>
-                <p class="font-bold text-yellow-600 text-sm">150g</p>
+                <p id="carbo-val" class="font-bold text-yellow-600 text-sm">0 g</p>
             </div>
             <div class="bg-green-50 rounded-lg p-2">
                 <p class="text-xs text-gray-500">Lemak</p>
-                <p class="font-bold text-green-600 text-sm">30g</p>
+                <p id="fat-val" class="font-bold text-green-600 text-sm">0 g</p>
             </div>
         </div>
 
-        <!-- Tombol Aksi Cepat dengan fungsi onClick terpasang -->
+        <!-- Tombol Aksi Cepat -->
         <div class="p-4 grid grid-cols-3 gap-2 border-t border-gray-100">
-            <button class="bg-gray-800 hover:bg-gray-900 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
+            <button onclick="addFood()" class="bg-gray-800 hover:bg-gray-900 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
                 <span>🍽️</span> Makan
             </button>
-            
-            <!-- Tombol Minum kini memanggil fungsi addWater(250) saat diklik -->
             <button onclick="addWater(250)" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
-                <span>💧</span> Minum (+250ml)
+                <span>💧</span> Minum
             </button>
-            
-            <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
+            <button onclick="addExercise()" class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center gap-1 transition">
                 <span>🏃</span> Olahraga
             </button>
         </div>
@@ -83,21 +82,19 @@
     
     <script>
         // --- 1. INISIALISASI SUPABASE ---
-        // Catatan: Hapus bagian '/rest/v1/' dari URL karena supabase-js v2 sudah menangani itu
         const supabaseUrl = 'https://cvzjnrnnegdqoyuzkwhq.supabase.co'; 
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2empucm5uZWdkcW95dXprd2hxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MTI4OTIsImV4cCI6MjEwNjA4ODg5Mn0.94FH2z2hhAdxF_1SNoqyhPtuWj8NHtHKzJXN9JgTais'; 
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
         let myChart = null;
-        let currentUser = null; // Menyimpan data pengguna aktif
+        let currentUser = null; 
+        const TARGET_KALORI = 2000; // Target statis sementara
 
         // --- 2. FUNGSI AUTENTIKASI ---
         async function loginDenganGoogle() {
             const { error } = await supabaseClient.auth.signInWithOAuth({
                 provider: 'google',
-                options: {
-                    redirectTo: 'https://ngurahpagan1989-ui.github.io/THOR/'
-                }
+                options: { redirectTo: 'https://ngurahpagan1989-ui.github.io/THOR/' }
             });
             if (error) alert("Gagal login: " + error.message);
         }
@@ -108,37 +105,129 @@
             cekSesi();
         }
 
-        // --- 3. FUNGSI LOGIKA APLIKASI (Tambahan dari app.js) ---
-        // Fungsi untuk mencatat asupan air
+        // --- 3. FUNGSI LOGIKA APLIKASI (CRUD) ---
+        
+        // A. Tambah Minum
         async function addWater(amount) {
-            if (!currentUser) {
-                alert('Silakan login terlebih dahulu!');
-                return;
-            }
-
-            // Gunakan insert seperti pada app.js, namun ambil user_id daricurrentUser
-            const { data, error } = await supabaseClient
+            if (!currentUser) return alert('Silakan login terlebih dahulu!');
+            
+            const { error } = await supabaseClient
                 .from('water_logs')
-                .insert([
-                    { user_id: currentUser.id, amount_ml: amount } 
-                ]);
+                .insert([{ user_id: currentUser.id, amount_ml: amount }]);
                 
-            if (error) {
-                console.error('Gagal mencatat air:', error);
-                alert(`Gagal menambah data! Pesan: ${error.message}`);
-            } else {
+            if (error) alert(`Gagal: ${error.message}`);
+            else {
                 alert(`Berhasil menambah ${amount}ml air!`);
+                loadDataHariIni(); // Segarkan dashboard
             }
         }
 
-        // --- 4. FUNGSI RENDER GRAFIK SPIDOMETER ---
+        // B. Tambah Makan
+        async function addFood() {
+            if (!currentUser) return alert('Silakan login terlebih dahulu!');
+            
+            const foodName = prompt("Apa yang kamu makan? (contoh: Nasi Goreng)");
+            if (!foodName) return; // Batal jika kosong
+            
+            const calories = prompt(`Berapa perkiraan kalori ${foodName}? (masukkan angka saja, misal: 400)`);
+            if (!calories || isNaN(calories)) return alert('Kalori harus berupa angka!');
+
+            const { error } = await supabaseClient
+                .from('food_logs')
+                .insert([{ 
+                    user_id: currentUser.id, 
+                    food_name: foodName, 
+                    calories: parseInt(calories) 
+                }]);
+                
+            if (error) alert(`Gagal: ${error.message}`);
+            else {
+                alert('Makanan berhasil dicatat!');
+                loadDataHariIni(); 
+            }
+        }
+
+        // C. Tambah Olahraga
+        async function addExercise() {
+            if (!currentUser) return alert('Silakan login terlebih dahulu!');
+            
+            const exerciseName = prompt("Olahraga apa hari ini? (contoh: Lari pagi)");
+            if (!exerciseName) return;
+            
+            const burned = prompt("Berapa kalori yang terbakar? (angka saja)");
+            if (!burned || isNaN(burned)) return alert('Kalori harus berupa angka!');
+
+            // Menggunakan nilai default 30 menit jika tidak diisi karena kolom duration_minutes wajib diisi
+            const { error } = await supabaseClient
+                .from('exercise_logs')
+                .insert([{ 
+                    user_id: currentUser.id, 
+                    exercise_name: exerciseName, 
+                    calories_burned: parseInt(burned),
+                    duration_minutes: 30 
+                }]);
+                
+            if (error) alert(`Gagal: ${error.message}`);
+            else {
+                alert('Olahraga berhasil dicatat!');
+                loadDataHariIni();
+            }
+        }
+
+        // --- 4. FUNGSI TARIK DATA (REAL-TIME DASHBOARD) ---
+        async function loadDataHariIni() {
+            if (!currentUser) return;
+            
+            // Dapatkan rentang waktu hari ini (mulai jam 00:00 sampai 23:59)
+            const today = new Date().toISOString().split('T')[0];
+            const startOfDay = `${today}T00:00:00.000Z`;
+            const endOfDay = `${today}T23:59:59.999Z`;
+
+            // A. Tarik Data Air
+            const { data: waterData } = await supabaseClient
+                .from('water_logs')
+                .select('amount_ml')
+                .eq('user_id', currentUser.id)
+                .gte('logged_at', startOfDay)
+                .lte('logged_at', endOfDay);
+            
+            let totalWater = 0;
+            if (waterData) waterData.forEach(w => totalWater += w.amount_ml);
+
+            // B. Tarik Data Makanan
+            const { data: foodData } = await supabaseClient
+                .from('food_logs')
+                .select('calories, protein_g, carbs_g, fat_g')
+                .eq('user_id', currentUser.id)
+                .gte('logged_at', startOfDay)
+                .lte('logged_at', endOfDay);
+
+            let totalCalIn = 0, totalPro = 0, totalCarb = 0, totalFat = 0;
+            if (foodData) {
+                foodData.forEach(f => {
+                    totalCalIn += Number(f.calories);
+                    totalPro += Number(f.protein_g);
+                    totalCarb += Number(f.carbs_g);
+                    totalFat += Number(f.fat_g);
+                });
+            }
+
+            // Perbarui UI Dasbor
+            document.getElementById('water-val').innerText = (totalWater / 1000).toFixed(1) + ' L';
+            document.getElementById('protein-val').innerText = totalPro + ' g';
+            document.getElementById('carbo-val').innerText = totalCarb + ' g';
+            document.getElementById('fat-val').innerText = totalFat + ' g';
+
+            // Perbarui Grafik
+            renderGrafik(totalCalIn, TARGET_KALORI);
+        }
+
+        // --- 5. FUNGSI RENDER GRAFIK SPIDOMETER ---
         function renderGrafik(kaloriMasuk, targetKalori) {
             const ctx = document.getElementById('calorieChart').getContext('2d');
             const sisaKalori = targetKalori - kaloriMasuk;
             
-            if (myChart != null) {
-                myChart.destroy();
-            }
+            if (myChart != null) myChart.destroy();
 
             myChart = new Chart(ctx, {
                 type: 'doughnut',
@@ -156,34 +245,27 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { enabled: true }
-                    }
+                    plugins: { legend: { display: false }, tooltip: { enabled: true } }
                 }
             });
 
             document.getElementById('sisa-kalori').innerText = sisaKalori > 0 ? sisaKalori : 0;
         }
 
-        // --- 5. PENGECEKAN SESI & UI ---
+        // --- 6. PENGECEKAN SESI AWAL ---
         async function cekSesi() {
             const { data: { session } } = await supabaseClient.auth.getSession();
-            
             const loginView = document.getElementById('login-view');
             const dashboardView = document.getElementById('dashboard-view');
 
             if (session) {
-                // Simpan profil pengguna untuk digunakan di fungsi addWater
                 currentUser = session.user;
-                
                 loginView.classList.add('hidden');
                 dashboardView.classList.remove('hidden');
-                
                 document.getElementById('user-name').innerText = session.user.user_metadata.full_name.split(" ")[0]; 
                 
-                renderGrafik(800, 2000); 
-
+                // Segarkan data dasbor begitu berhasil login
+                loadDataHariIni(); 
             } else {
                 loginView.classList.remove('hidden');
                 dashboardView.classList.add('hidden');
