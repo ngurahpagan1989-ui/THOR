@@ -205,7 +205,7 @@
                                "WAJIB keluarkan HANYA JSON murni tanpa markdown: " +
                                '{"food_name": "Nama Item", "calories": 250, "protein_g": 10, "carbs_g": 30, "fat_g": 5}';
 
-                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(endpoint, {
                     method: 'POST',
