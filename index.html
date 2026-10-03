@@ -207,83 +207,216 @@
         </div>
     </div>
 
-    <!-- ================= MODAL ADVANCED WORKOUT MODULE (4-IN-1 TACTICAL) ================= -->
-    <div id="modal-olahraga" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 z-50">
+    <!-- ================= MODAL ADVANCED WORKOUT ENGINE (STRENGTH & CARDIO DUAL-MODE) ================= -->
+    <div id="modal-olahraga" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 z-50">
         <div class="bg-zinc-950 rounded-3xl p-5 sm:p-6 w-full max-w-sm shadow-2xl border border-zinc-800 font-mono max-h-[92vh] overflow-y-auto">
             
+            <!-- Header Modal -->
             <div class="flex justify-between items-center mb-3">
                 <h3 class="font-extrabold text-sm text-white flex items-center gap-1.5">
-                    <span class="text-orange-500">🏃</span> TACTICAL WORKOUT MODULE
+                    <span class="text-orange-500">⚡</span> WORKOUT ENGINE
                 </h3>
-                <span class="text-[9px] bg-orange-950/60 border border-orange-500/40 text-orange-400 px-2 py-0.5 rounded-md font-bold">MET ENGINE</span>
+                <span id="workout-engine-badge" class="text-[9px] bg-orange-950/60 border border-orange-500/40 text-orange-400 px-2 py-0.5 rounded-md font-bold">SMART MET</span>
             </div>
 
-            <!-- 1. AI SMART INPUT (NATURAL LANGUAGE VIA GEMINI) -->
+            <!-- TAB SWITCHER: STRENGTH VS CARDIO -->
+            <div class="grid grid-cols-2 gap-1.5 bg-zinc-900 p-1 rounded-2xl border border-zinc-800 mb-3.5">
+                <button type="button" id="tab-btn-strength" onclick="switchWorkoutTab('strength')" class="py-2 rounded-xl text-xs font-bold transition bg-orange-600 text-white shadow-md">
+                    🏋️ STRENGTH
+                </button>
+                <button type="button" id="tab-btn-cardio" onclick="switchWorkoutTab('cardio')" class="py-2 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-white">
+                    🏃 CARDIO
+                </button>
+            </div>
+
+            <!-- AI SMART INPUT (NATURAL LANGUAGE VIA GEMINI) -->
             <div class="mb-3.5 bg-zinc-900/60 p-2.5 rounded-2xl border border-zinc-800">
-                <label class="text-[9px] font-bold text-cyan-400 uppercase tracking-widest block mb-1">⚡ AI NATURAL LANGUAGE PARSER</label>
+                <label class="text-[9px] font-bold text-cyan-400 uppercase tracking-widest block mb-1">⚡ AI NLP PARSER</label>
                 <div class="flex gap-1.5">
-                    <input id="ai-workout-input" type="text" placeholder="Misal: dumbbell 35m 14kg 4 set & lari 15m" class="w-full bg-zinc-950 border border-zinc-700/80 rounded-xl px-2.5 py-2 text-white text-[11px] focus:outline-none focus:ring-1 focus:ring-cyan-500">
+                    <input id="ai-workout-input" type="text" placeholder="e.g. dumbbell 40m 14kg 4 set atau lari 5km 25m" class="w-full bg-zinc-950 border border-zinc-700/80 rounded-xl px-2.5 py-2 text-white text-[11px] focus:outline-none focus:ring-1 focus:ring-cyan-500">
                     <button type="button" onclick="parseWorkoutAi()" id="btn-parse-ai" class="bg-cyan-600 hover:bg-cyan-500 active:scale-95 text-white font-bold px-3 py-2 rounded-xl text-[10px] transition shrink-0 border border-cyan-400">
                         PARSE
                     </button>
                 </div>
             </div>
 
-            <!-- 2. QUICK PRESET CHIPS (MET CALCULATED) -->
-            <div class="mb-3.5">
-                <p class="text-[9px] font-bold text-zinc-500 mb-1.5 uppercase tracking-wider">TACTICAL PRESETS (AUTO-MET):</p>
-                <div class="grid grid-cols-2 gap-1.5 text-[11px]">
-                    <button type="button" onclick="pilihPreset('Dumbbell / Iron', 5.0, 40)" class="preset-chip border border-zinc-800 bg-zinc-900/60 hover:border-orange-500/50 text-zinc-300 py-1.5 px-2 rounded-xl text-left truncate transition">
-                        🏋️ Dumbbell (40m)
-                    </button>
-                    <button type="button" onclick="pilihPreset('Rucking / Walk', 3.8, 30)" class="preset-chip border border-zinc-800 bg-zinc-900/60 hover:border-orange-500/50 text-zinc-300 py-1.5 px-2 rounded-xl text-left truncate transition">
-                        🚶 Jalan Cepat (30m)
-                    </button>
-                    <button type="button" onclick="pilihPreset('Jogging / Run', 8.0, 30)" class="preset-chip border border-zinc-800 bg-zinc-900/60 hover:border-orange-500/50 text-zinc-300 py-1.5 px-2 rounded-xl text-left truncate transition">
-                        🏃 Lari (30m)
-                    </button>
-                    <button type="button" onclick="pilihPreset('HIIT / Circuit', 8.0, 20)" class="preset-chip border border-zinc-800 bg-zinc-900/60 hover:border-orange-500/50 text-zinc-300 py-1.5 px-2 rounded-xl text-left truncate transition">
-                        🥊 HIIT Burn (20m)
-                    </button>
-                </div>
-            </div>
-
-            <!-- 3. INPUT FORM UTAMA -->
-            <div class="space-y-2.5">
+            <!-- ================= KONTEN TAB 1: STRENGTH ================= -->
+            <div id="content-tab-strength" class="space-y-3">
+                <!-- Tactical Strength Presets -->
                 <div>
-                    <label class="text-[10px] font-bold text-zinc-400 uppercase">ACTIVITY NAME</label>
-                    <input id="input-olahraga" type="text" placeholder="e.g. Incline Dumbbell Curl" class="w-full border border-zinc-800 rounded-xl p-2.5 bg-zinc-900 text-white text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-orange-500 mt-1">
-                </div>
-
-                <!-- 4. DETAIL LATIHAN BEBAN (LOAD, SETS, REPS) -->
-                <div>
-                    <label class="text-[10px] font-bold text-zinc-400 uppercase">STRENGTH SPECS (OPTIONAL)</label>
-                    <div class="grid grid-cols-3 gap-1.5 mt-1">
-                        <div>
-                            <input id="input-beban" type="number" step="0.5" placeholder="Beban (kg)" class="w-full border border-zinc-800 rounded-xl p-2 bg-zinc-900 text-white text-xs text-center font-bold focus:outline-none focus:ring-1 focus:ring-orange-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-                        </div>
-                        <div>
-                            <input id="input-sets" type="number" placeholder="Sets" class="w-full border border-zinc-800 rounded-xl p-2 bg-zinc-900 text-white text-xs text-center font-bold focus:outline-none focus:ring-1 focus:ring-orange-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-                        </div>
-                        <div>
-                            <input id="input-reps" type="number" placeholder="Reps" class="w-full border border-zinc-800 rounded-xl p-2 bg-zinc-900 text-white text-xs text-center font-bold focus:outline-none focus:ring-1 focus:ring-orange-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-                        </div>
+                    <p class="text-[9px] font-bold text-zinc-500 mb-1.5 uppercase tracking-wider">STRENGTH PRESETS:</p>
+                    <div class="grid grid-cols-2 gap-1.5 text-[11px]">
+                        <button type="button" onclick="pilihPresetStrength('Dumbbell / Iron', 5.0, 40)" class="border border-zinc-800 bg-zinc-900/60 hover:border-orange-500/50 text-zinc-300 py-1.5 px-2 rounded-xl text-left truncate transition">
+                            🏋️ Dumbbell (40m)
+                        </button>
+                        <button type="button" onclick="pilihPresetStrength('Calisthenics / Bodyweight', 4.5, 30)" class="border border-zinc-800 bg-zinc-900/60 hover:border-orange-500/50 text-zinc-300 py-1.5 px-2 rounded-xl text-left truncate transition">
+                            🤸 Bodyweight (30m)
+                        </button>
+                        <button type="button" onclick="pilihPresetStrength('Heavy Gym Session', 5.5, 45)" class="border border-zinc-800 bg-zinc-900/60 hover:border-orange-500/50 text-zinc-300 py-1.5 px-2 rounded-xl text-left truncate transition">
+                            ⚡ Heavy Lift (45m)
+                        </button>
+                        <button type="button" onclick="pilihPresetStrength('HIIT Circuit', 8.0, 20)" class="border border-zinc-800 bg-zinc-900/60 hover:border-orange-500/50 text-zinc-300 py-1.5 px-2 rounded-xl text-left truncate transition">
+                            🥊 HIIT Burn (20m)
+                        </button>
                     </div>
                 </div>
 
-                <!-- DURASI & KALORI DENGAN MET ENGINE -->
+                <!-- Input Nama Gerakan -->
+                <div>
+                    <label class="text-[10px] font-bold text-zinc-400 uppercase">EXERCISE NAME</label>
+                    <input id="input-olahraga-strength" type="text" placeholder="e.g. Incline Dumbbell Curl" class="w-full border border-zinc-800 rounded-xl p-2.5 bg-zinc-900 text-white text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-orange-500 mt-1">
+                </div>
+
+                <!-- Spesifikasi Beban, Sets, Reps -->
+                <div>
+                    <label class="text-[10px] font-bold text-zinc-400 uppercase">LOAD & VOLUME SPECS</label>
+                    <div class="grid grid-cols-3 gap-1.5 mt-1">
+                        <input id="input-beban" type="number" step="0.5" placeholder="Load (kg)" class="w-full border border-zinc-800 rounded-xl p-2 bg-zinc-900 text-white text-xs text-center font-bold focus:outline-none focus:ring-1 focus:ring-orange-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                        <input id="input-sets" type="number" placeholder="Sets" class="w-full border border-zinc-800 rounded-xl p-2 bg-zinc-900 text-white text-xs text-center font-bold focus:outline-none focus:ring-1 focus:ring-orange-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                        <input id="input-reps" type="number" placeholder="Reps" class="w-full border border-zinc-800 rounded-xl p-2 bg-zinc-900 text-white text-xs text-center font-bold focus:outline-none focus:ring-1 focus:ring-orange-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                    </div>
+                </div>
+
+                <!-- Durasi & Kalori Strength -->
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-[10px] font-bold text-zinc-400 uppercase">DURATION (MIN)</label>
-                        <input id="input-durasi" type="number" value="30" oninput="hitungKaloriMet()" class="w-full border border-zinc-800 rounded-xl p-2.5 bg-zinc-900 text-white text-xs font-bold focus:outline-none focus:ring-1 focus:ring-orange-500 mt-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                        <input id="input-durasi-strength" type="number" value="30" oninput="hitungKaloriStrength()" class="w-full border border-zinc-800 rounded-xl p-2.5 bg-zinc-900 text-white text-xs font-bold focus:outline-none focus:ring-1 focus:ring-orange-500 mt-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
                     </div>
                     <div>
                         <label class="text-[10px] font-bold text-orange-400 uppercase">BURNED (KCAL)</label>
-                        <input id="input-bakar" type="number" placeholder="0" class="w-full border border-orange-500/40 rounded-xl p-2.5 bg-zinc-900 text-orange-400 text-xs font-black focus:outline-none focus:ring-1 focus:ring-orange-500 mt-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                        <input id="input-bakar-strength" type="number" placeholder="0" class="w-full border border-orange-500/40 rounded-xl p-2.5 bg-zinc-900 text-orange-400 text-xs font-black focus:outline-none focus:ring-1 focus:ring-orange-500 mt-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                    </div>
+                </div>
+
+                <!-- REST TIMER ANTAR-SET MODULE -->
+                <div class="bg-zinc-900/80 p-3 rounded-2xl border border-zinc-800">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="text-[9px] font-bold text-cyan-400 uppercase tracking-widest flex items-center gap-1.5">
+                            <span id="rest-status-dot" class="w-1.5 h-1.5 rounded-full bg-zinc-600"></span> REST TIMER ANTAR-SET
+                        </label>
+                        <span id="rest-mode-label" class="text-[9px] text-zinc-500 font-bold">READY</span>
+                    </div>
+
+                    <div class="text-center py-1.5 bg-zinc-950 rounded-xl border border-zinc-800/80 mb-2">
+                        <span id="rest-display" class="text-2xl font-black text-cyan-400 tracking-wider">01:00</span>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-1 mb-2 text-[10px]">
+                        <button type="button" onclick="setRestSec(30)" class="py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg border border-zinc-800">30s</button>
+                        <button type="button" onclick="setRestSec(60)" class="py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg border border-zinc-800">60s</button>
+                        <button type="button" onclick="setRestSec(90)" class="py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg border border-zinc-800">90s</button>
+                        <button type="button" onclick="setRestSec(120)" class="py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg border border-zinc-800">120s</button>
+                    </div>
+
+                    <div class="flex gap-1.5">
+                        <button type="button" id="btn-toggle-rest" onclick="toggleRestTimer()" class="w-2/3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold text-[11px] border border-cyan-400 transition active:scale-95">
+                            START REST
+                        </button>
+                        <button type="button" onclick="resetRestTimer()" class="w-1/3 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 rounded-xl font-bold text-[11px] border border-zinc-700 transition">
+                            RESET
+                        </button>
                     </div>
                 </div>
             </div>
 
+            <!-- ================= KONTEN TAB 2: CARDIO (RUN / WALK) ================= -->
+            <div id="content-tab-cardio" class="hidden space-y-3">
+                <!-- Cardio Presets -->
+                <div>
+                    <p class="text-[9px] font-bold text-zinc-500 mb-1.5 uppercase tracking-wider">CARDIO PRESETS:</p>
+                    <div class="grid grid-cols-2 gap-1.5 text-[11px]">
+                        <button type="button" onclick="pilihPresetCardio('Jalan Santai', 3.0, 30, 2.0)" class="border border-zinc-800 bg-zinc-900/60 hover:border-cyan-500/50 text-zinc-300 py-1.5 px-2 rounded-xl text-left truncate transition">
+                            🚶 Jalan Santai (2km)
+                        </button>
+                        <button type="button" onclick="pilihPresetCardio('Jalan Cepat / Ruck', 4.3, 30, 3.0)" class="border border-zinc-800 bg-zinc-900/60 hover:border-cyan-500/50 text-zinc-300 py-1.5 px-2 rounded-xl text-left truncate transition">
+                            🥾 Jalan Cepat (3km)
+                        </button>
+                        <button type="button" onclick="pilihPresetCardio('Jogging Pagi', 7.0, 30, 4.0)" class="border border-zinc-800 bg-zinc-900/60 hover:border-cyan-500/50 text-zinc-300 py-1.5 px-2 rounded-xl text-left truncate transition">
+                            🏃 Jogging (4km)
+                        </button>
+                        <button type="button" onclick="pilihPresetCardio('Lari Cepat / Run', 10.0, 25, 4.5)" class="border border-zinc-800 bg-zinc-900/60 hover:border-cyan-500/50 text-zinc-300 py-1.5 px-2 rounded-xl text-left truncate transition">
+                            ⚡ Lari Cepat (4.5km)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Input Nama Aktivitas Kardio -->
+                <div>
+                    <label class="text-[10px] font-bold text-zinc-400 uppercase">ACTIVITY NAME</label>
+                    <input id="input-olahraga-cardio" type="text" placeholder="e.g. Jalan Pagi / Outdoor Run" class="w-full border border-zinc-800 rounded-xl p-2.5 bg-zinc-900 text-white text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-cyan-500 mt-1">
+                </div>
+
+                <!-- CARDIO TIMER MODULE (STOPWATCH VS COUNTDOWN) -->
+                <div class="bg-zinc-900/80 p-3 rounded-2xl border border-zinc-800">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <!-- Mode Switcher -->
+                        <div class="flex gap-1 text-[9px]">
+                            <button type="button" id="btn-mode-stopwatch" onclick="switchCardioTimerMode('stopwatch')" class="px-2 py-0.5 rounded-md font-bold bg-cyan-600 text-white border border-cyan-400">
+                                ⏱️ STOPWATCH
+                            </button>
+                            <button type="button" id="btn-mode-countdown" onclick="switchCardioTimerMode('countdown')" class="px-2 py-0.5 rounded-md font-bold text-zinc-400 hover:text-white border border-zinc-800">
+                                ⏳ COUNTDOWN
+                            </button>
+                        </div>
+                        <span id="cardio-status-label" class="text-[9px] text-zinc-500 font-bold">READY</span>
+                    </div>
+
+                    <div class="text-center py-1.5 bg-zinc-950 rounded-xl border border-zinc-800/80 mb-2">
+                        <span id="cardio-timer-display" class="text-2xl font-black text-cyan-400 tracking-wider">00:00:00</span>
+                    </div>
+
+                    <!-- Target Countdown Presets (Hanya muncul saat mode countdown) -->
+                    <div id="cardio-countdown-presets" class="hidden grid-cols-4 gap-1 mb-2 text-[10px]">
+                        <button type="button" onclick="setCardioTargetMin(15)" class="py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg border border-zinc-800">15m</button>
+                        <button type="button" onclick="setCardioTargetMin(30)" class="py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg border border-zinc-800">30m</button>
+                        <button type="button" onclick="setCardioTargetMin(45)" class="py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg border border-zinc-800">45m</button>
+                        <button type="button" onclick="setCardioTargetMin(60)" class="py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg border border-zinc-800">60m</button>
+                    </div>
+
+                    <div class="flex gap-1.5">
+                        <button type="button" id="btn-toggle-cardio-timer" onclick="toggleCardioTimer()" class="w-2/3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold text-[11px] border border-cyan-400 transition active:scale-95">
+                            START SESSION
+                        </button>
+                        <button type="button" onclick="resetCardioTimer()" class="w-1/3 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 rounded-xl font-bold text-[11px] border border-zinc-700 transition">
+                            RESET
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Input Jarak (km) & Durasi (min) -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[10px] font-bold text-zinc-400 uppercase">DISTANCE (KM)</label>
+                        <input id="input-jarak" type="number" step="0.05" placeholder="0.0" oninput="hitungMetCardio()" class="w-full border border-zinc-800 rounded-xl p-2.5 bg-zinc-900 text-white text-xs font-bold focus:outline-none focus:ring-1 focus:ring-cyan-500 mt-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-zinc-400 uppercase">DURATION (MIN)</label>
+                        <input id="input-durasi-cardio" type="number" value="30" oninput="hitungMetCardio()" class="w-full border border-zinc-800 rounded-xl p-2.5 bg-zinc-900 text-white text-xs font-bold focus:outline-none focus:ring-1 focus:ring-cyan-500 mt-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                    </div>
+                </div>
+
+                <!-- Indikator Auto-Pace & Smart MET Cockpit -->
+                <div class="bg-zinc-900/50 p-2.5 rounded-xl border border-zinc-800 flex justify-between items-center text-xs">
+                    <div>
+                        <span class="text-[10px] text-zinc-500 block uppercase">AUTO-PACE:</span>
+                        <span id="label-pace" class="font-bold text-cyan-400 text-sm">--:-- /km</span>
+                    </div>
+                    <div class="h-6 w-px bg-zinc-800"></div>
+                    <div>
+                        <span class="text-[10px] text-zinc-500 block uppercase">SPEED / MET:</span>
+                        <span id="label-speed-met" class="font-bold text-zinc-300 text-sm">0 km/h (MET 3.0)</span>
+                    </div>
+                </div>
+
+                <!-- Kalori Terbakar Kardio -->
+                <div>
+                    <label class="text-[10px] font-bold text-orange-400 uppercase">BURNED (KCAL - AUTO MET)</label>
+                    <input id="input-bakar-cardio" type="number" placeholder="0" class="w-full border border-orange-500/40 rounded-xl p-2.5 bg-zinc-900 text-orange-400 text-sm font-black focus:outline-none focus:ring-1 focus:ring-orange-500 mt-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                </div>
+            </div>
+
+            <!-- Tombol Aksi Bawah Modal -->
             <div class="flex gap-2 mt-4 pt-2 border-t border-zinc-900">
                 <button onclick="tutupModal('modal-olahraga')" class="w-1/3 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 font-bold py-2.5 rounded-xl text-xs border border-zinc-800">CANCEL</button>
                 <button onclick="simpanOlahraga()" class="w-2/3 bg-orange-600 hover:bg-orange-500 text-white font-bold py-2.5 rounded-xl text-xs border border-orange-400 shadow-lg shadow-orange-950/60 active:scale-95 transition">COMMIT WORKOUT</button>
@@ -369,11 +502,26 @@
         let currentUser = null; 
         let targetKalori = parseInt(localStorage.getItem('THOR_TARGET_CAL')) || 2000;
         let targetBerat = localStorage.getItem('THOR_TARGET_WEIGHT') || '--';
-        let currentBeratNum = 75; // Default fallback berat badan untuk MET
+        let currentBeratNum = 75; 
         let tanggalTerpilih = new Date().toISOString().split('T')[0];
 
         let rawAiNutrition = { calories: 0, protein: 0, carbs: 0, fat: 0 };
-        let activeMet = 5.0; // Default MET untuk Dumbbell/Gym
+        let activeWorkoutTab = 'strength'; // 'strength' atau 'cardio'
+        let activeStrengthMet = 5.0;
+
+        // Variabel Rest Timer (Strength)
+        let restInterval = null;
+        let restSeconds = 60;
+        let restInitialSeconds = 60;
+        let isRestRunning = false;
+        let wakeLockObj = null;
+
+        // Variabel Cardio Timer
+        let cardioMode = 'stopwatch'; // 'stopwatch' atau 'countdown'
+        let cardioInterval = null;
+        let cardioSecondsElapsed = 0;
+        let cardioCountdownSec = 1800; // 30 min default
+        let isCardioRunning = false;
 
         document.getElementById('selected-date').value = tanggalTerpilih;
 
@@ -386,14 +534,46 @@
             setTimeout(() => toast.classList.add('opacity-0', 'pointer-events-none'), 3000);
         }
 
-        // --- 3. SERVICE WORKER PWA ---
+        // --- 3. SYNTHESIZER AUDIO BEEP & HAPTIC VIBRATION ---
+        function playTacticalBeep(freq = 880, duration = 0.15) {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = "sine";
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        async function requestScreenLock() {
+            try {
+                if ('wakeLock' in navigator && !wakeLockObj) {
+                    wakeLockObj = await navigator.wakeLock.request('screen');
+                }
+            } catch (e) {}
+        }
+
+        function releaseScreenLock() {
+            if (wakeLockObj) {
+                wakeLockObj.release();
+                wakeLockObj = null;
+            }
+        }
+
+        // --- 4. SERVICE WORKER PWA ---
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js')
                 .then(() => console.log('THOR HUD PWA Active'))
                 .catch(err => console.log('SW Fail:', err));
         }
 
-        // --- 4. GEMINI API KEY ---
+        // --- 5. GEMINI API KEY ---
         function ambilApiKey() {
             let key = localStorage.getItem("THOR_GEMINI_KEY");
             if (!key) {
@@ -415,7 +595,7 @@
             }
         }
 
-        // --- 5. TARGET & BODY WEIGHT ---
+        // --- 6. TARGET & BODY WEIGHT ---
         function bukaModalTarget() {
             document.getElementById('input-target-kalori').value = targetKalori;
             document.getElementById('input-target-bb').value = targetBerat !== '--' ? targetBerat : '';
@@ -461,7 +641,7 @@
             showToast("MASS LOGGED", "⚖️");
         }
 
-        // --- 6. KAMERA & NEURAL SCANNING ---
+        // --- 7. KAMERA & NEURAL SCANNING ---
         function bukaKamera() {
             if (!ambilApiKey()) return;
             document.getElementById('camera-input').click();
@@ -577,7 +757,7 @@
             }
         }
 
-        // --- 7. PORTION SCALER HUD ---
+        // --- 8. PORTION SCALER HUD ---
         function ubahPorsi(faktor, clickedBtn) {
             document.getElementById('review-calories').value = Math.round(rawAiNutrition.calories * faktor);
             document.getElementById('review-protein').value = (rawAiNutrition.protein * faktor).toFixed(1);
@@ -624,26 +804,255 @@
             }
         }
 
-        // --- 8. LOGIKA WORKOUT ENGINE (MET, PRESETS, & AI NLP) ---
+        // --- 9. TACTICAL WORKOUT ENGINE: TAB DUAL-MODE & SMART LOGIC ---
         function bukaModalWorkout() {
-            hitungKaloriMet();
+            hitungKaloriStrength();
+            hitungMetCardio();
             bukaModal('modal-olahraga');
         }
 
-        function hitungKaloriMet() {
-            const durasi = parseInt(document.getElementById('input-durasi').value) || 0;
-            const berat = currentBeratNum || 75;
-            // Formula MET resmi: MET * Berat (kg) * (Durasi / 60)
-            const kalori = Math.round(activeMet * berat * (durasi / 60));
-            document.getElementById('input-bakar').value = kalori > 0 ? kalori : 0;
+        function switchWorkoutTab(tab) {
+            activeWorkoutTab = tab;
+            const btnStrength = document.getElementById('tab-btn-strength');
+            const btnCardio = document.getElementById('tab-btn-cardio');
+            const contentStrength = document.getElementById('content-tab-strength');
+            const contentCardio = document.getElementById('content-tab-cardio');
+            const badge = document.getElementById('workout-engine-badge');
+
+            if (tab === 'strength') {
+                btnStrength.className = "py-2 rounded-xl text-xs font-bold transition bg-orange-600 text-white shadow-md";
+                btnCardio.className = "py-2 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-white";
+                contentStrength.classList.remove('hidden');
+                contentCardio.classList.add('hidden');
+                badge.innerText = "REST TIMER";
+                hitungKaloriStrength();
+            } else {
+                btnCardio.className = "py-2 rounded-xl text-xs font-bold transition bg-cyan-600 text-white shadow-md";
+                btnStrength.className = "py-2 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-white";
+                contentCardio.classList.remove('hidden');
+                contentStrength.classList.add('hidden');
+                badge.innerText = "SMART MET";
+                hitungMetCardio();
+            }
         }
 
-        function pilihPreset(nama, met, defaultDurasi) {
-            document.getElementById('input-olahraga').value = nama;
-            document.getElementById('input-durasi').value = defaultDurasi;
-            activeMet = met;
-            hitungKaloriMet();
+        // --- SUB-LOGIKA TAB 1: STRENGTH ---
+        function hitungKaloriStrength() {
+            const durasi = parseInt(document.getElementById('input-durasi-strength').value) || 0;
+            const berat = currentBeratNum || 75;
+            const kalori = Math.round(activeStrengthMet * berat * (durasi / 60));
+            document.getElementById('input-bakar-strength').value = kalori > 0 ? kalori : 0;
+        }
+
+        function pilihPresetStrength(nama, met, defaultDurasi) {
+            document.getElementById('input-olahraga-strength').value = nama;
+            document.getElementById('input-durasi-strength').value = defaultDurasi;
+            activeStrengthMet = met;
+            hitungKaloriStrength();
             showToast(`${nama.toUpperCase()} SELECTED`, "🏋️");
+        }
+
+        // REST TIMER LOGIC
+        function setRestSec(sec) {
+            if (isRestRunning) toggleRestTimer();
+            restSeconds = sec;
+            restInitialSeconds = sec;
+            updateRestDisplay();
+        }
+
+        function updateRestDisplay() {
+            const m = Math.floor(restSeconds / 60);
+            const s = restSeconds % 60;
+            document.getElementById('rest-display').innerText = 
+                `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        async function toggleRestTimer() {
+            const btn = document.getElementById('btn-toggle-rest');
+            const dot = document.getElementById('rest-status-dot');
+            const lbl = document.getElementById('rest-mode-label');
+
+            if (!isRestRunning) {
+                isRestRunning = true;
+                btn.innerText = "PAUSE";
+                btn.className = "w-2/3 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold text-[11px] border border-amber-400 transition active:scale-95";
+                dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping";
+                lbl.innerText = "RUNNING";
+                await requestScreenLock();
+
+                restInterval = setInterval(() => {
+                    if (restSeconds > 0) {
+                        restSeconds--;
+                        updateRestDisplay();
+                        if (restSeconds <= 3 && restSeconds > 0) playTacticalBeep(600, 0.1);
+                    } else {
+                        clearInterval(restInterval);
+                        isRestRunning = false;
+                        playTacticalBeep(1200, 0.5);
+                        if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
+                        showToast("REST COMPLETE! NEXT SET!", "⚡");
+                        resetRestTimer();
+                    }
+                }, 1000);
+            } else {
+                clearInterval(restInterval);
+                isRestRunning = false;
+                btn.innerText = "RESUME";
+                btn.className = "w-2/3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold text-[11px] border border-cyan-400 transition active:scale-95";
+                dot.className = "w-1.5 h-1.5 rounded-full bg-amber-400";
+                lbl.innerText = "PAUSED";
+                releaseScreenLock();
+            }
+        }
+
+        function resetRestTimer() {
+            clearInterval(restInterval);
+            isRestRunning = false;
+            restSeconds = restInitialSeconds;
+            updateRestDisplay();
+            document.getElementById('btn-toggle-rest').innerText = "START REST";
+            document.getElementById('btn-toggle-rest').className = "w-2/3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold text-[11px] border border-cyan-400 transition active:scale-95";
+            document.getElementById('rest-status-dot').className = "w-1.5 h-1.5 rounded-full bg-zinc-600";
+            document.getElementById('rest-mode-label').innerText = "READY";
+            releaseScreenLock();
+        }
+
+        // --- SUB-LOGIKA TAB 2: CARDIO ---
+        function switchCardioTimerMode(mode) {
+            cardioMode = mode;
+            const btnStopwatch = document.getElementById('btn-mode-stopwatch');
+            const btnCountdown = document.getElementById('btn-mode-countdown');
+            const presetBox = document.getElementById('cardio-countdown-presets');
+
+            resetCardioTimer();
+
+            if (mode === 'stopwatch') {
+                btnStopwatch.className = "px-2 py-0.5 rounded-md font-bold bg-cyan-600 text-white border border-cyan-400";
+                btnCountdown.className = "px-2 py-0.5 rounded-md font-bold text-zinc-400 hover:text-white border border-zinc-800";
+                presetBox.classList.add('hidden');
+                presetBox.classList.remove('grid');
+            } else {
+                btnCountdown.className = "px-2 py-0.5 rounded-md font-bold bg-cyan-600 text-white border border-cyan-400";
+                btnStopwatch.className = "px-2 py-0.5 rounded-md font-bold text-zinc-400 hover:text-white border border-zinc-800";
+                presetBox.classList.remove('hidden');
+                presetBox.classList.add('grid');
+            }
+            updateCardioDisplay();
+        }
+
+        function setCardioTargetMin(min) {
+            if (isCardioRunning) toggleCardioTimer();
+            cardioCountdownSec = min * 60;
+            document.getElementById('input-durasi-cardio').value = min;
+            hitungMetCardio();
+            updateCardioDisplay();
+        }
+
+        function updateCardioDisplay() {
+            let totalSec = cardioMode === 'stopwatch' ? cardioSecondsElapsed : cardioCountdownSec;
+            const h = Math.floor(totalSec / 3600);
+            const m = Math.floor((totalSec % 3600) / 60);
+            const s = totalSec % 60;
+            document.getElementById('cardio-timer-display').innerText = 
+                `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        async function toggleCardioTimer() {
+            const btn = document.getElementById('btn-toggle-cardio-timer');
+            const lbl = document.getElementById('cardio-status-label');
+
+            if (!isCardioRunning) {
+                isCardioRunning = true;
+                btn.innerText = "PAUSE";
+                btn.className = "w-2/3 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold text-[11px] border border-amber-400 transition active:scale-95";
+                lbl.innerText = "ACTIVE";
+                await requestScreenLock();
+
+                cardioInterval = setInterval(() => {
+                    if (cardioMode === 'stopwatch') {
+                        cardioSecondsElapsed++;
+                        updateCardioDisplay();
+                        // Update durasi kardio otomatis setiap kelipatan menit
+                        if (cardioSecondsElapsed % 60 === 0) {
+                            document.getElementById('input-durasi-cardio').value = Math.floor(cardioSecondsElapsed / 60);
+                            hitungMetCardio();
+                        }
+                    } else {
+                        if (cardioCountdownSec > 0) {
+                            cardioCountdownSec--;
+                            updateCardioDisplay();
+                            if (cardioCountdownSec <= 3 && cardioCountdownSec > 0) playTacticalBeep(600, 0.1);
+                        } else {
+                            clearInterval(cardioInterval);
+                            isCardioRunning = false;
+                            playTacticalBeep(1200, 0.6);
+                            if ('vibrate' in navigator) navigator.vibrate([300, 150, 300]);
+                            showToast("CARDIO TARGET REACHED!", "🏃");
+                            resetCardioTimer();
+                        }
+                    }
+                }, 1000);
+            } else {
+                clearInterval(cardioInterval);
+                isCardioRunning = false;
+                btn.innerText = "RESUME";
+                btn.className = "w-2/3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold text-[11px] border border-cyan-400 transition active:scale-95";
+                lbl.innerText = "PAUSED";
+                releaseScreenLock();
+            }
+        }
+
+        function resetCardioTimer() {
+            clearInterval(cardioInterval);
+            isCardioRunning = false;
+            cardioSecondsElapsed = 0;
+            if (cardioMode === 'countdown') cardioCountdownSec = (parseInt(document.getElementById('input-durasi-cardio').value) || 30) * 60;
+            updateCardioDisplay();
+            document.getElementById('btn-toggle-cardio-timer').innerText = "START SESSION";
+            document.getElementById('btn-toggle-cardio-timer').className = "w-2/3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold text-[11px] border border-cyan-400 transition active:scale-95";
+            document.getElementById('cardio-status-label').innerText = "READY";
+            releaseScreenLock();
+        }
+
+        function pilihPresetCardio(nama, defaultMet, dur, dist) {
+            document.getElementById('input-olahraga-cardio').value = nama;
+            document.getElementById('input-durasi-cardio').value = dur;
+            document.getElementById('input-jarak').value = dist;
+            hitungMetCardio();
+            showToast(`${nama.toUpperCase()} SELECTED`, "🏃");
+        }
+
+        function hitungMetCardio() {
+            const dist = parseFloat(document.getElementById('input-jarak').value) || 0;
+            const dur = parseFloat(document.getElementById('input-durasi-cardio').value) || 0;
+            const berat = currentBeratNum || 75;
+
+            let speed = 0;
+            let paceStr = "--:-- /km";
+            let met = 3.0; // Standar jalan santai
+
+            if (dist > 0 && dur > 0) {
+                // Kecepatan km/jam
+                speed = (dist / (dur / 60));
+
+                // Hitung Pace (menit per km)
+                const paceTotalMin = dur / dist;
+                const pMin = Math.floor(paceTotalMin);
+                const pSec = Math.round((paceTotalMin - pMin) * 60);
+                paceStr = `${String(pMin).padStart(2, '0')}:${String(pSec).padStart(2, '0')} /km`;
+
+                // Smart MET Formula berbasis Kecepatan Nyata
+                if (speed < 4.8) met = 3.0;        // Jalan santai
+                else if (speed < 6.4) met = 4.3;   // Jalan cepat / Brisk walk
+                else if (speed < 8.5) met = 7.0;   // Jogging ringan
+                else met = 10.0;                   // Lari cepat
+            }
+
+            document.getElementById('label-pace').innerText = paceStr;
+            document.getElementById('label-speed-met').innerText = `${speed.toFixed(1)} km/h (MET ${met})`;
+
+            const kalori = Math.round(met * berat * (dur / 60));
+            document.getElementById('input-bakar-cardio').value = kalori > 0 ? kalori : 0;
         }
 
         // AI NLP Natural Language Workout Parser via Gemini 2.0 Flash
@@ -660,11 +1069,11 @@
 
             try {
                 const berat = currentBeratNum || 75;
-                const prompt = `Kamu adalah tactical strength coach. Ekstrak aktivitas olahraga dari teks berikut: "${text}". ` +
-                               `User memiliki berat badan ${berat} kg. ` +
-                               `Perkirakan kalori terbakar (kcal), estimasi total durasi menit, dan nama aktivitas ringkas beserta beban/set/reps jika ada. ` +
-                               `WAJIB KELUARKAN HANYA JSON MURNI: ` +
-                               `{"exercise_name": "Dumbbell Curl", "load_kg": 14, "sets": 4, "reps": 10, "duration_minutes": 35, "calories_burned": 180}`;
+                const prompt = `Kamu adalah tactical sports scientist. Ekstrak data workout dari kalimat: "${text}". ` +
+                               `Berat badan user: ${berat} kg. ` +
+                               `Klasifikasikan apakah kategori "strength" atau "cardio". ` +
+                               `WAJIB RETURN HANYA JSON: ` +
+                               `{"category": "strength|cardio", "exercise_name": "Nama Gerakan", "distance_km": 0, "load_kg": 0, "sets": 0, "reps": 0, "duration_minutes": 30, "calories_burned": 180}`;
 
                 const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
@@ -682,12 +1091,23 @@
 
                 const data = JSON.parse(resJson.candidates[0].content.parts[0].text);
 
-                if (data.exercise_name) document.getElementById('input-olahraga').value = data.exercise_name;
-                if (data.duration_minutes) document.getElementById('input-durasi').value = data.duration_minutes;
-                if (data.calories_burned) document.getElementById('input-bakar').value = data.calories_burned;
-                if (data.load_kg) document.getElementById('input-beban').value = data.load_kg;
-                if (data.sets) document.getElementById('input-sets').value = data.sets;
-                if (data.reps) document.getElementById('input-reps').value = data.reps;
+                if (data.category === 'cardio') {
+                    switchWorkoutTab('cardio');
+                    if (data.exercise_name) document.getElementById('input-olahraga-cardio').value = data.exercise_name;
+                    if (data.distance_km) document.getElementById('input-jarak').value = data.distance_km;
+                    if (data.duration_minutes) document.getElementById('input-durasi-cardio').value = data.duration_minutes;
+                    hitungMetCardio();
+                    if (data.calories_burned) document.getElementById('input-bakar-cardio').value = data.calories_burned;
+                } else {
+                    switchWorkoutTab('strength');
+                    if (data.exercise_name) document.getElementById('input-olahraga-strength').value = data.exercise_name;
+                    if (data.duration_minutes) document.getElementById('input-durasi-strength').value = data.duration_minutes;
+                    if (data.load_kg) document.getElementById('input-beban').value = data.load_kg;
+                    if (data.sets) document.getElementById('input-sets').value = data.sets;
+                    if (data.reps) document.getElementById('input-reps').value = data.reps;
+                    hitungKaloriStrength();
+                    if (data.calories_burned) document.getElementById('input-bakar-strength').value = data.calories_burned;
+                }
 
                 showToast("AI EXTRACTED WORKOUT!", "⚡");
             } catch (err) {
@@ -699,48 +1119,68 @@
         }
 
         async function simpanOlahraga() {
-            let nama = document.getElementById('input-olahraga').value.trim();
-            const kalori = document.getElementById('input-bakar').value;
-            const durasi = parseInt(document.getElementById('input-durasi').value) || 30;
-            const beban = document.getElementById('input-beban').value;
-            const sets = document.getElementById('input-sets').value;
-            const reps = document.getElementById('input-reps').value;
+            let nama = '';
+            let kalori = 0;
+            let durasi = 0;
 
-            if (!nama || !kalori) return showToast("INCOMPLETE WORKOUT FIELDS!", "⚠️");
+            if (activeWorkoutTab === 'strength') {
+                nama = document.getElementById('input-olahraga-strength').value.trim();
+                kalori = parseInt(document.getElementById('input-bakar-strength').value) || 0;
+                durasi = parseInt(document.getElementById('input-durasi-strength').value) || 30;
+                const beban = document.getElementById('input-beban').value;
+                const sets = document.getElementById('input-sets').value;
+                const reps = document.getElementById('input-reps').value;
 
-            // Format rapi jika ada data beban/set/reps
-            let extraSpecs = [];
-            if (beban) extraSpecs.push(`${beban}kg`);
-            if (sets && reps) extraSpecs.push(`${sets}x${reps}`);
-            else if (sets) extraSpecs.push(`${sets} sets`);
-            
-            if (extraSpecs.length > 0) {
-                nama += ` [${extraSpecs.join(' • ')}]`;
+                if (!nama || !kalori) return showToast("INCOMPLETE STRENGTH FIELDS!", "⚠️");
+
+                let specs = [];
+                if (beban) specs.push(`${beban}kg`);
+                if (sets && reps) specs.push(`${sets}x${reps}`);
+                else if (sets) specs.push(`${sets} sets`);
+                if (specs.length > 0) nama += ` [${specs.join(' • ')}]`;
+
+            } else {
+                nama = document.getElementById('input-olahraga-cardio').value.trim();
+                kalori = parseInt(document.getElementById('input-bakar-cardio').value) || 0;
+                durasi = parseInt(document.getElementById('input-durasi-cardio').value) || 30;
+                const dist = parseFloat(document.getElementById('input-jarak').value) || 0;
+                const pace = document.getElementById('label-pace').innerText;
+
+                if (!nama || !kalori) return showToast("INCOMPLETE CARDIO FIELDS!", "⚠️");
+
+                let specs = [];
+                if (dist > 0) specs.push(`${dist}km`);
+                if (pace !== '--:-- /km') specs.push(`Pace ${pace}`);
+                if (specs.length > 0) nama += ` [${specs.join(' • ')}]`;
             }
 
             const { error } = await supabaseClient.from('exercise_logs').insert([{ 
                 user_id: currentUser.id, 
                 exercise_name: nama, 
-                calories_burned: parseInt(kalori), 
+                calories_burned: kalori, 
                 duration_minutes: durasi 
             }]);
                 
             if (error) {
                 showToast("INSERT FAILED: " + error.message, "❌");
             } else {
-                document.getElementById('input-olahraga').value = '';
-                document.getElementById('input-bakar').value = '';
+                // Bersihkan field form
+                document.getElementById('input-olahraga-strength').value = '';
+                document.getElementById('input-olahraga-cardio').value = '';
                 document.getElementById('input-beban').value = '';
                 document.getElementById('input-sets').value = '';
                 document.getElementById('input-reps').value = '';
+                document.getElementById('input-jarak').value = '';
                 document.getElementById('ai-workout-input').value = '';
+                resetRestTimer();
+                resetCardioTimer();
                 tutupModal('modal-olahraga');
                 loadDataHarian(tanggalTerpilih);
                 showToast("WORKOUT COMMITTED", "🏃");
             }
         }
 
-        // --- 9. TIMELINE NAV & PURGE ---
+        // --- 10. TIMELINE NAV & PURGE ---
         function gantiTanggal(tgl) {
             tanggalTerpilih = tgl;
             loadDataHarian(tanggalTerpilih);
@@ -755,7 +1195,7 @@
             }
         }
 
-        // --- 10. MANUAL FOOD & WATER LOGGING ---
+        // --- 11. MANUAL FOOD & WATER LOGGING ---
         async function simpanMakan() {
             const nama = document.getElementById('input-makanan').value;
             const kalori = document.getElementById('input-kalori').value;
@@ -780,7 +1220,7 @@
             showToast(`+${jumlah} ML FLUID INGESTED`, "💧");
         }
 
-        // --- 11. LOAD DATA HARIAN ---
+        // --- 12. LOAD DATA HARIAN ---
         async function loadDataHarian(tgl) {
             if (!currentUser) return;
 
@@ -859,7 +1299,7 @@
             }
         }
 
-        // --- 12. SPIDOMETER NEON GLOW ---
+        // --- 13. SPIDOMETER NEON GLOW ---
         function renderGrafik(netKalori, target) {
             const ctx = document.getElementById('calorieChart').getContext('2d');
             const sisaKalori = target - netKalori;
@@ -892,7 +1332,7 @@
             document.getElementById('sisa-kalori').innerText = sisaKalori > 0 ? sisaKalori : 0;
         }
 
-        // --- 13. MODAL & SESI SUPABASE ---
+        // --- 14. MODAL & SESI SUPABASE ---
         function bukaModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function tutupModal(id) { document.getElementById(id).classList.add('hidden'); }
 
