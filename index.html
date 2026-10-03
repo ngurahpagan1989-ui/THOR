@@ -350,7 +350,6 @@
                 <!-- CARDIO TIMER MODULE (STOPWATCH VS COUNTDOWN) -->
                 <div class="bg-zinc-900/80 p-3 rounded-2xl border border-zinc-800">
                     <div class="flex justify-between items-center mb-1.5">
-                        <!-- Mode Switcher -->
                         <div class="flex gap-1 text-[9px]">
                             <button type="button" id="btn-mode-stopwatch" onclick="switchCardioTimerMode('stopwatch')" class="px-2 py-0.5 rounded-md font-bold bg-cyan-600 text-white border border-cyan-400">
                                 ⏱️ STOPWATCH
@@ -366,7 +365,7 @@
                         <span id="cardio-timer-display" class="text-2xl font-black text-cyan-400 tracking-wider">00:00:00</span>
                     </div>
 
-                    <!-- Target Countdown Presets (Hanya muncul saat mode countdown) -->
+                    <!-- Target Countdown Presets -->
                     <div id="cardio-countdown-presets" class="hidden grid-cols-4 gap-1 mb-2 text-[10px]">
                         <button type="button" onclick="setCardioTargetMin(15)" class="py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg border border-zinc-800">15m</button>
                         <button type="button" onclick="setCardioTargetMin(30)" class="py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg border border-zinc-800">30m</button>
@@ -506,7 +505,7 @@
         let tanggalTerpilih = new Date().toISOString().split('T')[0];
 
         let rawAiNutrition = { calories: 0, protein: 0, carbs: 0, fat: 0 };
-        let activeWorkoutTab = 'strength'; // 'strength' atau 'cardio'
+        let activeWorkoutTab = 'strength';
         let activeStrengthMet = 5.0;
 
         // Variabel Rest Timer (Strength)
@@ -517,10 +516,10 @@
         let wakeLockObj = null;
 
         // Variabel Cardio Timer
-        let cardioMode = 'stopwatch'; // 'stopwatch' atau 'countdown'
+        let cardioMode = 'stopwatch';
         let cardioInterval = null;
         let cardioSecondsElapsed = 0;
-        let cardioCountdownSec = 1800; // 30 min default
+        let cardioCountdownSec = 1800;
         let isCardioRunning = false;
 
         document.getElementById('selected-date').value = tanggalTerpilih;
@@ -534,23 +533,66 @@
             setTimeout(() => toast.classList.add('opacity-0', 'pointer-events-none'), 3000);
         }
 
-        // --- 3. SYNTHESIZER AUDIO BEEP & HAPTIC VIBRATION ---
-        function playTacticalBeep(freq = 880, duration = 0.15) {
+        // --- 3. TACTICAL AUDIO & VOICE SYNTHESIZER ENGINE ---
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        // Buzzer Taktis Lantang (Waveform Square + Gain 0.8)
+        function playTacticalBeep(freq = 900, duration = 0.18, type = "square") {
             try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = "sine";
-                osc.frequency.value = freq;
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = type; // 'square' menghasilkan nada tajam menusuk
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+                // Volume 80% (0.8)
+                gain.gain.setValueAtTime(0.8, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
                 osc.connect(gain);
-                gain.connect(audioCtx.destination);
+                gain.connect(ctx.destination);
+
                 osc.start();
-                osc.stop(audioCtx.currentTime + duration);
+                osc.stop(ctx.currentTime + duration);
+            } catch (e) {
+                console.log("Audio Error:", e);
+            }
+        }
+
+        // Double High Buzzer Sinyal Eksekusi (GO SIGNAL)
+        function playGoSignal() {
+            playTacticalBeep(1100, 0.15, "square");
+            setTimeout(() => {
+                playTacticalBeep(1400, 0.35, "square");
+            }, 180);
+        }
+
+        // Suara Komando Militer Taktis (Text-To-Speech)
+        function speakVoice(text) {
+            try {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utter = new SpeechSynthesisUtterance(text);
+                    utter.rate = 1.15; // Ketukan tegas & cepat
+                    utter.pitch = 0.85; // Berat maskulin taktis
+                    utter.lang = 'en-US';
+                    window.speechSynthesis.speak(utter);
+                }
             } catch (e) {}
         }
 
+        // Screen Wake Lock API
         async function requestScreenLock() {
             try {
                 if ('wakeLock' in navigator && !wakeLockObj) {
@@ -806,6 +848,7 @@
 
         // --- 9. TACTICAL WORKOUT ENGINE: TAB DUAL-MODE & SMART LOGIC ---
         function bukaModalWorkout() {
+            getAudioContext(); // Inisialisasi audio via interaksi user
             hitungKaloriStrength();
             hitungMetCardio();
             bukaModal('modal-olahraga');
@@ -852,7 +895,7 @@
             showToast(`${nama.toUpperCase()} SELECTED`, "🏋️");
         }
 
-        // REST TIMER LOGIC
+        // REST TIMER DENGAN AUDIO BERTINGKAT + GO SIGNAL
         function setRestSec(sec) {
             if (isRestRunning) toggleRestTimer();
             restSeconds = sec;
@@ -884,13 +927,25 @@
                     if (restSeconds > 0) {
                         restSeconds--;
                         updateRestDisplay();
-                        if (restSeconds <= 3 && restSeconds > 0) playTacticalBeep(600, 0.1);
+
+                        // Hitungan Persiapan Bertingkat (Ascending Pitches)
+                        if (restSeconds === 3) {
+                            playTacticalBeep(650, 0.16, "square");
+                        } else if (restSeconds === 2) {
+                            playTacticalBeep(800, 0.16, "square");
+                        } else if (restSeconds === 1) {
+                            playTacticalBeep(950, 0.16, "square");
+                        }
                     } else {
+                        // Sinyal Eksekusi: Waktu Rest Selesai!
                         clearInterval(restInterval);
                         isRestRunning = false;
-                        playTacticalBeep(1200, 0.5);
-                        if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
-                        showToast("REST COMPLETE! NEXT SET!", "⚡");
+                        
+                        playGoSignal();
+                        speakVoice("GO! SET STARTED!");
+
+                        if ('vibrate' in navigator) navigator.vibrate([300, 100, 300]);
+                        showToast("REST COMPLETE! EXECUTE SET!", "⚡");
                         resetRestTimer();
                     }
                 }, 1000);
@@ -972,7 +1027,6 @@
                     if (cardioMode === 'stopwatch') {
                         cardioSecondsElapsed++;
                         updateCardioDisplay();
-                        // Update durasi kardio otomatis setiap kelipatan menit
                         if (cardioSecondsElapsed % 60 === 0) {
                             document.getElementById('input-durasi-cardio').value = Math.floor(cardioSecondsElapsed / 60);
                             hitungMetCardio();
@@ -981,11 +1035,14 @@
                         if (cardioCountdownSec > 0) {
                             cardioCountdownSec--;
                             updateCardioDisplay();
-                            if (cardioCountdownSec <= 3 && cardioCountdownSec > 0) playTacticalBeep(600, 0.1);
+                            if (cardioCountdownSec === 3) playTacticalBeep(650, 0.16, "square");
+                            else if (cardioCountdownSec === 2) playTacticalBeep(800, 0.16, "square");
+                            else if (cardioCountdownSec === 1) playTacticalBeep(950, 0.16, "square");
                         } else {
                             clearInterval(cardioInterval);
                             isCardioRunning = false;
-                            playTacticalBeep(1200, 0.6);
+                            playGoSignal();
+                            speakVoice("CARDIO TARGET REACHED!");
                             if ('vibrate' in navigator) navigator.vibrate([300, 150, 300]);
                             showToast("CARDIO TARGET REACHED!", "🏃");
                             resetCardioTimer();
@@ -1029,23 +1086,19 @@
 
             let speed = 0;
             let paceStr = "--:-- /km";
-            let met = 3.0; // Standar jalan santai
+            let met = 3.0;
 
             if (dist > 0 && dur > 0) {
-                // Kecepatan km/jam
                 speed = (dist / (dur / 60));
-
-                // Hitung Pace (menit per km)
                 const paceTotalMin = dur / dist;
                 const pMin = Math.floor(paceTotalMin);
                 const pSec = Math.round((paceTotalMin - pMin) * 60);
                 paceStr = `${String(pMin).padStart(2, '0')}:${String(pSec).padStart(2, '0')} /km`;
 
-                // Smart MET Formula berbasis Kecepatan Nyata
-                if (speed < 4.8) met = 3.0;        // Jalan santai
-                else if (speed < 6.4) met = 4.3;   // Jalan cepat / Brisk walk
-                else if (speed < 8.5) met = 7.0;   // Jogging ringan
-                else met = 10.0;                   // Lari cepat
+                if (speed < 4.8) met = 3.0;
+                else if (speed < 6.4) met = 4.3;
+                else if (speed < 8.5) met = 7.0;
+                else met = 10.0;
             }
 
             document.getElementById('label-pace').innerText = paceStr;
@@ -1164,7 +1217,6 @@
             if (error) {
                 showToast("INSERT FAILED: " + error.message, "❌");
             } else {
-                // Bersihkan field form
                 document.getElementById('input-olahraga-strength').value = '';
                 document.getElementById('input-olahraga-cardio').value = '';
                 document.getElementById('input-beban').value = '';
