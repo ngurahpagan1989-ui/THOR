@@ -194,6 +194,93 @@
                 </div>
             </div>
 
+            <!-- Daily Tactical Directives Card -->
+            <div class="mt-3 bg-gradient-to-br from-zinc-900/90 via-zinc-950 to-zinc-900/70 border border-cyan-500/30 rounded-2xl p-3 shadow-[0_0_20px_-5px_rgba(6,182,212,0.15)] font-mono">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                        <span class="text-[9px] font-black text-cyan-400 uppercase tracking-widest">DAILY TACTICAL DIRECTIVES</span>
+                    </div>
+                    <span id="quest-completion-badge" class="text-[9px] bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 px-2 py-0.5 rounded-full font-bold">0 / 3 CLEARED</span>
+                </div>
+
+                <!-- Quest List -->
+                <div class="space-y-1.5">
+                    <!-- Quest 1: STR -->
+                    <div id="quest-card-str" class="bg-zinc-950/80 border border-zinc-800 rounded-xl p-2 transition duration-200">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <div id="quest-chk-str" class="w-5 h-5 rounded-lg border border-zinc-700 bg-zinc-900 flex items-center justify-center text-xs font-bold text-transparent shrink-0">✓</div>
+                                <div class="truncate">
+                                    <p class="text-[10px] font-bold text-white tracking-tight flex items-center gap-1">
+                                        <span class="text-amber-400">[STR]</span> HEAVY LOAD DRILL
+                                    </p>
+                                    <p class="text-[8px] text-zinc-400 truncate">Selesaikan 1 sesi latihan beban</p>
+                                </div>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <span id="quest-val-str" class="text-[10px] font-black text-amber-400">0 / 1</span>
+                                <span class="text-[8px] text-zinc-500 block">+30 EXP • +1 STR</span>
+                            </div>
+                        </div>
+                        <div class="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden mt-1.5">
+                            <div id="quest-bar-str" class="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-300" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Quest 2: STA -->
+                    <div id="quest-card-sta" class="bg-zinc-950/80 border border-zinc-800 rounded-xl p-2 transition duration-200">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <div id="quest-chk-sta" class="w-5 h-5 rounded-lg border border-zinc-700 bg-zinc-900 flex items-center justify-center text-xs font-bold text-transparent shrink-0">✓</div>
+                                <div class="truncate">
+                                    <p class="text-[10px] font-bold text-white tracking-tight flex items-center gap-1">
+                                        <span class="text-cyan-400">[STA]</span> CARDIO PATROL
+                                    </p>
+                                    <p class="text-[8px] text-zinc-400 truncate">Bakar min. 150 kkal kardio</p>
+                                </div>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <span id="quest-val-sta" class="text-[10px] font-black text-cyan-400">0 / 150</span>
+                                <span class="text-[8px] text-zinc-500 block">+30 EXP • +1 STA</span>
+                            </div>
+                        </div>
+                        <div class="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden mt-1.5">
+                            <div id="quest-bar-sta" class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-300" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Quest 3: VIT -->
+                    <div id="quest-card-vit" class="bg-zinc-950/80 border border-zinc-800 rounded-xl p-2 transition duration-200">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <div id="quest-chk-vit" class="w-5 h-5 rounded-lg border border-zinc-700 bg-zinc-900 flex items-center justify-center text-xs font-bold text-transparent shrink-0">✓</div>
+                                <div class="truncate">
+                                    <p class="text-[10px] font-bold text-white tracking-tight flex items-center gap-1">
+                                        <span class="text-emerald-400">[VIT]</span> BIO-FUEL SCAN
+                                    </p>
+                                    <p class="text-[8px] text-zinc-400 truncate">Scan min. 2 makanan sehat AI</p>
+                                </div>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <span id="quest-val-vit" class="text-[10px] font-black text-emerald-400">0 / 2</span>
+                                <span class="text-[8px] text-zinc-500 block">+30 EXP • +1 VIT</span>
+                            </div>
+                        </div>
+                        <div class="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden mt-1.5">
+                            <div id="quest-bar-vit" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-300" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- All Directives Cleared Banner -->
+                <div id="all-quests-cleared-banner" class="hidden mt-2 p-2 rounded-xl bg-gradient-to-r from-cyan-950/90 via-blue-900/60 to-purple-950/80 border border-cyan-400/60 text-center animate-pulse">
+                    <p class="text-[9px] font-black text-cyan-300 tracking-wider flex items-center justify-center gap-1">
+                        <span>⚡</span> ALL DIRECTIVES CLEARED (+50 BONUS EXP ACQUIRED)
+                    </p>
+                </div>
+            </div>
+
         </div>
         <div class="bg-zinc-900/60 px-5 py-2.5 border-b border-zinc-800/80 flex items-center justify-between text-xs text-zinc-400 font-mono">
             <span class="font-bold flex items-center gap-1.5 text-zinc-300">
@@ -756,6 +843,16 @@
         }
 
         // --- 2B. THOR RPG SYSTEM STATE & PROFILE ENGINE ---
+        function createFreshDailyQuests(dateStr) {
+            return {
+                date: dateStr || new Date().toISOString().split('T')[0],
+                quest_str: { current: 0, target: 1, completed: false },
+                quest_sta: { current: 0, target: 150, completed: false },
+                quest_vit: { current: 0, target: 2, completed: false },
+                all_cleared: false
+            };
+        }
+
         const defaultRpgProfile = {
             id: 1,
             player_name: 'NGURAH',
@@ -771,7 +868,9 @@
             streak_days: 1,
             boss_name: 'FENRIR MK-I',
             boss_hp: 5000,
-            boss_max_hp: 5000
+            boss_max_hp: 5000,
+            last_active_date: new Date().toISOString().split('T')[0],
+            daily_quests: createFreshDailyQuests()
         };
 
         let rpgProfile = { ...defaultRpgProfile };
@@ -794,21 +893,249 @@
             return '[TACTICAL RECRUIT]';
         }
 
-        function updateStreakDays() {
-            const today = new Date().toISOString().split('T')[0];
-            const lastActive = localStorage.getItem('THOR_LAST_ACTIVE_DATE');
-            if (!lastActive) {
-                localStorage.setItem('THOR_LAST_ACTIVE_DATE', today);
-            } else if (lastActive !== today) {
-                const lastDate = new Date(lastActive);
-                const currDate = new Date(today);
-                const diffDays = Math.round((currDate - lastDate) / (1000 * 60 * 60 * 24));
-                if (diffDays === 1) {
-                    rpgProfile.streak_days = (rpgProfile.streak_days || 1) + 1;
-                } else if (diffDays > 1) {
-                    rpgProfile.streak_days = 1;
+        function ensureDailyQuestsStructure() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            if (!rpgProfile.daily_quests || typeof rpgProfile.daily_quests !== 'object') {
+                const stored = localStorage.getItem('THOR_DAILY_QUESTS');
+                if (stored) {
+                    try { rpgProfile.daily_quests = JSON.parse(stored); } catch(e) {}
                 }
-                localStorage.setItem('THOR_LAST_ACTIVE_DATE', today);
+            }
+            if (!rpgProfile.daily_quests || rpgProfile.daily_quests.date !== todayStr) {
+                rpgProfile.daily_quests = createFreshDailyQuests(todayStr);
+                localStorage.setItem('THOR_DAILY_QUESTS', JSON.stringify(rpgProfile.daily_quests));
+            }
+        }
+
+        function resetDailyQuests(todayStr) {
+            rpgProfile.daily_quests = createFreshDailyQuests(todayStr);
+            localStorage.setItem('THOR_DAILY_QUESTS', JSON.stringify(rpgProfile.daily_quests));
+            renderDailyQuests();
+        }
+
+        function checkDailyResetAndDecay() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            const todayDate = new Date(todayStr);
+
+            let lastActiveStr = rpgProfile.last_active_date || localStorage.getItem('THOR_LAST_ACTIVE_DATE');
+
+            if (!lastActiveStr) {
+                rpgProfile.last_active_date = todayStr;
+                localStorage.setItem('THOR_LAST_ACTIVE_DATE', todayStr);
+                ensureDailyQuestsStructure();
+                return;
+            }
+
+            if (lastActiveStr === todayStr) {
+                ensureDailyQuestsStructure();
+                return;
+            }
+
+            const lastDate = new Date(lastActiveStr);
+            const diffTime = todayDate.getTime() - lastDate.getTime();
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays > 2) {
+                // User absen lebih dari 2 hari berturut-turut (selisih > 2 hari)
+                rpgProfile.streak_days = 0;
+                rpgProfile.hp = Math.max(10, (rpgProfile.hp || 100) - 15);
+                resetDailyQuests(todayStr);
+                rpgProfile.last_active_date = todayStr;
+                localStorage.setItem('THOR_LAST_ACTIVE_DATE', todayStr);
+
+                setTimeout(() => {
+                    playTacticalBeep(300, 0.45, "sawtooth");
+                    showRpgSystemModal(
+                        "⚠️ WARNING: INACTIVITY DETECTED",
+                        `TACTICAL ALERT: ARMOR INTEGRITY -15 HP.\n` +
+                        `OPERATOR ABSENT FOR ${diffDays} DAYS (> 2 DAYS INACTIVITY).\n` +
+                        `STREAK COUNTER RESET TO 0.\n` +
+                        `CURRENT HP: ${rpgProfile.hp}/${rpgProfile.max_hp}.\n` +
+                        `RESUME COMBAT DIRECTIVES IMMEDIATELY!`,
+                        "[PENALTY DEBUFF]",
+                        "⚠️"
+                    );
+                }, 800);
+            } else if (diffDays === 2) {
+                // Absen 1 hari (hari ini hari ke-2 setelah aktif), streak reset ke 0
+                rpgProfile.streak_days = 0;
+                resetDailyQuests(todayStr);
+                rpgProfile.last_active_date = todayStr;
+                localStorage.setItem('THOR_LAST_ACTIVE_DATE', todayStr);
+                showToast("STREAK RESET (1 DAY INACTIVE)", "⚠️");
+            } else if (diffDays === 1) {
+                // Berganti hari normal (beda 1 hari)
+                resetDailyQuests(todayStr);
+                rpgProfile.last_active_date = todayStr;
+                localStorage.setItem('THOR_LAST_ACTIVE_DATE', todayStr);
+                showToast("NEW DAILY DIRECTIVES ISSUED", "📋");
+            } else {
+                rpgProfile.last_active_date = todayStr;
+                localStorage.setItem('THOR_LAST_ACTIVE_DATE', todayStr);
+                ensureDailyQuestsStructure();
+            }
+        }
+
+        function renderDailyQuests() {
+            ensureDailyQuestsStructure();
+            const q = rpgProfile.daily_quests;
+            if (!q) return;
+
+            // Quest 1: STR
+            const strCurrent = q.quest_str.current || 0;
+            const strTarget = q.quest_str.target || 1;
+            const strPct = Math.min(100, Math.round((strCurrent / strTarget) * 100));
+            const strValEl = document.getElementById('quest-val-str');
+            const strBarEl = document.getElementById('quest-bar-str');
+            const strChkEl = document.getElementById('quest-chk-str');
+            const strCardEl = document.getElementById('quest-card-str');
+
+            if (strValEl) strValEl.innerText = `${strCurrent} / ${strTarget}`;
+            if (strBarEl) strBarEl.style.width = `${strPct}%`;
+            if (strChkEl) {
+                if (q.quest_str.completed) {
+                    strChkEl.className = "w-5 h-5 rounded-lg border border-amber-400 bg-amber-500 text-black flex items-center justify-center text-xs font-black shadow-[0_0_8px_rgba(245,158,11,0.6)] shrink-0";
+                    strChkEl.innerText = "✓";
+                    if (strCardEl) strCardEl.className = "bg-amber-950/20 border border-amber-500/40 rounded-xl p-2 transition duration-200";
+                } else {
+                    strChkEl.className = "w-5 h-5 rounded-lg border border-zinc-700 bg-zinc-900 flex items-center justify-center text-xs font-bold text-transparent shrink-0";
+                    strChkEl.innerText = "✓";
+                    if (strCardEl) strCardEl.className = "bg-zinc-950/80 border border-zinc-800 rounded-xl p-2 transition duration-200";
+                }
+            }
+
+            // Quest 2: STA
+            const staCurrent = q.quest_sta.current || 0;
+            const staTarget = q.quest_sta.target || 150;
+            const staPct = Math.min(100, Math.round((staCurrent / staTarget) * 100));
+            const staValEl = document.getElementById('quest-val-sta');
+            const staBarEl = document.getElementById('quest-bar-sta');
+            const staChkEl = document.getElementById('quest-chk-sta');
+            const staCardEl = document.getElementById('quest-card-sta');
+
+            if (staValEl) staValEl.innerText = `${staCurrent} / ${staTarget}`;
+            if (staBarEl) staBarEl.style.width = `${staPct}%`;
+            if (staChkEl) {
+                if (q.quest_sta.completed) {
+                    staChkEl.className = "w-5 h-5 rounded-lg border border-cyan-400 bg-cyan-500 text-black flex items-center justify-center text-xs font-black shadow-[0_0_8px_rgba(6,182,212,0.6)] shrink-0";
+                    staChkEl.innerText = "✓";
+                    if (staCardEl) staCardEl.className = "bg-cyan-950/20 border border-cyan-500/40 rounded-xl p-2 transition duration-200";
+                } else {
+                    staChkEl.className = "w-5 h-5 rounded-lg border border-zinc-700 bg-zinc-900 flex items-center justify-center text-xs font-bold text-transparent shrink-0";
+                    staChkEl.innerText = "✓";
+                    if (staCardEl) staCardEl.className = "bg-zinc-950/80 border border-zinc-800 rounded-xl p-2 transition duration-200";
+                }
+            }
+
+            // Quest 3: VIT
+            const vitCurrent = q.quest_vit.current || 0;
+            const vitTarget = q.quest_vit.target || 2;
+            const vitPct = Math.min(100, Math.round((vitCurrent / vitTarget) * 100));
+            const vitValEl = document.getElementById('quest-val-vit');
+            const vitBarEl = document.getElementById('quest-bar-vit');
+            const vitChkEl = document.getElementById('quest-chk-vit');
+            const vitCardEl = document.getElementById('quest-card-vit');
+
+            if (vitValEl) vitValEl.innerText = `${vitCurrent} / ${vitTarget}`;
+            if (vitBarEl) vitBarEl.style.width = `${vitPct}%`;
+            if (vitChkEl) {
+                if (q.quest_vit.completed) {
+                    vitChkEl.className = "w-5 h-5 rounded-lg border border-emerald-400 bg-emerald-500 text-black flex items-center justify-center text-xs font-black shadow-[0_0_8px_rgba(16,185,129,0.6)] shrink-0";
+                    vitChkEl.innerText = "✓";
+                    if (vitCardEl) vitCardEl.className = "bg-emerald-950/20 border border-emerald-500/40 rounded-xl p-2 transition duration-200";
+                } else {
+                    vitChkEl.className = "w-5 h-5 rounded-lg border border-zinc-700 bg-zinc-900 flex items-center justify-center text-xs font-bold text-transparent shrink-0";
+                    vitChkEl.innerText = "✓";
+                    if (vitCardEl) vitCardEl.className = "bg-zinc-950/80 border border-zinc-800 rounded-xl p-2 transition duration-200";
+                }
+            }
+
+            // Total Cleared Badge
+            let clearedCount = 0;
+            if (q.quest_str.completed) clearedCount++;
+            if (q.quest_sta.completed) clearedCount++;
+            if (q.quest_vit.completed) clearedCount++;
+
+            const badgeEl = document.getElementById('quest-completion-badge');
+            if (badgeEl) {
+                if (clearedCount === 3) {
+                    badgeEl.className = "text-[9px] bg-cyan-500 text-black border border-cyan-300 px-2 py-0.5 rounded-full font-black shadow-[0_0_10px_rgba(6,182,212,0.5)]";
+                    badgeEl.innerText = "3 / 3 ALL CLEARED";
+                } else {
+                    badgeEl.className = "text-[9px] bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 px-2 py-0.5 rounded-full font-bold";
+                    badgeEl.innerText = `${clearedCount} / 3 CLEARED`;
+                }
+            }
+
+            const bannerEl = document.getElementById('all-quests-cleared-banner');
+            if (bannerEl) {
+                if (clearedCount === 3) bannerEl.classList.remove('hidden');
+                else bannerEl.classList.add('hidden');
+            }
+        }
+
+        function progressQuestStr() {
+            ensureDailyQuestsStructure();
+            const q = rpgProfile.daily_quests.quest_str;
+            q.current = Math.min(q.target, q.current + 1);
+            if (!q.completed && q.current >= q.target) {
+                q.completed = true;
+                tambahExp(30, "QUEST: [STR] HEAVY LOAD");
+                rpgProfile.str_stat = (rpgProfile.str_stat || 10) + 1;
+                showToast("⚡ DIRECTIVE [STR] CLEARED: +30 EXP, +1 STR!", "⚔️");
+                checkAllQuestsCleared();
+            }
+            renderDailyQuests();
+        }
+
+        function progressQuestSta(calories) {
+            ensureDailyQuestsStructure();
+            const q = rpgProfile.daily_quests.quest_sta;
+            q.current = Math.min(q.target, q.current + (calories || 0));
+            if (!q.completed && q.current >= q.target) {
+                q.completed = true;
+                tambahExp(30, "QUEST: [STA] CARDIO PATROL");
+                rpgProfile.sta_stat = (rpgProfile.sta_stat || 10) + 1;
+                showToast("⚡ DIRECTIVE [STA] CLEARED: +30 EXP, +1 STA!", "⚡");
+                checkAllQuestsCleared();
+            }
+            renderDailyQuests();
+        }
+
+        function progressQuestVit() {
+            ensureDailyQuestsStructure();
+            const q = rpgProfile.daily_quests.quest_vit;
+            q.current = Math.min(q.target, q.current + 1);
+            if (!q.completed && q.current >= q.target) {
+                q.completed = true;
+                tambahExp(30, "QUEST: [VIT] BIO-FUEL SCAN");
+                rpgProfile.vit_stat = (rpgProfile.vit_stat || 10) + 1;
+                showToast("⚡ DIRECTIVE [VIT] CLEARED: +30 EXP, +1 VIT!", "🛡️");
+                checkAllQuestsCleared();
+            }
+            renderDailyQuests();
+        }
+
+        function checkAllQuestsCleared() {
+            const dq = rpgProfile.daily_quests;
+            if (!dq) return;
+            if (!dq.all_cleared && dq.quest_str.completed && dq.quest_sta.completed && dq.quest_vit.completed) {
+                dq.all_cleared = true;
+                tambahExp(50, "ALL DIRECTIVES CLEARED BONUS");
+                rpgProfile.hp = Math.min(rpgProfile.max_hp || 100, (rpgProfile.hp || 100) + 15);
+                rpgProfile.streak_days = (rpgProfile.streak_days || 0) + 1;
+
+                playGoSignal();
+                playTacticalBeep(1700, 0.45, "square");
+
+                showRpgSystemModal(
+                    "⚡ ALL DIRECTIVES CLEARED!",
+                    `SELAMAT OPERATOR!\n` +
+                    `3/3 MISI HARIAN SELESAI DIEKSEKUSI.\n` +
+                    `REWARD BONUS: +50 EXP, +15 HP RECOVERY, STREAK BERTAMBAH +1 HARI (TOTAL: ${rpgProfile.streak_days} HARI)!`,
+                    "[TACTICAL SUPREMACY]",
+                    "🏆"
+                );
             }
         }
 
@@ -863,19 +1190,33 @@
             if (bHpBar) bHpBar.style.width = `${bPercent}%`;
             const bHpText = document.getElementById('rpg-boss-hp-text');
             if (bHpText) bHpText.innerText = `${bHp.toLocaleString()} / ${bMaxHp.toLocaleString()} HP (${bPercent}%)`;
+
+            // Render Daily Directives Card
+            renderDailyQuests();
         }
 
         async function loadRpgProfile() {
-            updateStreakDays();
-
             // 1. Instant Cache Render
             const cached = localStorage.getItem('THOR_RPG_PROFILE');
             if (cached) {
                 try {
                     rpgProfile = { ...defaultRpgProfile, ...JSON.parse(cached) };
-                    renderRpgHud();
                 } catch(e) {}
             }
+            const cachedQuests = localStorage.getItem('THOR_DAILY_QUESTS');
+            if (cachedQuests) {
+                try {
+                    rpgProfile.daily_quests = JSON.parse(cachedQuests);
+                } catch(e) {}
+            }
+            const cachedLastActive = localStorage.getItem('THOR_LAST_ACTIVE_DATE');
+            if (cachedLastActive) {
+                rpgProfile.last_active_date = cachedLastActive;
+            }
+
+            // 2. Evaluasi Reset Harian & Armor Decay Penalty
+            checkDailyResetAndDecay();
+            renderRpgHud();
 
             if (!supabaseClient) return;
 
@@ -890,16 +1231,22 @@
                     console.warn('Supabase thor_rpg_profile query error, using local fallback:', error.message);
                 } else if (data) {
                     rpgProfile = { ...defaultRpgProfile, ...data };
+                    if (typeof rpgProfile.daily_quests === 'string') {
+                        try { rpgProfile.daily_quests = JSON.parse(rpgProfile.daily_quests); } catch(e) {}
+                    }
+                    if (!data.daily_quests && cachedQuests) {
+                        try { rpgProfile.daily_quests = JSON.parse(cachedQuests); } catch(e) {}
+                    }
+                    if (!data.last_active_date && cachedLastActive) {
+                        rpgProfile.last_active_date = cachedLastActive;
+                    }
+                    checkDailyResetAndDecay();
                     localStorage.setItem('THOR_RPG_PROFILE', JSON.stringify(rpgProfile));
+                    if (rpgProfile.daily_quests) localStorage.setItem('THOR_DAILY_QUESTS', JSON.stringify(rpgProfile.daily_quests));
+                    if (rpgProfile.last_active_date) localStorage.setItem('THOR_LAST_ACTIVE_DATE', rpgProfile.last_active_date);
                     renderRpgHud();
                 } else {
-                    // Inisialisasi baris id = 1 perdana di Supabase
-                    const { error: insErr } = await supabaseClient
-                        .from('thor_rpg_profile')
-                        .upsert([rpgProfile]);
-                    if (insErr) {
-                        console.warn('Initial insert thor_rpg_profile:', insErr.message);
-                    }
+                    await updateRpgState();
                 }
             } catch (err) {
                 console.warn('Load RPG Profile Exception:', err);
@@ -911,33 +1258,55 @@
         async function updateRpgState() {
             // Local persistence & instant HUD update
             localStorage.setItem('THOR_RPG_PROFILE', JSON.stringify(rpgProfile));
+            if (rpgProfile.daily_quests) {
+                localStorage.setItem('THOR_DAILY_QUESTS', JSON.stringify(rpgProfile.daily_quests));
+            }
+            if (rpgProfile.last_active_date) {
+                localStorage.setItem('THOR_LAST_ACTIVE_DATE', rpgProfile.last_active_date);
+            }
             renderRpgHud();
 
             if (!supabaseClient) return;
 
+            const basePayload = {
+                id: 1,
+                player_name: rpgProfile.player_name,
+                rank_title: rpgProfile.rank_title,
+                level: rpgProfile.level,
+                current_exp: rpgProfile.current_exp,
+                max_exp: rpgProfile.max_exp,
+                hp: rpgProfile.hp,
+                max_hp: rpgProfile.max_hp,
+                str_stat: rpgProfile.str_stat,
+                sta_stat: rpgProfile.sta_stat,
+                vit_stat: rpgProfile.vit_stat,
+                streak_days: rpgProfile.streak_days,
+                boss_name: rpgProfile.boss_name,
+                boss_hp: rpgProfile.boss_hp,
+                boss_max_hp: rpgProfile.boss_max_hp
+            };
+
             try {
+                // Mencoba upsert payload penuh (dengan last_active_date & daily_quests)
+                const fullPayload = {
+                    ...basePayload,
+                    last_active_date: rpgProfile.last_active_date,
+                    daily_quests: rpgProfile.daily_quests
+                };
+
                 const { error } = await supabaseClient
                     .from('thor_rpg_profile')
-                    .upsert([{
-                        id: 1,
-                        player_name: rpgProfile.player_name,
-                        rank_title: rpgProfile.rank_title,
-                        level: rpgProfile.level,
-                        current_exp: rpgProfile.current_exp,
-                        max_exp: rpgProfile.max_exp,
-                        hp: rpgProfile.hp,
-                        max_hp: rpgProfile.max_hp,
-                        str_stat: rpgProfile.str_stat,
-                        sta_stat: rpgProfile.sta_stat,
-                        vit_stat: rpgProfile.vit_stat,
-                        streak_days: rpgProfile.streak_days,
-                        boss_name: rpgProfile.boss_name,
-                        boss_hp: rpgProfile.boss_hp,
-                        boss_max_hp: rpgProfile.boss_max_hp
-                    }]);
+                    .upsert([fullPayload]);
 
                 if (error) {
-                    console.warn('Supabase thor_rpg_profile sync failed:', error.message);
+                    // Jika kolom belum ada di Supabase, fallback simpan basePayload agar tidak error
+                    console.warn('Upsert full RPG profile error, trying basePayload fallback:', error.message);
+                    const { error: fallbackErr } = await supabaseClient
+                        .from('thor_rpg_profile')
+                        .upsert([basePayload]);
+                    if (fallbackErr) {
+                        console.warn('Fallback basePayload sync failed:', fallbackErr.message);
+                    }
                 }
             } catch (err) {
                 console.warn('Update RPG State Exception:', err);
@@ -1390,6 +1759,9 @@
             if (error) showToast("INSERT FAILED: " + error.message, "❌");
             else {
                 applyMealRpgEffect(nama, protein, kalori, fat, carbs);
+                if (typeof rawAiNutrition !== 'undefined' && !rawAiNutrition.is_junk) {
+                    progressQuestVit();
+                }
                 await updateRpgState();
                 tutupModal('modal-review-ai');
                 loadDataHarian(tanggalTerpilih);
@@ -1890,6 +2262,9 @@
                     const bossDmg = volumeKg > 0 ? Math.floor(volumeKg / 10) : Math.max(10, Math.floor(kalori / 2));
                     dealBossDamage(bossDmg, "KINETIC STRENGTH");
                     showToast(`STR +${strGain} | VOLUME: ${volumeKg}kg`, "🏋️");
+
+                    // Progres Quest 1: STR
+                    progressQuestStr();
                 } else {
                     // +40 EXP per sesi kardio
                     tambahExp(40, "CARDIO MISSION");
@@ -1902,6 +2277,9 @@
                     const bossDmg = kalori * 1;
                     dealBossDamage(bossDmg, "MET CARDIO BURST");
                     showToast(`STA +${staGain} | BURN: ${kalori} kcal`, "🏃");
+
+                    // Progres Quest 2: STA
+                    progressQuestSta(kalori);
                 }
 
                 await updateRpgState();

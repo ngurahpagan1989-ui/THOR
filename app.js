@@ -12,6 +12,19 @@ const supabaseClient = (typeof supabase !== 'undefined' && supabase.createClient
     : null;
 
 /**
+ * Buat struktur default Misi Harian (Daily Quests)
+ */
+export function createFreshDailyQuests(dateStr = new Date().toISOString().split('T')[0]) {
+    return {
+        date: dateStr,
+        all_cleared: false,
+        quest_str: { current: 0, target: 1, completed: false },
+        quest_sta: { current: 0, target: 150, completed: false },
+        quest_vit: { current: 0, target: 2, completed: false }
+    };
+}
+
+/**
  * Default RPG Profile Template (Table: thor_rpg_profile, id = 1)
  */
 export const defaultThorRpgProfile = {
@@ -29,7 +42,9 @@ export const defaultThorRpgProfile = {
     streak_days: 1,
     boss_name: 'FENRIR MK-I',
     boss_hp: 5000,
-    boss_max_hp: 5000
+    boss_max_hp: 5000,
+    last_active_date: new Date().toISOString().split('T')[0],
+    daily_quests: createFreshDailyQuests()
 };
 
 /**
@@ -59,7 +74,13 @@ export async function loadThorRpgProfile() {
             console.warn('Gagal memuat profil RPG dari Supabase:', error.message);
             return defaultThorRpgProfile;
         }
-        return data || defaultThorRpgProfile;
+        if (data) {
+            if (typeof data.daily_quests === 'string') {
+                try { data.daily_quests = JSON.parse(data.daily_quests); } catch(e) {}
+            }
+            return { ...defaultThorRpgProfile, ...data };
+        }
+        return defaultThorRpgProfile;
     } catch (err) {
         console.error('Error loadThorRpgProfile:', err);
         return defaultThorRpgProfile;
@@ -67,34 +88,50 @@ export async function loadThorRpgProfile() {
 }
 
 /**
- * Update Profile RPG ke Supabase (id = 1)
+ * Update Profile RPG ke Supabase (id = 1) dengan fallback jika kolom belum ada
  */
 export async function updateThorRpgProfile(profile) {
     if (!supabaseClient) return null;
+    const basePayload = {
+        id: 1,
+        player_name: profile.player_name,
+        rank_title: profile.rank_title,
+        level: profile.level,
+        current_exp: profile.current_exp,
+        max_exp: profile.max_exp,
+        hp: profile.hp,
+        max_hp: profile.max_hp,
+        str_stat: profile.str_stat,
+        sta_stat: profile.sta_stat,
+        vit_stat: profile.vit_stat,
+        streak_days: profile.streak_days,
+        boss_name: profile.boss_name,
+        boss_hp: profile.boss_hp,
+        boss_max_hp: profile.boss_max_hp
+    };
+
     try {
+        const fullPayload = {
+            ...basePayload,
+            last_active_date: profile.last_active_date || new Date().toISOString().split('T')[0],
+            daily_quests: profile.daily_quests || createFreshDailyQuests()
+        };
+
         const { data, error } = await supabaseClient
             .from('thor_rpg_profile')
-            .upsert([{
-                id: 1,
-                player_name: profile.player_name,
-                rank_title: profile.rank_title,
-                level: profile.level,
-                current_exp: profile.current_exp,
-                max_exp: profile.max_exp,
-                hp: profile.hp,
-                max_hp: profile.max_hp,
-                str_stat: profile.str_stat,
-                sta_stat: profile.sta_stat,
-                vit_stat: profile.vit_stat,
-                streak_days: profile.streak_days,
-                boss_name: profile.boss_name,
-                boss_hp: profile.boss_hp,
-                boss_max_hp: profile.boss_max_hp
-            }]);
+            .upsert([fullPayload]);
 
         if (error) {
-            console.error('Gagal memperbarui status RPG ke Supabase:', error.message);
-            return null;
+            console.warn('Supabase upsert full profile gagal, mencoba fallback base columns:', error.message);
+            const { data: baseData, error: baseError } = await supabaseClient
+                .from('thor_rpg_profile')
+                .upsert([basePayload]);
+
+            if (baseError) {
+                console.error('Fallback update thor_rpg_profile gagal:', baseError.message);
+                return null;
+            }
+            return baseData;
         }
         return data;
     } catch (err) {
