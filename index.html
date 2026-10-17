@@ -17,6 +17,32 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @keyframes boss-shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px) translateY(1px); }
+            40% { transform: translateX(6px) translateY(-1px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+        .animate-boss-shake {
+            animation: boss-shake 0.28s ease-in-out;
+        }
+        @keyframes boss-hit-pulse {
+            0% { filter: brightness(2.2) drop-shadow(0 0 16px rgba(244,63,94,0.9)); }
+            100% { filter: brightness(1) drop-shadow(0 0 0 transparent); }
+        }
+        .animate-boss-hit-pulse {
+            animation: boss-hit-pulse 0.35s ease-out;
+        }
+        @keyframes cyan-glow-pulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(6, 182, 212, 0.4), inset 0 0 20px rgba(6, 182, 212, 0.2); }
+            50% { box-shadow: 0 0 80px rgba(6, 182, 212, 0.8), inset 0 0 35px rgba(6, 182, 212, 0.4); }
+        }
+        .animate-cyan-glow {
+            animation: cyan-glow-pulse 1.8s infinite ease-in-out;
+        }
+    </style>
 </head>
 <body class="bg-black min-h-screen flex items-center justify-center p-2 sm:p-4 font-sans text-zinc-100 antialiased selection:bg-cyan-500 selection:text-black">
 
@@ -44,6 +70,36 @@
             <button onclick="tutupRpgSystemModal()" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 active:scale-[0.98] text-white font-extrabold py-3 px-4 rounded-xl transition duration-150 shadow-lg shadow-cyan-950 border border-cyan-400 text-xs tracking-wider uppercase">
                 ACKNOWLEDGE COMMAND
             </button>
+        </div>
+    </div>
+
+    <!-- ================= FULLSCREEN LEVEL-UP OVERLAY (2.5S AUTO-CLOSE) ================= -->
+    <div id="level-up-overlay" class="hidden fixed inset-0 z-50 items-center justify-center p-4 bg-black/85 backdrop-blur-md transition-all duration-300 pointer-events-auto cursor-pointer" onclick="closeLevelUpOverlay()">
+        <div class="relative bg-zinc-950/95 border-2 border-cyan-400 rounded-3xl p-6 sm:p-8 w-full max-w-sm text-center font-mono shadow-[0_0_80px_rgba(6,182,212,0.7)] animate-in fade-in zoom-in-95 duration-200 overflow-hidden animate-cyan-glow">
+            <div class="absolute -top-16 -right-16 w-44 h-44 bg-cyan-400/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-16 -left-16 w-44 h-44 bg-teal-400/20 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/90 border border-cyan-400 text-cyan-300 text-[10px] font-black tracking-widest uppercase mb-3 shadow-[0_0_15px_rgba(6,182,212,0.5)]">
+                <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                <span>SYSTEM NOTIFICATION</span>
+            </div>
+
+            <div class="text-5xl my-2 animate-bounce">⚡</div>
+            <h2 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-teal-200 to-cyan-400 tracking-wider mb-2 uppercase drop-shadow-[0_0_20px_rgba(6,182,212,0.9)]">
+                ⚡ SYSTEM LEVEL UP! ⚡
+            </h2>
+            <p id="levelup-overlay-level" class="text-lg font-black text-white mb-1 tracking-wide">
+                LEVEL 2 REACHED
+            </p>
+            <p class="text-xs text-emerald-400 font-bold mb-3 tracking-wide uppercase">
+                ALL ARMOR INTEGRITY RESTORED
+            </p>
+            <div id="levelup-overlay-rank" class="text-[11px] text-purple-300 font-bold bg-purple-950/70 border border-purple-500/50 rounded-xl py-1 px-3 mb-2 inline-block shadow-sm">
+                [VANGUARD OPERATOR]
+            </div>
+            <div class="mt-4 text-[9px] text-zinc-500 uppercase tracking-widest">
+                [AUTO-CLOSING IN 2.5S • TAP TO DISMISS]
+            </div>
         </div>
     </div>
 
@@ -110,6 +166,9 @@
                     <span class="text-[10px] text-emerald-400 font-bold flex items-center justify-end gap-1">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> SYNC ACTIVE
                     </span>
+                    <button id="btn-toggle-sfx" onclick="thorAudio.toggleMute()" title="Toggle Tactical SFX" class="mt-1 ml-auto flex items-center gap-1 text-[9px] font-mono px-2 py-0.5 rounded border border-cyan-500/50 bg-cyan-950/50 text-cyan-300 hover:bg-cyan-900/60 shadow-[0_0_8px_rgba(6,182,212,0.3)] transition active:scale-95">
+                        <span id="sfx-icon">🔊</span> <span id="sfx-text">SFX ON</span>
+                    </button>
                 </div>
             </div>
 
@@ -168,13 +227,13 @@
             </div>
 
             <!-- Weekly Boss Raid Module -->
-            <div class="bg-gradient-to-r from-rose-950/40 via-zinc-900/80 to-zinc-950 border border-rose-500/40 rounded-2xl p-3 shadow-[0_0_20px_-5px_rgba(244,63,94,0.2)] font-mono">
+            <div id="rpg-boss-container" class="relative bg-gradient-to-r from-rose-950/40 via-zinc-900/80 to-zinc-950 border border-rose-500/40 rounded-2xl p-3 shadow-[0_0_20px_-5px_rgba(244,63,94,0.2)] font-mono transition-all duration-150">
                 <div class="flex items-center justify-between mb-1.5">
                     <div class="flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
                         <span class="text-[9px] font-black text-rose-400 uppercase tracking-widest">WEEKLY RAID BOSS</span>
                     </div>
-                    <span class="text-[9px] text-zinc-500 font-bold">TRUE DAMAGE TARGET</span>
+                    <span id="boss-hit-indicator" class="text-[9px] text-zinc-500 font-bold transition-all">TRUE DAMAGE TARGET</span>
                 </div>
                 
                 <div class="flex items-center justify-between mb-1">
@@ -279,6 +338,21 @@
                         <span>⚡</span> ALL DIRECTIVES CLEARED (+50 BONUS EXP ACQUIRED)
                     </p>
                 </div>
+            </div>
+
+            <!-- Tactical Armory & Medals Trigger -->
+            <div class="mt-2.5 font-mono">
+                <button onclick="bukaModalArmory()" class="w-full py-2.5 px-3 rounded-2xl bg-gradient-to-r from-purple-950/80 via-zinc-900/90 to-cyan-950/80 hover:from-purple-900 hover:to-cyan-900 border border-purple-500/50 hover:border-cyan-400/70 text-white font-bold text-[11px] flex items-center justify-between shadow-[0_0_20px_-5px_rgba(168,85,247,0.3)] transition active:scale-[0.98]">
+                    <span class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-lg bg-purple-950 border border-purple-400 flex items-center justify-center text-xs">🛡️</span>
+                        <span class="tracking-wider">ARMORY & MEDALS</span>
+                    </span>
+                    <span class="flex items-center gap-1.5 text-[9px] text-zinc-400">
+                        <span id="hud-gear-badge" class="px-1.5 py-0.5 rounded bg-purple-950/90 text-purple-300 border border-purple-500/40 font-black">1/5 GEAR</span>
+                        <span id="hud-medals-badge" class="px-1.5 py-0.5 rounded bg-amber-950/90 text-amber-300 border border-amber-500/40 font-black">0/5 MEDALS</span>
+                        <span class="text-cyan-400 text-xs">▶</span>
+                    </span>
+                </button>
             </div>
 
         </div>
@@ -799,6 +873,79 @@
         </div>
     </div>
 
+    <!-- ================= MODAL TACTICAL ARMORY & MEDALS ================= -->
+    <div id="modal-armory" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 z-50">
+        <div class="bg-zinc-950 border-2 border-purple-500/50 rounded-3xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] flex flex-col shadow-[0_0_50px_rgba(168,85,247,0.3)] font-mono overflow-hidden">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3 mb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-xl bg-purple-950/80 border border-purple-500/60 flex items-center justify-center text-purple-400 text-base shadow-sm">
+                        🛡️
+                    </div>
+                    <div>
+                        <h3 class="font-black text-sm text-white tracking-wider uppercase">TACTICAL ARMORY & MEDALS</h3>
+                        <p class="text-[9px] text-zinc-500 uppercase tracking-widest">NORSE-CYBERPUNK BUFF ENGINE</p>
+                    </div>
+                </div>
+                <button onclick="tutupModal('modal-armory')" class="text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-zinc-900 text-lg transition">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="grid grid-cols-2 gap-2 mb-3 bg-zinc-900/60 p-1 rounded-xl border border-zinc-800">
+                <button id="btn-tab-armory-gear" onclick="switchArmoryTab('gear')" class="py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-purple-600 text-white shadow-md shadow-purple-950 border border-purple-400">
+                    <span>⚔️</span> GEAR BUFFS
+                </button>
+                <button id="btn-tab-armory-medals" onclick="switchArmoryTab('medals')" class="py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 text-zinc-400 hover:text-white">
+                    <span>🏅</span> MEDALS (<span id="tab-medals-count">0/5</span>)
+                </button>
+            </div>
+
+            <!-- Scrollable Content -->
+            <div class="overflow-y-auto pr-1 flex-1 space-y-3 custom-scrollbar" id="armory-content-container">
+                <!-- Tab Gear View -->
+                <div id="armory-view-gear" class="space-y-3">
+                    <!-- Active Buffs Summary Bar -->
+                    <div class="p-2.5 rounded-2xl bg-gradient-to-r from-purple-950/60 via-zinc-900 to-cyan-950/60 border border-purple-500/30 text-[10px]">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-zinc-400 font-bold uppercase tracking-wider">ACTIVE SYNERGY BUFFS</span>
+                            <span id="active-buff-count" class="text-purple-300 font-black">1 ACTIVE</span>
+                        </div>
+                        <div id="active-buffs-list" class="flex flex-wrap gap-1.5">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Gear List Cards -->
+                    <div id="gear-list-cards" class="space-y-2.5">
+                        <!-- Injected dynamically by renderArmoryGear() -->
+                    </div>
+                </div>
+
+                <!-- Tab Medals View -->
+                <div id="armory-view-medals" class="hidden space-y-3">
+                    <div class="p-2.5 rounded-2xl bg-zinc-900/60 border border-zinc-800 text-[10px] flex items-center justify-between">
+                        <span class="text-zinc-400 font-bold uppercase tracking-wider">COMBAT ACCOLADES PROGRESS</span>
+                        <span id="medals-overview-text" class="text-amber-400 font-black">0 / 5 UNLOCKED</span>
+                    </div>
+
+                    <!-- Medals Grid -->
+                    <div id="medals-list-cards" class="space-y-2.5">
+                        <!-- Injected dynamically by renderArmoryMedals() -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Close -->
+            <div class="pt-3 mt-3 border-t border-zinc-800/80">
+                <button onclick="tutupModal('modal-armory')" class="w-full py-2.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-bold text-xs rounded-xl border border-zinc-800 transition">
+                    CLOSE ARMORY
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- 1. INISIALISASI SUPABASE ---
         const supabaseUrl = 'https://cvzjnrnnegdqoyuzkwhq.supabase.co'; 
@@ -870,7 +1017,13 @@
             boss_hp: 5000,
             boss_max_hp: 5000,
             last_active_date: new Date().toISOString().split('T')[0],
-            daily_quests: createFreshDailyQuests()
+            daily_quests: createFreshDailyQuests(),
+            unlocked_badges: [],
+            equipped_gear: ['recruit_exo_suit'],
+            total_lift_volume: 0,
+            clean_food_count: 0,
+            boss_damage_total: 0,
+            boss_kill_count: 0
         };
 
         let rpgProfile = { ...defaultRpgProfile };
@@ -938,16 +1091,18 @@
             if (diffDays > 2) {
                 // User absen lebih dari 2 hari berturut-turut (selisih > 2 hari)
                 rpgProfile.streak_days = 0;
-                rpgProfile.hp = Math.max(10, (rpgProfile.hp || 100) - 15);
+                // Buff 5: Asgardian Aegis Armor -> Meredam 50% efek penalti HP & Decay
+                const decayLoss = isGearEquipped('aegis_armor') ? 8 : 15;
+                rpgProfile.hp = Math.max(10, (rpgProfile.hp || 100) - decayLoss);
                 resetDailyQuests(todayStr);
                 rpgProfile.last_active_date = todayStr;
                 localStorage.setItem('THOR_LAST_ACTIVE_DATE', todayStr);
 
                 setTimeout(() => {
-                    playTacticalBeep(300, 0.45, "sawtooth");
+                    thorAudio.playWarningSound();
                     showRpgSystemModal(
                         "⚠️ WARNING: INACTIVITY DETECTED",
-                        `TACTICAL ALERT: ARMOR INTEGRITY -15 HP.\n` +
+                        `TACTICAL ALERT: ARMOR INTEGRITY -${decayLoss} HP${isGearEquipped('aegis_armor') ? ' (AEGIS 50% SHIELDED)' : ''}.\n` +
                         `OPERATOR ABSENT FOR ${diffDays} DAYS (> 2 DAYS INACTIVITY).\n` +
                         `STREAK COUNTER RESET TO 0.\n` +
                         `CURRENT HP: ${rpgProfile.hp}/${rpgProfile.max_hp}.\n` +
@@ -1126,7 +1281,7 @@
                 rpgProfile.streak_days = (rpgProfile.streak_days || 0) + 1;
 
                 playGoSignal();
-                playTacticalBeep(1700, 0.45, "square");
+                thorAudio.playLevelUpSound();
 
                 showRpgSystemModal(
                     "⚡ ALL DIRECTIVES CLEARED!",
@@ -1193,6 +1348,21 @@
 
             // Render Daily Directives Card
             renderDailyQuests();
+
+            // Sync SFX Button State
+            if (typeof thorAudio !== 'undefined') thorAudio.updateMuteUI();
+
+            // Sync HUD Badges for Armory & Medals
+            const gearBadgeEl = document.getElementById('hud-gear-badge');
+            if (gearBadgeEl) {
+                const eqCount = (rpgProfile.equipped_gear || []).length;
+                gearBadgeEl.innerText = `${eqCount}/5 GEAR`;
+            }
+            const medalsBadgeEl = document.getElementById('hud-medals-badge');
+            if (medalsBadgeEl) {
+                const medCount = (rpgProfile.unlocked_badges || []).length;
+                medalsBadgeEl.innerText = `${medCount}/5 MEDALS`;
+            }
         }
 
         async function loadRpgProfile() {
@@ -1205,17 +1375,34 @@
             }
             const cachedQuests = localStorage.getItem('THOR_DAILY_QUESTS');
             if (cachedQuests) {
-                try {
-                    rpgProfile.daily_quests = JSON.parse(cachedQuests);
-                } catch(e) {}
+                try { rpgProfile.daily_quests = JSON.parse(cachedQuests); } catch(e) {}
             }
             const cachedLastActive = localStorage.getItem('THOR_LAST_ACTIVE_DATE');
             if (cachedLastActive) {
                 rpgProfile.last_active_date = cachedLastActive;
             }
+            const cachedBadges = localStorage.getItem('THOR_UNLOCKED_BADGES');
+            if (cachedBadges) {
+                try { rpgProfile.unlocked_badges = JSON.parse(cachedBadges); } catch(e) {}
+            }
+            const cachedGear = localStorage.getItem('THOR_EQUIPPED_GEAR');
+            if (cachedGear) {
+                try { rpgProfile.equipped_gear = JSON.parse(cachedGear); } catch(e) {}
+            }
+            const cachedCounters = localStorage.getItem('THOR_RPG_COUNTERS');
+            if (cachedCounters) {
+                try {
+                    const c = JSON.parse(cachedCounters);
+                    rpgProfile.total_lift_volume = c.total_lift_volume || 0;
+                    rpgProfile.clean_food_count = c.clean_food_count || 0;
+                    rpgProfile.boss_damage_total = c.boss_damage_total || 0;
+                    rpgProfile.boss_kill_count = c.boss_kill_count || 0;
+                } catch(e) {}
+            }
 
             // 2. Evaluasi Reset Harian & Armor Decay Penalty
             checkDailyResetAndDecay();
+            checkAchievements();
             renderRpgHud();
 
             if (!supabaseClient) return;
@@ -1240,10 +1427,24 @@
                     if (!data.last_active_date && cachedLastActive) {
                         rpgProfile.last_active_date = cachedLastActive;
                     }
+                    if (data.unlocked_badges) {
+                        rpgProfile.unlocked_badges = (typeof data.unlocked_badges === 'string') ? JSON.parse(data.unlocked_badges) : data.unlocked_badges;
+                    } else if (cachedBadges) {
+                        try { rpgProfile.unlocked_badges = JSON.parse(cachedBadges); } catch(e) {}
+                    }
+                    if (data.equipped_gear) {
+                        rpgProfile.equipped_gear = (typeof data.equipped_gear === 'string') ? JSON.parse(data.equipped_gear) : data.equipped_gear;
+                    } else if (cachedGear) {
+                        try { rpgProfile.equipped_gear = JSON.parse(cachedGear); } catch(e) {}
+                    }
+
                     checkDailyResetAndDecay();
+                    checkAchievements();
                     localStorage.setItem('THOR_RPG_PROFILE', JSON.stringify(rpgProfile));
                     if (rpgProfile.daily_quests) localStorage.setItem('THOR_DAILY_QUESTS', JSON.stringify(rpgProfile.daily_quests));
                     if (rpgProfile.last_active_date) localStorage.setItem('THOR_LAST_ACTIVE_DATE', rpgProfile.last_active_date);
+                    if (rpgProfile.unlocked_badges) localStorage.setItem('THOR_UNLOCKED_BADGES', JSON.stringify(rpgProfile.unlocked_badges));
+                    if (rpgProfile.equipped_gear) localStorage.setItem('THOR_EQUIPPED_GEAR', JSON.stringify(rpgProfile.equipped_gear));
                     renderRpgHud();
                 } else {
                     await updateRpgState();
@@ -1264,6 +1465,18 @@
             if (rpgProfile.last_active_date) {
                 localStorage.setItem('THOR_LAST_ACTIVE_DATE', rpgProfile.last_active_date);
             }
+            if (rpgProfile.unlocked_badges) {
+                localStorage.setItem('THOR_UNLOCKED_BADGES', JSON.stringify(rpgProfile.unlocked_badges));
+            }
+            if (rpgProfile.equipped_gear) {
+                localStorage.setItem('THOR_EQUIPPED_GEAR', JSON.stringify(rpgProfile.equipped_gear));
+            }
+            localStorage.setItem('THOR_RPG_COUNTERS', JSON.stringify({
+                total_lift_volume: rpgProfile.total_lift_volume || 0,
+                clean_food_count: rpgProfile.clean_food_count || 0,
+                boss_damage_total: rpgProfile.boss_damage_total || 0,
+                boss_kill_count: rpgProfile.boss_kill_count || 0
+            }));
             renderRpgHud();
 
             if (!supabaseClient) return;
@@ -1287,11 +1500,13 @@
             };
 
             try {
-                // Mencoba upsert payload penuh (dengan last_active_date & daily_quests)
+                // Mencoba upsert payload penuh (dengan metadata lengkap)
                 const fullPayload = {
                     ...basePayload,
                     last_active_date: rpgProfile.last_active_date,
-                    daily_quests: rpgProfile.daily_quests
+                    daily_quests: rpgProfile.daily_quests,
+                    unlocked_badges: rpgProfile.unlocked_badges,
+                    equipped_gear: rpgProfile.equipped_gear
                 };
 
                 const { error } = await supabaseClient
@@ -1299,7 +1514,6 @@
                     .upsert([fullPayload]);
 
                 if (error) {
-                    // Jika kolom belum ada di Supabase, fallback simpan basePayload agar tidak error
                     console.warn('Upsert full RPG profile error, trying basePayload fallback:', error.message);
                     const { error: fallbackErr } = await supabaseClient
                         .from('thor_rpg_profile')
@@ -1331,7 +1545,24 @@
 
         function tambahExp(amount, reason = "") {
             if (amount <= 0) return;
-            rpgProfile.current_exp = (rpgProfile.current_exp || 0) + amount;
+
+            let finalAmount = amount;
+            let bonusPercent = 0;
+
+            // Buff 1: Recruit Exo-Suit -> Base EXP +5%
+            if (isGearEquipped('recruit_exo_suit')) {
+                bonusPercent += 0.05;
+            }
+            // Buff 3: Valkyrie Thruster Boots -> +20% EXP on Cardio
+            if (isGearEquipped('valkyrie_boots') && /CARDIO/i.test(reason)) {
+                bonusPercent += 0.20;
+            }
+
+            if (bonusPercent > 0) {
+                finalAmount += Math.round(amount * bonusPercent);
+            }
+
+            rpgProfile.current_exp = (rpgProfile.current_exp || 0) + finalAmount;
             let didLevelUp = false;
 
             while (rpgProfile.current_exp >= rpgProfile.max_exp) {
@@ -1344,27 +1575,27 @@
             }
 
             if (didLevelUp) {
-                playGoSignal();
-                playTacticalBeep(1600, 0.45, "sine");
-                showRpgSystemModal(
-                    "⚡ LEVEL UP!",
-                    `SELAMAT OPERATOR! LEVEL ${rpgProfile.level} TERCAPAI!\nRANK BARU: ${rpgProfile.rank_title}\nHP DIPULIHKAN PENUH KE 100%!`,
-                    "LEVEL UP ANNOUNCEMENT",
-                    "⚡"
-                );
+                showLevelUpOverlay(rpgProfile.level, rpgProfile.rank_title);
+                checkAchievements();
             } else {
-                showRpgToast(`+${amount} EXP GAINED`, reason || "ACTIVITY COMPLETED");
+                thorAudio.playExpSound();
+                showRpgToast(`+${finalAmount} EXP GAINED`, reason || "ACTIVITY COMPLETED");
             }
         }
 
         function dealBossDamage(dmg, source = "TACTICAL STRIKE") {
             if (dmg <= 0) return;
             rpgProfile.boss_hp = Math.max(0, (rpgProfile.boss_hp || 5000) - dmg);
+            rpgProfile.boss_damage_total = (rpgProfile.boss_damage_total || 0) + dmg;
+
+            thorAudio.playBossHitSound();
+            triggerBossHitVisual(dmg);
 
             if (rpgProfile.boss_hp <= 0) {
                 // Boss Defeated!
+                rpgProfile.boss_kill_count = (rpgProfile.boss_kill_count || 0) + 1;
                 tambahExp(300, "BOSS DEFEATED BONUS");
-                playTacticalBeep(1800, 0.5, "sawtooth");
+                thorAudio.playLevelUpSound();
                 showRpgSystemModal(
                     "💀 RAID BOSS DEFEATED!",
                     `TARGET ${rpgProfile.boss_name} TELAH DIHANCURKAN!\nBONUS +300 EXP DIPEROLEH!\nMEMINDAI TARGET BARU...`,
@@ -1386,6 +1617,8 @@
             } else {
                 showRpgToast(`💥 ${dmg.toLocaleString()} TRUE DAMAGE!`, `Target: ${rpgProfile.boss_name}`);
             }
+
+            checkAchievements();
         }
 
         function applyMealRpgEffect(nama, protein, calories, fat, carbs) {
@@ -1396,36 +1629,640 @@
             const isJunkMacros = (fat >= 35 && protein < 10) || (carbs >= 75 && protein < 5);
 
             if (isJunkName || isJunkMacros) {
-                // Debuff -10 HP
-                rpgProfile.hp = Math.max(1, (rpgProfile.hp || 100) - 10);
-                showToast("⚠️ SUGAR/GREASE DEBUFF: HP -10", "⚠️");
-            } else if (protein >= 25) {
-                // +1 VIT, +10 HP (maks 100)
-                rpgProfile.vit_stat = (rpgProfile.vit_stat || 10) + 1;
-                rpgProfile.hp = Math.min(rpgProfile.max_hp || 100, (rpgProfile.hp || 100) + 10);
-                showToast("💚 BIO-FUEL ASSIMILATED: VIT +1, HP +10", "🛡️");
+                // Debuff -10 HP (Meredam 50% jika Asgardian Aegis Armor terpasang)
+                const hpLoss = isGearEquipped('aegis_armor') ? 5 : 10;
+                rpgProfile.hp = Math.max(1, (rpgProfile.hp || 100) - hpLoss);
+                thorAudio.playWarningSound();
+                showToast(`⚠️ SUGAR/GREASE DEBUFF: HP -${hpLoss}${isGearEquipped('aegis_armor') ? ' (AEGIS 50% REDUCED)' : ''}`, "⚠️");
             } else {
-                rpgProfile.hp = Math.min(rpgProfile.max_hp || 100, (rpgProfile.hp || 100) + 5);
+                // Makanan Sehat / Bio-Fuel
+                rpgProfile.clean_food_count = (rpgProfile.clean_food_count || 0) + 1;
+                // Buff 4: Idunn Bio-Reactor Core -> Pemulihan HP 2x lipat
+                const healMultiplier = isGearEquipped('idunn_core') ? 2 : 1;
+
+                if (protein >= 25) {
+                    // +1 VIT, +10 HP (atau +20 HP jika Idunn Core)
+                    rpgProfile.vit_stat = (rpgProfile.vit_stat || 10) + 1;
+                    const heal = 10 * healMultiplier;
+                    rpgProfile.hp = Math.min(rpgProfile.max_hp || 100, (rpgProfile.hp || 100) + heal);
+                    showToast(`💚 BIO-FUEL ASSIMILATED: VIT +1, HP +${heal}${healMultiplier > 1 ? ' (IDUNN 2X)' : ''}`, "🛡️");
+                } else {
+                    const heal = 5 * healMultiplier;
+                    rpgProfile.hp = Math.min(rpgProfile.max_hp || 100, (rpgProfile.hp || 100) + heal);
+                }
+            }
+
+            checkAchievements();
+        }
+
+        // --- 2C. TACTICAL ARMORY & ACHIEVEMENT MEDALS ENGINE ---
+        const TACTICAL_GEAR_REGISTRY = [
+            {
+                id: "recruit_exo_suit",
+                name: "Recruit Exo-Suit",
+                slot: "EXO-CHASSIS",
+                icon: "🦿",
+                unlockReq: "Level ≥ 1",
+                buffBadge: "+5% BASE EXP",
+                desc: "Sistem eksoskeleton standar rekrut taktis. Mengoptimalkan neural motorik sebesar +5% Base EXP.",
+                checkUnlocked: (p) => (p.level || 1) >= 1
+            },
+            {
+                id: "mjolnir_gauntlets",
+                name: "Mjolnir Power Gauntlets",
+                slot: "ARMS",
+                icon: "🥊",
+                unlockReq: "STR ≥ 15",
+                buffBadge: "+20% TRUE DMG (BEBAN)",
+                desc: "Sarung tangan kinetik bermuatan plasma Thor. +20% True Damage ke Boss dari angkatan beban.",
+                checkUnlocked: (p) => (p.str_stat || 10) >= 15
+            },
+            {
+                id: "valkyrie_boots",
+                name: "Valkyrie Thruster Boots",
+                slot: "BOOTS",
+                icon: "🥾",
+                unlockReq: "STA ≥ 15",
+                buffBadge: "+20% EXP & +15% DMG (KARDIO)",
+                desc: "Sepatu berpendorong ionik Valkyrie. +20% EXP dan +15% Boss Damage dari aktivitas kardio/MET.",
+                checkUnlocked: (p) => (p.sta_stat || 10) >= 15
+            },
+            {
+                id: "idunn_core",
+                name: "Idunn Bio-Reactor Core",
+                slot: "CORE",
+                icon: "🔋",
+                unlockReq: "VIT ≥ 15",
+                buffBadge: "2X HP RECOVERY (SEHAT)",
+                desc: "Reaktor biokimia esensi Idunn. Melipatgandakan (2x) pemulihan Armor HP dari makanan bernutrisi.",
+                checkUnlocked: (p) => (p.vit_stat || 10) >= 15
+            },
+            {
+                id: "aegis_armor",
+                name: "Asgardian Aegis Armor",
+                slot: "CHESTPLATE",
+                icon: "🛡️",
+                unlockReq: "Level ≥ 10",
+                buffBadge: "-50% HP PENALTY & DECAY",
+                desc: "Pelindung vibranium Asgardian. Meredam 50% efek penalti HP debuff dan kerusakan Armor Decay.",
+                checkUnlocked: (p) => (p.level || 1) >= 10
+            }
+        ];
+
+        const ACHIEVEMENT_MEDALS = [
+            {
+                id: "first_blood",
+                title: "FIRST BLOOD",
+                icon: "🏅",
+                rewardText: "+50 EXP",
+                expReward: 50,
+                desc: "Berikan True Damage pertama kali ke Boss Mingguan.",
+                checkEarned: (p) => (p.boss_damage_total || 0) > 0,
+                getProgress: (p) => ({
+                    current: Math.min(1, p.boss_damage_total || 0),
+                    target: 1,
+                    text: (p.boss_damage_total || 0) > 0 ? "TARGET HIT" : "0 / 1 HIT",
+                    pct: (p.boss_damage_total || 0) > 0 ? 100 : 0
+                })
+            },
+            {
+                id: "iron_lifter",
+                title: "IRON LIFTER",
+                icon: "🏋️",
+                rewardText: "+100 EXP, +2 STR",
+                expReward: 100,
+                statGains: { str: 2 },
+                desc: "Mencapai total akumulasi volume angkatan beban 5.000 kg.",
+                checkEarned: (p) => (p.total_lift_volume || 0) >= 5000,
+                getProgress: (p) => {
+                    const cur = p.total_lift_volume || 0;
+                    return {
+                        current: Math.min(5000, cur),
+                        target: 5000,
+                        text: `${cur.toLocaleString()} / 5,000 KG`,
+                        pct: Math.min(100, Math.round((cur / 5000) * 100))
+                    };
+                }
+            },
+            {
+                id: "unstoppable",
+                title: "UNSTOPPABLE",
+                icon: "🔥",
+                rewardText: "+150 EXP",
+                expReward: 150,
+                desc: "Mencapai Streak aktif 7 hari berturut-turut.",
+                checkEarned: (p) => (p.streak_days || 0) >= 7,
+                getProgress: (p) => {
+                    const cur = p.streak_days || 0;
+                    return {
+                        current: Math.min(7, cur),
+                        target: 7,
+                        text: `${cur} / 7 DAYS`,
+                        pct: Math.min(100, Math.round((cur / 7) * 100))
+                    };
+                }
+            },
+            {
+                id: "clean_fuel",
+                title: "CLEAN FUEL",
+                icon: "🥩",
+                rewardText: "+100 EXP, +2 VIT",
+                expReward: 100,
+                statGains: { vit: 2 },
+                desc: "Mencatat 10 makanan bernutrisi sehat dengan AI Vision.",
+                checkEarned: (p) => (p.clean_food_count || 0) >= 10,
+                getProgress: (p) => {
+                    const cur = p.clean_food_count || 0;
+                    return {
+                        current: Math.min(10, cur),
+                        target: 10,
+                        text: `${cur} / 10 LOGS`,
+                        pct: Math.min(100, Math.round((cur / 10) * 100))
+                    };
+                }
+            },
+            {
+                id: "fenrir_slayer",
+                title: "FENRIR SLAYER",
+                icon: "💀",
+                rewardText: "+300 EXP",
+                expReward: 300,
+                desc: "Mengalahkan Boss Mingguan pertama kali.",
+                checkEarned: (p) => (p.boss_kill_count || 0) >= 1,
+                getProgress: (p) => ({
+                    current: Math.min(1, p.boss_kill_count || 0),
+                    target: 1,
+                    text: (p.boss_kill_count || 0) >= 1 ? "BOSS SLAIN" : "0 / 1 BOSS",
+                    pct: (p.boss_kill_count || 0) >= 1 ? 100 : 0
+                })
+            }
+        ];
+
+        let activeArmoryTab = 'gear';
+
+        function isGearEquipped(gearId) {
+            if (!rpgProfile.equipped_gear || !Array.isArray(rpgProfile.equipped_gear)) return false;
+            return rpgProfile.equipped_gear.includes(gearId);
+        }
+
+        function toggleEquipGear(gearId) {
+            if (!rpgProfile.equipped_gear || !Array.isArray(rpgProfile.equipped_gear)) {
+                rpgProfile.equipped_gear = [];
+            }
+            const gear = TACTICAL_GEAR_REGISTRY.find(g => g.id === gearId);
+            if (!gear) return;
+
+            if (!gear.checkUnlocked(rpgProfile)) {
+                showToast(`LOCKED: ${gear.unlockReq}`, "🔒");
+                return;
+            }
+
+            const idx = rpgProfile.equipped_gear.indexOf(gearId);
+            if (idx > -1) {
+                rpgProfile.equipped_gear.splice(idx, 1);
+                showToast(`${gear.name.toUpperCase()} UNEQUIPPED`, "🛡️");
+            } else {
+                rpgProfile.equipped_gear.push(gearId);
+                thorAudio.playExpSound();
+                showToast(`${gear.name.toUpperCase()} EQUIPPED!`, "⚡");
+            }
+
+            renderArmoryGear();
+            renderRpgHud();
+            updateRpgState();
+        }
+
+        function switchArmoryTab(tab) {
+            activeArmoryTab = tab;
+            const btnGear = document.getElementById('btn-tab-armory-gear');
+            const btnMedals = document.getElementById('btn-tab-armory-medals');
+            const viewGear = document.getElementById('armory-view-gear');
+            const viewMedals = document.getElementById('armory-view-medals');
+
+            if (tab === 'gear') {
+                btnGear.className = "py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-purple-600 text-white shadow-md shadow-purple-950 border border-purple-400";
+                btnMedals.className = "py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 text-zinc-400 hover:text-white";
+                viewGear.classList.remove('hidden');
+                viewMedals.classList.add('hidden');
+                renderArmoryGear();
+            } else {
+                btnMedals.className = "py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-amber-600 text-white shadow-md shadow-amber-950 border border-amber-400";
+                btnGear.className = "py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 text-zinc-400 hover:text-white";
+                viewMedals.classList.remove('hidden');
+                viewGear.classList.add('hidden');
+                renderArmoryMedals();
+            }
+        }
+
+        function bukaModalArmory() {
+            if (!rpgProfile.equipped_gear || !Array.isArray(rpgProfile.equipped_gear)) {
+                rpgProfile.equipped_gear = ['recruit_exo_suit'];
+            }
+            if (!rpgProfile.unlocked_badges || !Array.isArray(rpgProfile.unlocked_badges)) {
+                rpgProfile.unlocked_badges = [];
+            }
+            checkAchievements();
+            switchArmoryTab(activeArmoryTab);
+            bukaModal('modal-armory');
+        }
+
+        function renderArmoryGear() {
+            const container = document.getElementById('gear-list-cards');
+            const buffsList = document.getElementById('active-buffs-list');
+            const buffCountEl = document.getElementById('active-buff-count');
+            if (!container) return;
+
+            if (!rpgProfile.equipped_gear) rpgProfile.equipped_gear = ['recruit_exo_suit'];
+
+            let activeCount = 0;
+            let buffTagsHtml = '';
+
+            const cardsHtml = TACTICAL_GEAR_REGISTRY.map(gear => {
+                const unlocked = gear.checkUnlocked(rpgProfile);
+                const equipped = isGearEquipped(gear.id);
+
+                if (equipped) {
+                    activeCount++;
+                    buffTagsHtml += `<span class="bg-purple-950/80 text-purple-300 border border-purple-500/50 text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 shadow-sm">
+                        <span>⚡</span> ${gear.buffBadge}
+                    </span>`;
+                }
+
+                if (equipped) {
+                    return `
+                        <div class="p-3 rounded-2xl bg-gradient-to-r from-purple-950/40 via-zinc-900 to-zinc-950 border-2 border-purple-500/70 shadow-[0_0_20px_rgba(168,85,247,0.25)] transition duration-200">
+                            <div class="flex items-start justify-between gap-2 mb-1.5">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-10 h-10 rounded-xl bg-purple-950 border border-purple-400 flex items-center justify-center text-xl shadow-[0_0_10px_rgba(168,85,247,0.4)] shrink-0">
+                                        ${gear.icon}
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="font-black text-xs text-white">${gear.name}</span>
+                                            <span class="text-[8px] bg-purple-950 text-purple-300 border border-purple-500/50 px-1.5 py-0.2 rounded font-bold">${gear.slot}</span>
+                                        </div>
+                                        <p class="text-[9px] text-emerald-400 font-bold mt-0.5 flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> ACTIVE LOADOUT
+                                        </p>
+                                    </div>
+                                </div>
+                                <button onclick="toggleEquipGear('${gear.id}')" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black border border-emerald-400 shadow-sm active:scale-95 transition">
+                                    EQUIPPED ✓
+                                </button>
+                            </div>
+                            <div class="p-1.5 rounded-lg bg-zinc-950/80 border border-zinc-800 text-[9px] text-zinc-300 mb-1">
+                                <span class="text-purple-300 font-bold">${gear.buffBadge}</span>: ${gear.desc}
+                            </div>
+                        </div>
+                    `;
+                } else if (unlocked) {
+                    return `
+                        <div class="p-3 rounded-2xl bg-zinc-900/70 border border-zinc-700/80 hover:border-purple-500/50 transition duration-200">
+                            <div class="flex items-start justify-between gap-2 mb-1.5">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-10 h-10 rounded-xl bg-zinc-950 border border-zinc-700 flex items-center justify-center text-xl shrink-0">
+                                        ${gear.icon}
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="font-black text-xs text-zinc-200">${gear.name}</span>
+                                            <span class="text-[8px] bg-zinc-800 text-zinc-400 px-1.5 py-0.2 rounded">${gear.slot}</span>
+                                        </div>
+                                        <p class="text-[9px] text-cyan-400 font-bold mt-0.5">UNLOCKED (${gear.unlockReq})</p>
+                                    </div>
+                                </div>
+                                <button onclick="toggleEquipGear('${gear.id}')" class="px-2.5 py-1 rounded-lg bg-cyan-600/30 hover:bg-cyan-600 text-cyan-300 hover:text-white text-[10px] font-bold border border-cyan-500/50 active:scale-95 transition">
+                                    EQUIP GEAR
+                                </button>
+                            </div>
+                            <div class="p-1.5 rounded-lg bg-zinc-950/60 border border-zinc-800 text-[9px] text-zinc-400 mb-1">
+                                <span class="text-cyan-300 font-bold">${gear.buffBadge}</span>: ${gear.desc}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="p-3 rounded-2xl bg-zinc-950/80 border border-zinc-800/80 opacity-60">
+                            <div class="flex items-start justify-between gap-2 mb-1.5">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-10 h-10 rounded-xl bg-zinc-900/60 border border-zinc-800 flex items-center justify-center text-xl text-zinc-600 grayscale shrink-0">
+                                        ${gear.icon}
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="font-bold text-xs text-zinc-500">${gear.name}</span>
+                                            <span class="text-[8px] bg-zinc-900 text-zinc-600 px-1.5 py-0.2 rounded">${gear.slot}</span>
+                                        </div>
+                                        <p class="text-[9px] text-rose-400 font-bold mt-0.5 flex items-center gap-1">
+                                            <span>🔒</span> ${gear.unlockReq}
+                                        </p>
+                                    </div>
+                                </div>
+                                <span class="px-2.5 py-1 rounded-lg bg-zinc-900 text-zinc-600 text-[10px] font-bold border border-zinc-800 cursor-not-allowed">
+                                    LOCKED
+                                </span>
+                            </div>
+                            <div class="p-1.5 rounded-lg bg-zinc-900/40 border border-zinc-800/60 text-[9px] text-zinc-500">
+                                <span class="font-bold text-zinc-400">${gear.buffBadge}</span>: ${gear.desc}
+                            </div>
+                        </div>
+                    `;
+                }
+            }).join('');
+
+            container.innerHTML = cardsHtml;
+            if (buffCountEl) buffCountEl.innerText = `${activeCount} ACTIVE`;
+            if (buffsList) {
+                buffsList.innerHTML = buffTagsHtml || '<span class="text-zinc-500 text-[9px] italic">Tidak ada buff aktif. Pasang gear di bawah.</span>';
+            }
+        }
+
+        function renderArmoryMedals() {
+            const container = document.getElementById('medals-list-cards');
+            const overviewEl = document.getElementById('medals-overview-text');
+            const tabCountEl = document.getElementById('tab-medals-count');
+            if (!container) return;
+
+            const unlockedList = rpgProfile.unlocked_badges || [];
+            const earnedCount = unlockedList.length;
+
+            if (overviewEl) overviewEl.innerText = `${earnedCount} / ${ACHIEVEMENT_MEDALS.length} UNLOCKED`;
+            if (tabCountEl) tabCountEl.innerText = `${earnedCount}/${ACHIEVEMENT_MEDALS.length}`;
+
+            const cardsHtml = ACHIEVEMENT_MEDALS.map(medal => {
+                const isEarned = unlockedList.includes(medal.id);
+                const prog = medal.getProgress(rpgProfile);
+
+                if (isEarned) {
+                    return `
+                        <div class="p-3 rounded-2xl bg-gradient-to-r from-amber-950/30 via-zinc-900 to-zinc-950 border-2 border-amber-500/60 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-10 h-10 rounded-xl bg-amber-950 border border-amber-400 flex items-center justify-center text-2xl shadow-[0_0_10px_rgba(245,158,11,0.4)] shrink-0">
+                                        ${medal.icon}
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="font-black text-xs text-white tracking-wide">${medal.title}</span>
+                                            <span class="text-[8px] bg-amber-500 text-black px-1.5 py-0.2 rounded font-black">UNLOCKED</span>
+                                        </div>
+                                        <p class="text-[9px] text-zinc-300 mt-0.5">${medal.desc}</p>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-500/50 text-[9px] font-black shrink-0">
+                                    ${medal.rewardText}
+                                </span>
+                            </div>
+                            <div class="h-1.5 w-full bg-zinc-950 rounded-full overflow-hidden p-0.5 border border-zinc-800">
+                                <div class="h-full bg-gradient-to-r from-amber-500 to-yellow-300 rounded-full" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="p-3 rounded-2xl bg-zinc-950/80 border border-zinc-800/80">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-xl text-zinc-600 grayscale shrink-0">
+                                        🔒
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="font-bold text-xs text-zinc-400">${medal.title}</span>
+                                            <span class="text-[8px] bg-zinc-900 text-zinc-500 px-1.5 py-0.2 rounded font-bold">${prog.text}</span>
+                                        </div>
+                                        <p class="text-[9px] text-zinc-500 mt-0.5">${medal.desc}</p>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-0.5 rounded-full bg-zinc-900 text-zinc-500 border border-zinc-800 text-[9px] font-bold shrink-0">
+                                    ${medal.rewardText}
+                                </span>
+                            </div>
+                            <div class="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden p-0.5 border border-zinc-800">
+                                <div class="h-full bg-zinc-600 rounded-full transition-all duration-300" style="width: ${prog.pct}%;"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }).join('');
+
+            container.innerHTML = cardsHtml;
+        }
+
+        function checkAchievements() {
+            if (!rpgProfile.unlocked_badges || !Array.isArray(rpgProfile.unlocked_badges)) {
+                rpgProfile.unlocked_badges = [];
+            }
+            let newlyEarned = [];
+
+            ACHIEVEMENT_MEDALS.forEach(medal => {
+                if (!rpgProfile.unlocked_badges.includes(medal.id)) {
+                    if (medal.checkEarned(rpgProfile)) {
+                        rpgProfile.unlocked_badges.push(medal.id);
+                        newlyEarned.push(medal);
+
+                        // Berikan Reward
+                        if (medal.expReward) {
+                            tambahExp(medal.expReward, `MEDAL: [${medal.title}]`);
+                        }
+                        if (medal.statGains) {
+                            if (medal.statGains.str) rpgProfile.str_stat = (rpgProfile.str_stat || 10) + medal.statGains.str;
+                            if (medal.statGains.sta) rpgProfile.sta_stat = (rpgProfile.sta_stat || 10) + medal.statGains.sta;
+                            if (medal.statGains.vit) rpgProfile.vit_stat = (rpgProfile.vit_stat || 10) + medal.statGains.vit;
+                        }
+                    }
+                }
+            });
+
+            if (newlyEarned.length > 0) {
+                thorAudio.playLevelUpSound();
+                const m = newlyEarned[0];
+                showRpgSystemModal(
+                    "🏆 ACHIEVEMENT UNLOCKED!",
+                    `LENCANA TAKTIS BARU TERBUKA:\n${m.icon} ${m.title}\n\n${m.desc}\nREWARD: ${m.rewardText}!`,
+                    "[TACTICAL ACCOLADE]",
+                    "🏅"
+                );
+                renderRpgHud();
+                updateRpgState();
             }
         }
 
         // --- 3. TACTICAL AUDIO & VOICE SYNTHESIZER ---
-        let audioCtx = null;
+        const thorAudio = {
+            audioCtx: null,
+            isMuted: localStorage.getItem('THOR_SFX_MUTED') === 'true',
+
+            getContext() {
+                if (!this.audioCtx) {
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContextClass) this.audioCtx = new AudioContextClass();
+                }
+                if (this.audioCtx && this.audioCtx.state === 'suspended') {
+                    this.audioCtx.resume();
+                }
+                return this.audioCtx;
+            },
+
+            toggleMute() {
+                this.isMuted = !this.isMuted;
+                localStorage.setItem('THOR_SFX_MUTED', this.isMuted ? 'true' : 'false');
+                this.updateMuteUI();
+                if (!this.isMuted) {
+                    this.playExpSound();
+                }
+            },
+
+            updateMuteUI() {
+                const iconEl = document.getElementById('sfx-icon');
+                const textEl = document.getElementById('sfx-text');
+                const btnEl = document.getElementById('btn-toggle-sfx');
+                if (iconEl && textEl) {
+                    if (this.isMuted) {
+                        iconEl.innerText = "🔇";
+                        textEl.innerText = "SFX OFF";
+                        if (btnEl) btnEl.className = "mt-1 ml-auto flex items-center gap-1 text-[9px] font-mono px-2 py-0.5 rounded border border-zinc-700/80 bg-zinc-900/60 text-zinc-500 hover:text-zinc-300 transition active:scale-95";
+                    } else {
+                        iconEl.innerText = "🔊";
+                        textEl.innerText = "SFX ON";
+                        if (btnEl) btnEl.className = "mt-1 ml-auto flex items-center gap-1 text-[9px] font-mono px-2 py-0.5 rounded border border-cyan-500/50 bg-cyan-950/50 text-cyan-300 hover:bg-cyan-900/60 shadow-[0_0_8px_rgba(6,182,212,0.3)] transition active:scale-95";
+                    }
+                }
+            },
+
+            playExpSound() {
+                if (this.isMuted) return;
+                try {
+                    const ctx = this.getContext();
+                    if (!ctx) return;
+                    const now = ctx.currentTime;
+
+                    // Beep taktis ganda nada naik (frekuensi 600Hz ke 900Hz, durasi 120ms)
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = "sine";
+
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.exponentialRampToValueAtTime(900, now + 0.12);
+
+                    gain.gain.setValueAtTime(0.01, now);
+                    gain.gain.linearRampToValueAtTime(0.35, now + 0.02);
+                    gain.gain.setValueAtTime(0.08, now + 0.05); // jeda ganda
+                    gain.gain.setValueAtTime(0.4, now + 0.07);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + 0.12);
+                } catch (e) {}
+            },
+
+            playBossHitSound() {
+                if (this.isMuted) return;
+                try {
+                    const ctx = this.getContext();
+                    if (!ctx) return;
+                    const now = ctx.currentTime;
+
+                    // Bunyi dentuman bass rendah (sawtooth 120Hz turun ke 40Hz, durasi 200ms)
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = "sawtooth";
+
+                    osc.frequency.setValueAtTime(120, now);
+                    osc.frequency.exponentialRampToValueAtTime(40, now + 0.20);
+
+                    gain.gain.setValueAtTime(0.6, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.20);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + 0.20);
+                } catch (e) {}
+            },
+
+            playLevelUpSound() {
+                if (this.isMuted) return;
+                try {
+                    const ctx = this.getContext();
+                    if (!ctx) return;
+                    const now = ctx.currentTime;
+
+                    // Nada fanfare arpeggio cyberpunk (C5: 523.25Hz, E5: 659.25Hz, G5: 783.99Hz, C6: 1046.50Hz)
+                    const notes = [
+                        { f: 523.25, time: 0.00, dur: 0.10 },
+                        { f: 659.25, time: 0.09, dur: 0.10 },
+                        { f: 783.99, time: 0.18, dur: 0.12 },
+                        { f: 1046.50, time: 0.28, dur: 0.45 }
+                    ];
+
+                    notes.forEach(note => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+
+                        osc.type = "triangle";
+                        osc.frequency.setValueAtTime(note.f, now + note.time);
+
+                        gain.gain.setValueAtTime(0.01, now + note.time);
+                        gain.gain.linearRampToValueAtTime(0.35, now + note.time + 0.02);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + note.time + note.dur);
+
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+
+                        osc.start(now + note.time);
+                        osc.stop(now + note.time + note.dur);
+                    });
+                } catch (e) {}
+            },
+
+            playWarningSound() {
+                if (this.isMuted) return;
+                try {
+                    const ctx = this.getContext();
+                    if (!ctx) return;
+                    const now = ctx.currentTime;
+
+                    // Bunyi alarm pendek (square wave 300Hz-200Hz)
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = "square";
+
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.setValueAtTime(200, now + 0.08);
+                    osc.frequency.setValueAtTime(300, now + 0.14);
+                    osc.frequency.setValueAtTime(200, now + 0.20);
+
+                    gain.gain.setValueAtTime(0.35, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + 0.26);
+                } catch (e) {}
+            }
+        };
 
         function getAudioContext() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            return audioCtx;
+            return thorAudio.getContext();
         }
 
         function playTacticalBeep(freq = 900, duration = 0.18, type = "square") {
+            if (thorAudio.isMuted) return;
             try {
-                const ctx = getAudioContext();
+                const ctx = thorAudio.getContext();
+                if (!ctx) return;
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
                 osc.type = type;
                 osc.frequency.setValueAtTime(freq, ctx.currentTime);
-                gain.gain.setValueAtTime(0.8, ctx.currentTime);
+                gain.gain.setValueAtTime(0.7, ctx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
                 osc.connect(gain);
                 gain.connect(ctx.destination);
@@ -1435,8 +2272,73 @@
         }
 
         function playGoSignal() {
+            if (thorAudio.isMuted) return;
             playTacticalBeep(1100, 0.15, "square");
             setTimeout(() => playTacticalBeep(1400, 0.35, "square"), 180);
+        }
+
+        let levelUpTimeout = null;
+
+        function showLevelUpOverlay(newLevel, rankTitle) {
+            const overlay = document.getElementById('level-up-overlay');
+            const lvlText = document.getElementById('levelup-overlay-level');
+            const rankText = document.getElementById('levelup-overlay-rank');
+
+            if (lvlText) lvlText.innerText = `LEVEL ${newLevel} REACHED`;
+            if (rankText) rankText.innerText = rankTitle || calculateRankTitle(newLevel);
+
+            if (overlay) {
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+            }
+
+            thorAudio.playLevelUpSound();
+
+            if (levelUpTimeout) clearTimeout(levelUpTimeout);
+            levelUpTimeout = setTimeout(() => {
+                closeLevelUpOverlay();
+            }, 2500);
+        }
+
+        function closeLevelUpOverlay() {
+            const overlay = document.getElementById('level-up-overlay');
+            if (overlay) {
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+            }
+            if (levelUpTimeout) {
+                clearTimeout(levelUpTimeout);
+                levelUpTimeout = null;
+            }
+        }
+
+        function triggerBossHitVisual(dmg) {
+            const container = document.getElementById('rpg-boss-container');
+            const bar = document.getElementById('rpg-boss-hp-bar');
+            const indicator = document.getElementById('boss-hit-indicator');
+
+            if (container) {
+                container.classList.add('animate-boss-shake', 'ring-2', 'ring-rose-500', 'shadow-[0_0_35px_rgba(244,63,94,0.9)]');
+                setTimeout(() => {
+                    container.classList.remove('animate-boss-shake', 'ring-2', 'ring-rose-500', 'shadow-[0_0_35px_rgba(244,63,94,0.9)]');
+                }, 300);
+            }
+
+            if (bar) {
+                bar.classList.add('animate-boss-hit-pulse');
+                setTimeout(() => {
+                    bar.classList.remove('animate-boss-hit-pulse');
+                }, 350);
+            }
+
+            if (indicator) {
+                indicator.innerText = `💥 -${dmg.toLocaleString()} TRUE DMG!`;
+                indicator.className = "text-[9px] text-rose-400 font-black animate-pulse transition-all";
+                setTimeout(() => {
+                    indicator.innerText = "TRUE DAMAGE TARGET";
+                    indicator.className = "text-[9px] text-zinc-500 font-bold transition-all";
+                }, 1200);
+            }
         }
 
         function speakVoice(text) {
@@ -2254,12 +3156,24 @@
                     // +50 EXP per latihan beban
                     tambahExp(50, "STRENGTH DRILL");
 
+                    // Akumulasi Volume Angkatan untuk Lencana Iron Lifter
+                    if (volumeKg > 0) {
+                        rpgProfile.total_lift_volume = (rpgProfile.total_lift_volume || 0) + volumeKg;
+                    }
+
                     // str_stat: +1 setiap kelipatan 500 kg volume angkatan (min +1 untuk beban)
                     const strGain = Math.max(1, Math.floor(volumeKg / 500));
                     rpgProfile.str_stat = (rpgProfile.str_stat || 10) + strGain;
 
                     // True Damage ke Boss: (Total Volume kg / 10), atau jika volume 0 min kalori/2
-                    const bossDmg = volumeKg > 0 ? Math.floor(volumeKg / 10) : Math.max(10, Math.floor(kalori / 2));
+                    let bossDmg = volumeKg > 0 ? Math.floor(volumeKg / 10) : Math.max(10, Math.floor(kalori / 2));
+                    
+                    // Buff 2: Mjolnir Power Gauntlets -> +20% True Damage
+                    if (isGearEquipped('mjolnir_gauntlets')) {
+                        const bonusDmg = Math.round(bossDmg * 0.20);
+                        bossDmg += bonusDmg;
+                    }
+
                     dealBossDamage(bossDmg, "KINETIC STRENGTH");
                     showToast(`STR +${strGain} | VOLUME: ${volumeKg}kg`, "🏋️");
 
@@ -2274,7 +3188,14 @@
                     rpgProfile.sta_stat = (rpgProfile.sta_stat || 10) + staGain;
 
                     // True Damage ke Boss: (Total Kalori Terbakar x 1)
-                    const bossDmg = kalori * 1;
+                    let bossDmg = kalori * 1;
+
+                    // Buff 3: Valkyrie Thruster Boots -> +15% Boss Damage
+                    if (isGearEquipped('valkyrie_boots')) {
+                        const bonusDmg = Math.round(bossDmg * 0.15);
+                        bossDmg += bonusDmg;
+                    }
+
                     dealBossDamage(bossDmg, "MET CARDIO BURST");
                     showToast(`STA +${staGain} | BURN: ${kalori} kcal`, "🏃");
 
@@ -2282,6 +3203,7 @@
                     progressQuestSta(kalori);
                 }
 
+                checkAchievements();
                 await updateRpgState();
 
                 document.getElementById('input-olahraga-strength').value = '';

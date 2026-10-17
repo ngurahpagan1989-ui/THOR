@@ -44,7 +44,13 @@ export const defaultThorRpgProfile = {
     boss_hp: 5000,
     boss_max_hp: 5000,
     last_active_date: new Date().toISOString().split('T')[0],
-    daily_quests: createFreshDailyQuests()
+    daily_quests: createFreshDailyQuests(),
+    unlocked_badges: [],
+    equipped_gear: ['recruit_exo_suit'],
+    total_lift_volume: 0,
+    clean_food_count: 0,
+    boss_damage_total: 0,
+    boss_kill_count: 0
 };
 
 /**
@@ -77,6 +83,12 @@ export async function loadThorRpgProfile() {
         if (data) {
             if (typeof data.daily_quests === 'string') {
                 try { data.daily_quests = JSON.parse(data.daily_quests); } catch(e) {}
+            }
+            if (typeof data.unlocked_badges === 'string') {
+                try { data.unlocked_badges = JSON.parse(data.unlocked_badges); } catch(e) {}
+            }
+            if (typeof data.equipped_gear === 'string') {
+                try { data.equipped_gear = JSON.parse(data.equipped_gear); } catch(e) {}
             }
             return { ...defaultThorRpgProfile, ...data };
         }
@@ -114,7 +126,9 @@ export async function updateThorRpgProfile(profile) {
         const fullPayload = {
             ...basePayload,
             last_active_date: profile.last_active_date || new Date().toISOString().split('T')[0],
-            daily_quests: profile.daily_quests || createFreshDailyQuests()
+            daily_quests: profile.daily_quests || createFreshDailyQuests(),
+            unlocked_badges: profile.unlocked_badges || [],
+            equipped_gear: profile.equipped_gear || ['recruit_exo_suit']
         };
 
         const { data, error } = await supabaseClient
@@ -139,3 +153,236 @@ export async function updateThorRpgProfile(profile) {
         return null;
     }
 }
+
+/**
+ * Tactical Sound Synthesizer Engine (Web Audio API)
+ */
+export const thorAudio = {
+    audioCtx: null,
+    isMuted: (typeof localStorage !== 'undefined' && localStorage.getItem('THOR_SFX_MUTED') === 'true'),
+
+    getContext() {
+        if (!this.audioCtx && typeof window !== 'undefined') {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (AudioContextClass) this.audioCtx = new AudioContextClass();
+        }
+        if (this.audioCtx && this.audioCtx.state === 'suspended') {
+            this.audioCtx.resume();
+        }
+        return this.audioCtx;
+    },
+
+    toggleMute() {
+        this.isMuted = !this.isMuted;
+        if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('THOR_SFX_MUTED', this.isMuted ? 'true' : 'false');
+        }
+        if (!this.isMuted) {
+            this.playExpSound();
+        }
+    },
+
+    playExpSound() {
+        if (this.isMuted) return;
+        try {
+            const ctx = this.getContext();
+            if (!ctx) return;
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.exponentialRampToValueAtTime(900, now + 0.12);
+            gain.gain.setValueAtTime(0.01, now);
+            gain.gain.linearRampToValueAtTime(0.35, now + 0.02);
+            gain.gain.setValueAtTime(0.08, now + 0.05);
+            gain.gain.setValueAtTime(0.4, now + 0.07);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.12);
+        } catch (e) {}
+    },
+
+    playBossHitSound() {
+        if (this.isMuted) return;
+        try {
+            const ctx = this.getContext();
+            if (!ctx) return;
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(120, now);
+            osc.frequency.exponentialRampToValueAtTime(40, now + 0.20);
+            gain.gain.setValueAtTime(0.6, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.20);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.20);
+        } catch (e) {}
+    },
+
+    playLevelUpSound() {
+        if (this.isMuted) return;
+        try {
+            const ctx = this.getContext();
+            if (!ctx) return;
+            const now = ctx.currentTime;
+            const notes = [
+                { f: 523.25, time: 0.00, dur: 0.10 },
+                { f: 659.25, time: 0.09, dur: 0.10 },
+                { f: 783.99, time: 0.18, dur: 0.12 },
+                { f: 1046.50, time: 0.28, dur: 0.45 }
+            ];
+            notes.forEach(note => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = "triangle";
+                osc.frequency.setValueAtTime(note.f, now + note.time);
+                gain.gain.setValueAtTime(0.01, now + note.time);
+                gain.gain.linearRampToValueAtTime(0.35, now + note.time + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + note.time + note.dur);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now + note.time);
+                osc.stop(now + note.time + note.dur);
+            });
+        } catch (e) {}
+    },
+
+    playWarningSound() {
+        if (this.isMuted) return;
+        try {
+            const ctx = this.getContext();
+            if (!ctx) return;
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "square";
+            osc.frequency.setValueAtTime(300, now);
+            osc.frequency.setValueAtTime(200, now + 0.08);
+            osc.frequency.setValueAtTime(300, now + 0.14);
+            osc.frequency.setValueAtTime(200, now + 0.20);
+            gain.gain.setValueAtTime(0.35, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.26);
+        } catch (e) {}
+    }
+};
+
+/**
+ * Tactical Gear Registry (Norse-Cyberpunk Passive Buffs)
+ */
+export const TACTICAL_GEAR_REGISTRY = [
+    {
+        id: "recruit_exo_suit",
+        name: "Recruit Exo-Suit",
+        slot: "EXO-CHASSIS",
+        icon: "🦿",
+        unlockReq: "Level ≥ 1",
+        buffBadge: "+5% BASE EXP",
+        desc: "Sistem eksoskeleton standar rekrut taktis. Mengoptimalkan neural motorik sebesar +5% Base EXP.",
+        checkUnlocked: (p) => (p.level || 1) >= 1
+    },
+    {
+        id: "mjolnir_gauntlets",
+        name: "Mjolnir Power Gauntlets",
+        slot: "ARMS",
+        icon: "🥊",
+        unlockReq: "STR ≥ 15",
+        buffBadge: "+20% TRUE DMG (BEBAN)",
+        desc: "Sarung tangan kinetik bermuatan plasma Thor. +20% True Damage ke Boss dari angkatan beban.",
+        checkUnlocked: (p) => (p.str_stat || 10) >= 15
+    },
+    {
+        id: "valkyrie_boots",
+        name: "Valkyrie Thruster Boots",
+        slot: "BOOTS",
+        icon: "🥾",
+        unlockReq: "STA ≥ 15",
+        buffBadge: "+20% EXP & +15% DMG (KARDIO)",
+        desc: "Sepatu berpendorong ionik Valkyrie. +20% EXP dan +15% Boss Damage dari aktivitas kardio/MET.",
+        checkUnlocked: (p) => (p.sta_stat || 10) >= 15
+    },
+    {
+        id: "idunn_core",
+        name: "Idunn Bio-Reactor Core",
+        slot: "CORE",
+        icon: "🔋",
+        unlockReq: "VIT ≥ 15",
+        buffBadge: "2X HP RECOVERY (SEHAT)",
+        desc: "Reaktor biokimia esensi Idunn. Melipatgandakan (2x) pemulihan Armor HP dari makanan bernutrisi.",
+        checkUnlocked: (p) => (p.vit_stat || 10) >= 15
+    },
+    {
+        id: "aegis_armor",
+        name: "Asgardian Aegis Armor",
+        slot: "CHESTPLATE",
+        icon: "🛡️",
+        unlockReq: "Level ≥ 10",
+        buffBadge: "-50% HP PENALTY & DECAY",
+        desc: "Pelindung vibranium Asgardian. Meredam 50% efek penalti HP debuff dan kerusakan Armor Decay.",
+        checkUnlocked: (p) => (p.level || 1) >= 10
+    }
+];
+
+/**
+ * Achievement Medals Registry
+ */
+export const ACHIEVEMENT_MEDALS = [
+    {
+        id: "first_blood",
+        title: "FIRST BLOOD",
+        icon: "🏅",
+        rewardText: "+50 EXP",
+        expReward: 50,
+        desc: "Berikan True Damage pertama kali ke Boss Mingguan.",
+        checkEarned: (p) => (p.boss_damage_total || 0) > 0
+    },
+    {
+        id: "iron_lifter",
+        title: "IRON LIFTER",
+        icon: "🏋️",
+        rewardText: "+100 EXP, +2 STR",
+        expReward: 100,
+        statGains: { str: 2 },
+        desc: "Mencapai total akumulasi volume angkatan beban 5.000 kg.",
+        checkEarned: (p) => (p.total_lift_volume || 0) >= 5000
+    },
+    {
+        id: "unstoppable",
+        title: "UNSTOPPABLE",
+        icon: "🔥",
+        rewardText: "+150 EXP",
+        expReward: 150,
+        desc: "Mencapai Streak aktif 7 hari berturut-turut.",
+        checkEarned: (p) => (p.streak_days || 0) >= 7
+    },
+    {
+        id: "clean_fuel",
+        title: "CLEAN FUEL",
+        icon: "🥩",
+        rewardText: "+100 EXP, +2 VIT",
+        expReward: 100,
+        statGains: { vit: 2 },
+        desc: "Mencatat 10 makanan bernutrisi sehat dengan AI Vision.",
+        checkEarned: (p) => (p.clean_food_count || 0) >= 10
+    },
+    {
+        id: "fenrir_slayer",
+        title: "FENRIR SLAYER",
+        icon: "💀",
+        rewardText: "+300 EXP",
+        expReward: 300,
+        desc: "Mengalahkan Boss Mingguan pertama kali.",
+        checkEarned: (p) => (p.boss_kill_count || 0) >= 1
+    }
+];
+
+
