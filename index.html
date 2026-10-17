@@ -227,20 +227,25 @@
             </div>
 
             <!-- Weekly Boss Raid Module -->
-            <div id="rpg-boss-container" class="relative bg-gradient-to-r from-rose-950/40 via-zinc-900/80 to-zinc-950 border border-rose-500/40 rounded-2xl p-3 shadow-[0_0_20px_-5px_rgba(244,63,94,0.2)] font-mono transition-all duration-150">
+            <div id="rpg-boss-container" onclick="bukaModalArmoryTab('bosses')" class="relative bg-gradient-to-r from-rose-950/40 via-zinc-900/80 to-zinc-950 border border-rose-500/40 rounded-2xl p-3 shadow-[0_0_20px_-5px_rgba(244,63,94,0.2)] font-mono transition-all duration-150 cursor-pointer hover:border-rose-400/70 group">
                 <div class="flex items-center justify-between mb-1.5">
-                    <div class="flex items-center gap-1.5">
+                    <div class="flex items-center gap-1.5 flex-wrap">
                         <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
                         <span class="text-[9px] font-black text-rose-400 uppercase tracking-widest">WEEKLY RAID BOSS</span>
+                        <span id="rpg-boss-tier-badge" class="text-[8px] bg-rose-950/90 text-rose-300 border border-rose-500/50 px-1.5 py-0.2 rounded font-black">TIER 1/5</span>
+                        <span id="rpg-boss-element-badge" class="text-[8px] bg-zinc-900 text-zinc-300 border border-zinc-700 px-1.5 py-0.2 rounded font-bold">KINETIC</span>
+                        <span id="rpg-boss-ng-badge" class="hidden text-[8px] bg-amber-500 text-black px-1.5 py-0.2 rounded font-black shadow-[0_0_8px_rgba(245,158,11,0.6)] animate-pulse">OVERDRIVE</span>
                     </div>
-                    <span id="boss-hit-indicator" class="text-[9px] text-zinc-500 font-bold transition-all">TRUE DAMAGE TARGET</span>
+                    <span id="boss-hit-indicator" class="text-[9px] text-zinc-400 font-bold transition-all flex items-center gap-1">
+                        <span id="rpg-boss-kills-badge">🏆 0 KILLS</span>
+                    </span>
                 </div>
                 
                 <div class="flex items-center justify-between mb-1">
                     <span id="rpg-boss-name" class="font-black text-white text-xs tracking-wider flex items-center gap-1.5">
-                        <span class="text-rose-500">👾</span> FENRIR MK-I
+                        <span id="rpg-boss-icon" class="text-rose-500">🐺</span> FENRIR MK-I (Cybernetic Wolf)
                     </span>
-                    <span id="rpg-boss-hp-text" class="text-rose-400 font-bold text-[10px]">5,000 / 5,000 HP (100%)</span>
+                    <span id="rpg-boss-hp-text" class="text-rose-400 font-bold text-[10px]">2,500 / 2,500 HP (100%)</span>
                 </div>
 
                 <div class="h-2.5 w-full bg-zinc-950 border border-zinc-800 rounded-full overflow-hidden p-0.5">
@@ -249,6 +254,7 @@
 
                 <div class="flex justify-between items-center text-[8px] text-zinc-500 mt-1.5">
                     <span>🔥 Burn Cal: 1 KCAL = 1 DMG</span>
+                    <span class="text-rose-400/90 group-hover:text-rose-300 transition flex items-center gap-0.5">ROSTER & LOGS <span>→</span></span>
                     <span>🏋️ Lift Load: 10 KG = 1 DMG</span>
                 </div>
             </div>
@@ -892,13 +898,16 @@
                 </button>
             </div>
 
-            <!-- Tab Switcher -->
-            <div class="grid grid-cols-2 gap-2 mb-3 bg-zinc-900/60 p-1 rounded-xl border border-zinc-800">
-                <button id="btn-tab-armory-gear" onclick="switchArmoryTab('gear')" class="py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-purple-600 text-white shadow-md shadow-purple-950 border border-purple-400">
-                    <span>⚔️</span> GEAR BUFFS
+            <!-- Tab Switcher (3 Tabs) -->
+            <div class="grid grid-cols-3 gap-1.5 mb-3 bg-zinc-900/60 p-1 rounded-xl border border-zinc-800">
+                <button id="btn-tab-armory-gear" onclick="switchArmoryTab('gear')" class="py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition flex items-center justify-center gap-1 bg-purple-600 text-white shadow-md shadow-purple-950 border border-purple-400">
+                    <span>⚔️</span> GEAR
                 </button>
-                <button id="btn-tab-armory-medals" onclick="switchArmoryTab('medals')" class="py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 text-zinc-400 hover:text-white">
+                <button id="btn-tab-armory-medals" onclick="switchArmoryTab('medals')" class="py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition flex items-center justify-center gap-1 text-zinc-400 hover:text-white">
                     <span>🏅</span> MEDALS (<span id="tab-medals-count">0/5</span>)
+                </button>
+                <button id="btn-tab-armory-bosses" onclick="switchArmoryTab('bosses')" class="py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition flex items-center justify-center gap-1 text-zinc-400 hover:text-white">
+                    <span>💀</span> RAID ROSTER
                 </button>
             </div>
 
@@ -933,6 +942,54 @@
                     <!-- Medals Grid -->
                     <div id="medals-list-cards" class="space-y-2.5">
                         <!-- Injected dynamically by renderArmoryMedals() -->
+                    </div>
+                </div>
+
+                <!-- Tab Boss Raid View -->
+                <div id="armory-view-bosses" class="hidden space-y-3">
+                    <!-- Overdrive / Ragnarok Protocol Banner -->
+                    <div id="boss-ragnarok-banner" class="p-3 rounded-2xl bg-gradient-to-r from-rose-950/60 via-zinc-900 to-amber-950/60 border border-rose-500/40 text-[10px]">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-zinc-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                                RAID STATUS MATRIX
+                            </span>
+                            <span id="boss-raid-cycle-badge" class="bg-rose-950 text-rose-300 border border-rose-500/50 text-[9px] font-black px-2 py-0.5 rounded-md">CYCLE: NORMAL</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-zinc-300">
+                            <div class="p-2 rounded-xl bg-zinc-950/80 border border-zinc-800">
+                                <span class="text-[8px] text-zinc-500 block uppercase font-bold">TOTAL BOSSES SLAIN</span>
+                                <span id="boss-total-kills-stat" class="text-sm font-black text-rose-400">0 OVERLORDS</span>
+                            </div>
+                            <div class="p-2 rounded-xl bg-zinc-950/80 border border-zinc-800">
+                                <span class="text-[8px] text-zinc-500 block uppercase font-bold">TOTAL DAMAGE INFLICTED</span>
+                                <span id="boss-total-dmg-stat" class="text-sm font-black text-amber-400">0 DMG</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Boss Roster Title -->
+                    <div class="flex items-center justify-between text-[10px] text-zinc-400 px-1">
+                        <span class="font-bold uppercase tracking-wider">NORSE-CYBERPUNK RAID ROSTER (5 TIERS)</span>
+                        <span id="boss-roster-progress-text" class="text-rose-400 font-bold">TIER 1/5 ACTIVE</span>
+                    </div>
+
+                    <!-- 5 Tiers Cards Container -->
+                    <div id="boss-roster-cards" class="space-y-2">
+                        <!-- Injected dynamically by renderArmoryBosses() -->
+                    </div>
+
+                    <!-- Defeated Bosses History Section -->
+                    <div class="p-3 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-2">
+                        <div class="flex items-center justify-between text-[10px]">
+                            <span class="text-zinc-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                                <span>📜</span> DEFEATED BOSSES HISTORY
+                            </span>
+                            <span id="defeated-bosses-count-badge" class="text-zinc-500 font-bold">0 RECORDED</span>
+                        </div>
+                        <div id="defeated-bosses-list" class="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                            <!-- Injected dynamically by renderArmoryBosses() -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1000,6 +1057,54 @@
             };
         }
 
+        const BOSS_ROSTER = [
+            {
+                tier: 1,
+                name: "FENRIR MK-I (Cybernetic Wolf)",
+                shortName: "FENRIR MK-I",
+                maxHp: 2500,
+                element: "Kinetic",
+                icon: "🐺",
+                desc: "Srigala sibernetik pelacak kinetik berkecepatan tinggi dengan cakar pemotong plasma."
+            },
+            {
+                tier: 2,
+                name: "JORMUNGANDR EXO-SERPENT",
+                shortName: "JORMUNGANDR",
+                maxHp: 4000,
+                element: "Bio-Hazard",
+                icon: "🐍",
+                desc: "Ular raksasa berlapis baja bertenaga reaktor asam korosif dan bio-hazard toksik."
+            },
+            {
+                tier: 3,
+                name: "LOKI PHANTOM DRONE",
+                shortName: "LOKI PHANTOM",
+                maxHp: 6000,
+                element: "Stealth/Optical",
+                icon: "🛸",
+                desc: "Drone siluman dengan kamuflase optik dan proyeksi bayangan holografik frekuensi tinggi."
+            },
+            {
+                tier: 4,
+                name: "SURTUR PLASMA TITAN",
+                shortName: "SURTUR TITAN",
+                maxHp: 8500,
+                element: "Thermal",
+                icon: "🔥",
+                desc: "Titan tempur lapis baja magma berbahan bakar plasma termal bersuhu ribuan derajat."
+            },
+            {
+                tier: 5,
+                name: "ODIN PRIME OVERLORD",
+                shortName: "ODIN PRIME",
+                maxHp: 12000,
+                element: "Quantum",
+                icon: "👁️",
+                desc: "Kecerdasan buatan komando pusat tertinggi dengan daya manipulasi komputasi quantum mutlak."
+            }
+        ];
+
         const defaultRpgProfile = {
             id: 1,
             player_name: 'NGURAH',
@@ -1013,9 +1118,12 @@
             sta_stat: 10,
             vit_stat: 10,
             streak_days: 1,
-            boss_name: 'FENRIR MK-I',
-            boss_hp: 5000,
-            boss_max_hp: 5000,
+            boss_name: 'FENRIR MK-I (Cybernetic Wolf)',
+            boss_hp: 2500,
+            boss_max_hp: 2500,
+            boss_tier: 0,
+            ng_plus_cycle: 0,
+            defeated_bosses: [],
             last_active_date: new Date().toISOString().split('T')[0],
             daily_quests: createFreshDailyQuests(),
             unlocked_badges: [],
@@ -1028,15 +1136,10 @@
 
         let rpgProfile = { ...defaultRpgProfile };
 
-        const BOSS_REGISTRY = [
-            "FENRIR MK-I",
-            "JORMUNGANDR CYBER-BEAST",
-            "SURTUR TITAN ENGINE",
-            "HELA DREAD-PROTOCOL",
-            "YMIR GLACIAL CORE",
-            "NIDHOGG DEEP BORE",
-            "LOKI SHADOW OVERLORD"
-        ];
+        function getCurrentBossData() {
+            const tier = (typeof rpgProfile.boss_tier === 'number') ? rpgProfile.boss_tier : 0;
+            return BOSS_ROSTER[tier] || BOSS_ROSTER[0];
+        }
 
         function calculateRankTitle(lvl) {
             if (lvl >= 30) return '[GOD OF THUNDER]';
@@ -1335,11 +1438,39 @@
             if (vitEl) vitEl.innerText = rpgProfile.vit_stat || 10;
 
             // Boss Raid Module
+            const curBoss = getCurrentBossData();
             const bossNameEl = document.getElementById('rpg-boss-name');
-            if (bossNameEl) bossNameEl.innerHTML = `<span class="text-rose-500">👾</span> ${rpgProfile.boss_name || 'FENRIR MK-I'}`;
+            if (bossNameEl) {
+                bossNameEl.innerHTML = `<span id="rpg-boss-icon" class="text-rose-500">${curBoss.icon}</span> ${rpgProfile.boss_name || curBoss.name}`;
+            }
 
-            const bHp = Math.max(0, rpgProfile.boss_hp || 0);
-            const bMaxHp = Math.max(1, rpgProfile.boss_max_hp || 5000);
+            const bossTierBadge = document.getElementById('rpg-boss-tier-badge');
+            if (bossTierBadge) {
+                bossTierBadge.innerText = `TIER ${(typeof rpgProfile.boss_tier === 'number' ? rpgProfile.boss_tier : 0) + 1}/5`;
+            }
+
+            const bossElemBadge = document.getElementById('rpg-boss-element-badge');
+            if (bossElemBadge) {
+                bossElemBadge.innerText = curBoss.element.toUpperCase();
+            }
+
+            const bossNgBadge = document.getElementById('rpg-boss-ng-badge');
+            if (bossNgBadge) {
+                if ((rpgProfile.ng_plus_cycle || 0) > 0) {
+                    bossNgBadge.classList.remove('hidden');
+                    bossNgBadge.innerText = `OVERDRIVE NG+${rpgProfile.ng_plus_cycle}`;
+                } else {
+                    bossNgBadge.classList.add('hidden');
+                }
+            }
+
+            const bossKillsBadge = document.getElementById('rpg-boss-kills-badge');
+            if (bossKillsBadge) {
+                bossKillsBadge.innerText = `🏆 ${rpgProfile.boss_kill_count || 0} KILLS`;
+            }
+
+            const bHp = Math.max(0, rpgProfile.boss_hp !== undefined ? rpgProfile.boss_hp : 2500);
+            const bMaxHp = Math.max(1, rpgProfile.boss_max_hp || 2500);
             const bPercent = Math.min(100, Math.round((bHp / bMaxHp) * 100));
             const bHpBar = document.getElementById('rpg-boss-hp-bar');
             if (bHpBar) bHpBar.style.width = `${bPercent}%`;
@@ -1389,6 +1520,14 @@
             if (cachedGear) {
                 try { rpgProfile.equipped_gear = JSON.parse(cachedGear); } catch(e) {}
             }
+            const cachedDefeated = localStorage.getItem('THOR_DEFEATED_BOSSES');
+            if (cachedDefeated) {
+                try { rpgProfile.defeated_bosses = JSON.parse(cachedDefeated); } catch(e) {}
+            }
+            const cachedNgCycle = localStorage.getItem('THOR_NG_CYCLE');
+            if (cachedNgCycle !== null) {
+                rpgProfile.ng_plus_cycle = parseInt(cachedNgCycle) || 0;
+            }
             const cachedCounters = localStorage.getItem('THOR_RPG_COUNTERS');
             if (cachedCounters) {
                 try {
@@ -1398,6 +1537,27 @@
                     rpgProfile.boss_damage_total = c.boss_damage_total || 0;
                     rpgProfile.boss_kill_count = c.boss_kill_count || 0;
                 } catch(e) {}
+            }
+
+            // Normalisasi data Boss jika dari versi sebelumnya
+            if (rpgProfile.boss_tier === undefined) {
+                const matchedIdx = BOSS_ROSTER.findIndex(b => 
+                    rpgProfile.boss_name && (rpgProfile.boss_name.includes(b.shortName) || rpgProfile.boss_name.includes(b.name))
+                );
+                rpgProfile.boss_tier = matchedIdx >= 0 ? matchedIdx : 0;
+            }
+            if (!Array.isArray(rpgProfile.defeated_bosses)) {
+                rpgProfile.defeated_bosses = [];
+            }
+            if (rpgProfile.ng_plus_cycle === undefined) {
+                rpgProfile.ng_plus_cycle = 0;
+            }
+            if (!rpgProfile.boss_name || rpgProfile.boss_name === 'FENRIR MK-I') {
+                const b = BOSS_ROSTER[rpgProfile.boss_tier] || BOSS_ROSTER[0];
+                const mult = Math.pow(2, rpgProfile.ng_plus_cycle || 0);
+                rpgProfile.boss_name = (rpgProfile.ng_plus_cycle > 0 ? '[OVERDRIVE] ' : '') + b.name;
+                rpgProfile.boss_max_hp = b.maxHp * mult;
+                rpgProfile.boss_hp = Math.min(rpgProfile.boss_hp || b.maxHp, rpgProfile.boss_max_hp);
             }
 
             // 2. Evaluasi Reset Harian & Armor Decay Penalty
@@ -1437,6 +1597,17 @@
                     } else if (cachedGear) {
                         try { rpgProfile.equipped_gear = JSON.parse(cachedGear); } catch(e) {}
                     }
+                    if (data.defeated_bosses) {
+                        rpgProfile.defeated_bosses = (typeof data.defeated_bosses === 'string') ? JSON.parse(data.defeated_bosses) : data.defeated_bosses;
+                    } else if (cachedDefeated) {
+                        try { rpgProfile.defeated_bosses = JSON.parse(cachedDefeated); } catch(e) {}
+                    }
+                    if (data.ng_plus_cycle !== undefined) {
+                        rpgProfile.ng_plus_cycle = data.ng_plus_cycle;
+                    }
+                    if (data.boss_tier !== undefined) {
+                        rpgProfile.boss_tier = data.boss_tier;
+                    }
 
                     checkDailyResetAndDecay();
                     checkAchievements();
@@ -1445,6 +1616,8 @@
                     if (rpgProfile.last_active_date) localStorage.setItem('THOR_LAST_ACTIVE_DATE', rpgProfile.last_active_date);
                     if (rpgProfile.unlocked_badges) localStorage.setItem('THOR_UNLOCKED_BADGES', JSON.stringify(rpgProfile.unlocked_badges));
                     if (rpgProfile.equipped_gear) localStorage.setItem('THOR_EQUIPPED_GEAR', JSON.stringify(rpgProfile.equipped_gear));
+                    if (rpgProfile.defeated_bosses) localStorage.setItem('THOR_DEFEATED_BOSSES', JSON.stringify(rpgProfile.defeated_bosses));
+                    if (rpgProfile.ng_plus_cycle !== undefined) localStorage.setItem('THOR_NG_CYCLE', String(rpgProfile.ng_plus_cycle));
                     renderRpgHud();
                 } else {
                     await updateRpgState();
@@ -1470,6 +1643,12 @@
             }
             if (rpgProfile.equipped_gear) {
                 localStorage.setItem('THOR_EQUIPPED_GEAR', JSON.stringify(rpgProfile.equipped_gear));
+            }
+            if (rpgProfile.defeated_bosses) {
+                localStorage.setItem('THOR_DEFEATED_BOSSES', JSON.stringify(rpgProfile.defeated_bosses));
+            }
+            if (rpgProfile.ng_plus_cycle !== undefined) {
+                localStorage.setItem('THOR_NG_CYCLE', String(rpgProfile.ng_plus_cycle));
             }
             localStorage.setItem('THOR_RPG_COUNTERS', JSON.stringify({
                 total_lift_volume: rpgProfile.total_lift_volume || 0,
@@ -1506,7 +1685,10 @@
                     last_active_date: rpgProfile.last_active_date,
                     daily_quests: rpgProfile.daily_quests,
                     unlocked_badges: rpgProfile.unlocked_badges,
-                    equipped_gear: rpgProfile.equipped_gear
+                    equipped_gear: rpgProfile.equipped_gear,
+                    defeated_bosses: rpgProfile.defeated_bosses,
+                    boss_tier: rpgProfile.boss_tier,
+                    ng_plus_cycle: rpgProfile.ng_plus_cycle
                 };
 
                 const { error } = await supabaseClient
@@ -1585,7 +1767,8 @@
 
         function dealBossDamage(dmg, source = "TACTICAL STRIKE") {
             if (dmg <= 0) return;
-            rpgProfile.boss_hp = Math.max(0, (rpgProfile.boss_hp || 5000) - dmg);
+            const currentBossData = getCurrentBossData();
+            rpgProfile.boss_hp = Math.max(0, (rpgProfile.boss_hp !== undefined ? rpgProfile.boss_hp : currentBossData.maxHp) - dmg);
             rpgProfile.boss_damage_total = (rpgProfile.boss_damage_total || 0) + dmg;
 
             thorAudio.playBossHitSound();
@@ -1593,32 +1776,73 @@
 
             if (rpgProfile.boss_hp <= 0) {
                 // Boss Defeated!
+                rpgProfile.boss_hp = 0;
                 rpgProfile.boss_kill_count = (rpgProfile.boss_kill_count || 0) + 1;
+                
+                // Berikan bonus +300 EXP
                 tambahExp(300, "BOSS DEFEATED BONUS");
                 thorAudio.playLevelUpSound();
-                showRpgSystemModal(
-                    "💀 RAID BOSS DEFEATED!",
-                    `TARGET ${rpgProfile.boss_name} TELAH DIHANCURKAN!\nBONUS +300 EXP DIPEROLEH!\nMEMINDAI TARGET BARU...`,
-                    "RAID VICTORY",
-                    "🏆"
-                );
 
-                // Spawn boss berikutnya dengan +1000 HP
-                rpgProfile.boss_max_hp = (rpgProfile.boss_max_hp || 5000) + 1000;
-                rpgProfile.boss_hp = rpgProfile.boss_max_hp;
+                // Catat nama Boss ke riwayat "DEFEATED BOSSES"
+                const defeatedBossName = rpgProfile.boss_name || currentBossData.name;
+                if (!Array.isArray(rpgProfile.defeated_bosses)) {
+                    rpgProfile.defeated_bosses = [];
+                }
+                rpgProfile.defeated_bosses.push(defeatedBossName);
+                localStorage.setItem('THOR_DEFEATED_BOSSES', JSON.stringify(rpgProfile.defeated_bosses));
 
-                let curIdx = BOSS_REGISTRY.indexOf(rpgProfile.boss_name);
-                if (curIdx !== -1 && curIdx + 1 < BOSS_REGISTRY.length) {
-                    rpgProfile.boss_name = BOSS_REGISTRY[curIdx + 1];
+                const currentTier = (typeof rpgProfile.boss_tier === 'number') ? rpgProfile.boss_tier : 0;
+
+                if (currentTier >= BOSS_ROSTER.length - 1) {
+                    // Semua 5 Boss sudah dikalahkan! Masuk ke mode "NEW GAME+ (RAGNAROK PROTOCOL)"
+                    rpgProfile.ng_plus_cycle = (rpgProfile.ng_plus_cycle || 0) + 1;
+                    rpgProfile.boss_tier = 0; // Ulangi siklus dari Tier 1
+                    localStorage.setItem('THOR_NG_CYCLE', String(rpgProfile.ng_plus_cycle));
+
+                    const nextBoss = BOSS_ROSTER[0];
+                    const multiplier = Math.pow(2, rpgProfile.ng_plus_cycle); // 2x lipat
+                    rpgProfile.boss_max_hp = nextBoss.maxHp * multiplier;
+                    rpgProfile.boss_hp = rpgProfile.boss_max_hp;
+                    rpgProfile.boss_name = `[OVERDRIVE] ${nextBoss.name}`;
+
+                    showRpgSystemModal(
+                        "🔥 RAGNAROK PROTOCOL INITIATED!",
+                        `SELURUH 5 OVERLORD TELAH DITUMPAS!\n` +
+                        `TARGET [${defeatedBossName}] HANCUR TOTAL!\n` +
+                        `+300 EXP BONUS TELAH DITERIMA.\n\n` +
+                        `SISTEM MEMASUKI MODE: NEW GAME+ (RAGNAROK PROTOCOL OVERDRIVE)!\n` +
+                        `SIKLUS BOSS BERULANG DARI TIER 1 DENGAN MAX HP 2X LIPAT.\n\n` +
+                        `TARGET BARU: ${rpgProfile.boss_name}\n` +
+                        `ELEMEN: ${nextBoss.element} | HP: ${rpgProfile.boss_max_hp.toLocaleString()} HP`,
+                        "[NEW GAME+ PROTOCOL]",
+                        "👑"
+                    );
                 } else {
-                    const nextNum = (parseInt((rpgProfile.boss_name.match(/MK-(\d+)/) || [0, 1])[1]) + 1);
-                    rpgProfile.boss_name = `FENRIR MK-${nextNum}`;
+                    // Muat Boss Tier berikutnya dari daftar di atas
+                    rpgProfile.boss_tier = currentTier + 1;
+                    const nextBoss = BOSS_ROSTER[rpgProfile.boss_tier];
+                    const multiplier = Math.pow(2, rpgProfile.ng_plus_cycle || 0);
+                    rpgProfile.boss_max_hp = nextBoss.maxHp * multiplier;
+                    rpgProfile.boss_hp = rpgProfile.boss_max_hp;
+                    rpgProfile.boss_name = (rpgProfile.ng_plus_cycle > 0 ? '[OVERDRIVE] ' : '') + nextBoss.name;
+
+                    showRpgSystemModal(
+                        "💀 RAID BOSS DEFEATED!",
+                        `TARGET [${defeatedBossName}] BERHASIL DIELIMINASI!\n` +
+                        `+300 EXP BONUS TELAH DITAMBAHKAN!\n\n` +
+                        `MEMINDAI TARGET BERIKUTNYA...\n` +
+                        `TIER ${nextBoss.tier}: ${rpgProfile.boss_name}\n` +
+                        `ELEMEN: ${nextBoss.element} | MAX HP: ${rpgProfile.boss_max_hp.toLocaleString()} HP`,
+                        "[WEEKLY RAID VICTORY]",
+                        "🏆"
+                    );
                 }
             } else {
                 showRpgToast(`💥 ${dmg.toLocaleString()} TRUE DAMAGE!`, `Target: ${rpgProfile.boss_name}`);
             }
 
             checkAchievements();
+            updateRpgState();
         }
 
         function applyMealRpgEffect(nama, protein, calories, fat, carbs) {
@@ -1836,22 +2060,38 @@
             activeArmoryTab = tab;
             const btnGear = document.getElementById('btn-tab-armory-gear');
             const btnMedals = document.getElementById('btn-tab-armory-medals');
+            const btnBosses = document.getElementById('btn-tab-armory-bosses');
             const viewGear = document.getElementById('armory-view-gear');
             const viewMedals = document.getElementById('armory-view-medals');
+            const viewBosses = document.getElementById('armory-view-bosses');
+
+            const inactiveClass = "py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition flex items-center justify-center gap-1 text-zinc-400 hover:text-white";
+            if (btnGear) btnGear.className = inactiveClass;
+            if (btnMedals) btnMedals.className = inactiveClass;
+            if (btnBosses) btnBosses.className = inactiveClass;
+
+            if (viewGear) viewGear.classList.add('hidden');
+            if (viewMedals) viewMedals.classList.add('hidden');
+            if (viewBosses) viewBosses.classList.add('hidden');
 
             if (tab === 'gear') {
-                btnGear.className = "py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-purple-600 text-white shadow-md shadow-purple-950 border border-purple-400";
-                btnMedals.className = "py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 text-zinc-400 hover:text-white";
-                viewGear.classList.remove('hidden');
-                viewMedals.classList.add('hidden');
+                if (btnGear) btnGear.className = "py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition flex items-center justify-center gap-1 bg-purple-600 text-white shadow-md shadow-purple-950 border border-purple-400";
+                if (viewGear) viewGear.classList.remove('hidden');
                 renderArmoryGear();
-            } else {
-                btnMedals.className = "py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-amber-600 text-white shadow-md shadow-amber-950 border border-amber-400";
-                btnGear.className = "py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 text-zinc-400 hover:text-white";
-                viewMedals.classList.remove('hidden');
-                viewGear.classList.add('hidden');
+            } else if (tab === 'medals') {
+                if (btnMedals) btnMedals.className = "py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition flex items-center justify-center gap-1 bg-amber-600 text-white shadow-md shadow-amber-950 border border-amber-400";
+                if (viewMedals) viewMedals.classList.remove('hidden');
                 renderArmoryMedals();
+            } else if (tab === 'bosses') {
+                if (btnBosses) btnBosses.className = "py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition flex items-center justify-center gap-1 bg-rose-600 text-white shadow-md shadow-rose-950 border border-rose-400";
+                if (viewBosses) viewBosses.classList.remove('hidden');
+                renderArmoryBosses();
             }
+        }
+
+        function bukaModalArmoryTab(tab) {
+            activeArmoryTab = tab || 'gear';
+            bukaModalArmory();
         }
 
         function bukaModalArmory() {
@@ -1864,6 +2104,163 @@
             checkAchievements();
             switchArmoryTab(activeArmoryTab);
             bukaModal('modal-armory');
+        }
+
+        function renderArmoryBosses() {
+            const rosterContainer = document.getElementById('boss-roster-cards');
+            const historyContainer = document.getElementById('defeated-bosses-list');
+            const cycleBadge = document.getElementById('boss-raid-cycle-badge');
+            const totalKillsStat = document.getElementById('boss-total-kills-stat');
+            const totalDmgStat = document.getElementById('boss-total-dmg-stat');
+            const rosterProgressText = document.getElementById('boss-roster-progress-text');
+            const historyCountBadge = document.getElementById('defeated-bosses-count-badge');
+
+            const currentTier = (typeof rpgProfile.boss_tier === 'number') ? rpgProfile.boss_tier : 0;
+            const ngCycle = rpgProfile.ng_plus_cycle || 0;
+            const multiplier = Math.pow(2, ngCycle);
+
+            if (cycleBadge) {
+                if (ngCycle > 0) {
+                    cycleBadge.className = "bg-amber-500 text-black border border-amber-300 text-[9px] font-black px-2 py-0.5 rounded-md shadow-[0_0_10px_rgba(245,158,11,0.5)] animate-pulse";
+                    cycleBadge.innerText = `RAGNAROK NG+${ngCycle} (OVERDRIVE ${multiplier}X HP)`;
+                } else {
+                    cycleBadge.className = "bg-rose-950 text-rose-300 border border-rose-500/50 text-[9px] font-black px-2 py-0.5 rounded-md";
+                    cycleBadge.innerText = "CYCLE: NORMAL RUN";
+                }
+            }
+
+            if (totalKillsStat) {
+                totalKillsStat.innerText = `${rpgProfile.boss_kill_count || 0} OVERLORDS`;
+            }
+
+            if (totalDmgStat) {
+                totalDmgStat.innerText = `${(rpgProfile.boss_damage_total || 0).toLocaleString()} DMG`;
+            }
+
+            if (rosterProgressText) {
+                rosterProgressText.innerText = `TIER ${currentTier + 1}/5 ACTIVE`;
+            }
+
+            // Render 5 Tier Cards
+            if (rosterContainer) {
+                const rosterCardsHtml = BOSS_ROSTER.map((b, idx) => {
+                    const bossMaxHp = b.maxHp * multiplier;
+                    const isDefeatedInCycle = idx < currentTier;
+                    const isCurrent = idx === currentTier;
+                    const isLocked = idx > currentTier;
+
+                    if (isCurrent) {
+                        const currentHp = Math.max(0, rpgProfile.boss_hp !== undefined ? rpgProfile.boss_hp : bossMaxHp);
+                        const hpPct = Math.min(100, Math.round((currentHp / bossMaxHp) * 100));
+
+                        return `
+                            <div class="p-3 rounded-2xl bg-gradient-to-r from-rose-950/40 via-zinc-900 to-zinc-950 border-2 border-rose-500/80 shadow-[0_0_20px_rgba(244,63,94,0.3)]">
+                                <div class="flex items-start justify-between gap-2 mb-1.5">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-10 h-10 rounded-xl bg-rose-950 border border-rose-400 flex items-center justify-center text-2xl shadow-[0_0_10px_rgba(244,63,94,0.5)] shrink-0 animate-pulse">
+                                            ${b.icon}
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <span class="font-black text-xs text-white">${ngCycle > 0 ? '[OVERDRIVE] ' : ''}${b.name}</span>
+                                                <span class="text-[8px] bg-rose-500 text-black px-1.5 py-0.2 rounded font-black animate-pulse">ACTIVE TARGET</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-[9px] text-zinc-400 mt-0.5">
+                                                <span class="text-rose-400 font-bold">TIER ${b.tier}</span>
+                                                <span>•</span>
+                                                <span class="text-cyan-400 font-bold">ELEMEN: ${b.element.toUpperCase()}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right shrink-0">
+                                        <span class="text-xs font-black text-rose-400">${currentHp.toLocaleString()} HP</span>
+                                        <span class="text-[8px] text-zinc-500 block">/ ${bossMaxHp.toLocaleString()} HP (${hpPct}%)</span>
+                                    </div>
+                                </div>
+                                <div class="h-2 w-full bg-zinc-950 rounded-full overflow-hidden p-0.5 border border-zinc-800 mt-1">
+                                    <div class="h-full bg-gradient-to-r from-rose-600 to-amber-500 rounded-full transition-all duration-300" style="width: ${hpPct}%;"></div>
+                                </div>
+                                <p class="text-[8px] text-zinc-400 mt-1.5 italic">${b.desc}</p>
+                            </div>
+                        `;
+                    } else if (isDefeatedInCycle) {
+                        return `
+                            <div class="p-2.5 rounded-2xl bg-zinc-950/80 border border-emerald-500/40 opacity-80">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-lg bg-emerald-950/60 border border-emerald-500/40 flex items-center justify-center text-lg text-emerald-400 shrink-0">
+                                            ✓
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="font-bold text-xs text-zinc-300">${b.name}</span>
+                                                <span class="text-[8px] bg-emerald-950 text-emerald-400 border border-emerald-500/40 px-1 py-0.2 rounded font-bold">SLAIN</span>
+                                            </div>
+                                            <span class="text-[8px] text-zinc-500">Tier ${b.tier} • ${b.element} • Max HP: ${bossMaxHp.toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                    <span class="text-[9px] text-emerald-400 font-bold">+300 EXP CLAIMED</span>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        return `
+                            <div class="p-2.5 rounded-2xl bg-zinc-950/60 border border-zinc-800/80">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-sm text-zinc-600 grayscale shrink-0">
+                                            🔒
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="font-bold text-xs text-zinc-500">${b.name}</span>
+                                                <span class="text-[8px] bg-zinc-900 text-zinc-500 border border-zinc-800 px-1 py-0.2 rounded font-bold">IN QUEUE</span>
+                                            </div>
+                                            <span class="text-[8px] text-zinc-600">Tier ${b.tier} • ${b.element} • Est. HP: ${bossMaxHp.toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                    <span class="text-[9px] text-zinc-600 font-bold">LOCKED</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }).join('');
+
+                rosterContainer.innerHTML = rosterCardsHtml;
+            }
+
+            // Render Defeated Bosses History
+            const defeatedList = rpgProfile.defeated_bosses || [];
+            if (historyCountBadge) {
+                historyCountBadge.innerText = `${defeatedList.length} RECORDED`;
+            }
+
+            if (historyContainer) {
+                if (defeatedList.length === 0) {
+                    historyContainer.innerHTML = `
+                        <div class="p-3 text-center text-zinc-600 text-[9px] font-mono border border-dashed border-zinc-800 rounded-xl">
+                            BELUM ADA BOSS YANG DIKALAHKAN.<br>
+                            HANCURKAN TIER 1 DENGAN LATIHAN KARDIO & BEBAN!
+                        </div>
+                    `;
+                } else {
+                    const listHtml = [...defeatedList].reverse().map((bossName, idx) => {
+                        const originalOrder = defeatedList.length - idx;
+                        return `
+                            <div class="flex items-center justify-between p-2 rounded-xl bg-zinc-950/80 border border-zinc-800 text-[9px]">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-4 h-4 rounded-full bg-rose-950 border border-rose-500/40 text-rose-400 font-black flex items-center justify-center text-[8px]">#${originalOrder}</span>
+                                    <span class="font-bold text-zinc-200 tracking-wide">${bossName}</span>
+                                </div>
+                                <span class="bg-rose-950/60 text-rose-300 border border-rose-500/30 px-1.5 py-0.5 rounded font-black text-[8px]">
+                                    ELIMINATED ✓
+                                </span>
+                            </div>
+                        `;
+                    }).join('');
+                    historyContainer.innerHTML = listHtml;
+                }
+            }
         }
 
         function renderArmoryGear() {

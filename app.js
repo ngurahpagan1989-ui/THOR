@@ -25,6 +25,57 @@ export function createFreshDailyQuests(dateStr = new Date().toISOString().split(
 }
 
 /**
+ * NORSE-CYBERPUNK BOSS ROSTER (5 TIERS)
+ */
+export const BOSS_ROSTER = [
+    {
+        tier: 1,
+        name: "FENRIR MK-I (Cybernetic Wolf)",
+        shortName: "FENRIR MK-I",
+        maxHp: 2500,
+        element: "Kinetic",
+        icon: "🐺",
+        desc: "Srigala sibernetik pelacak kinetik berkecepatan tinggi dengan cakar pemotong plasma."
+    },
+    {
+        tier: 2,
+        name: "JORMUNGANDR EXO-SERPENT",
+        shortName: "JORMUNGANDR",
+        maxHp: 4000,
+        element: "Bio-Hazard",
+        icon: "🐍",
+        desc: "Ular raksasa berlapis baja bertenaga reaktor asam korosif dan bio-hazard toksik."
+    },
+    {
+        tier: 3,
+        name: "LOKI PHANTOM DRONE",
+        shortName: "LOKI PHANTOM",
+        maxHp: 6000,
+        element: "Stealth/Optical",
+        icon: "🛸",
+        desc: "Drone siluman dengan kamuflase optik dan proyeksi bayangan holografik frekuensi tinggi."
+    },
+    {
+        tier: 4,
+        name: "SURTUR PLASMA TITAN",
+        shortName: "SURTUR TITAN",
+        maxHp: 8500,
+        element: "Thermal",
+        icon: "🔥",
+        desc: "Titan tempur lapis baja magma berbahan bakar plasma termal bersuhu ribuan derajat."
+    },
+    {
+        tier: 5,
+        name: "ODIN PRIME OVERLORD",
+        shortName: "ODIN PRIME",
+        maxHp: 12000,
+        element: "Quantum",
+        icon: "👁️",
+        desc: "Kecerdasan buatan komando pusat tertinggi dengan daya manipulasi komputasi quantum mutlak."
+    }
+];
+
+/**
  * Default RPG Profile Template (Table: thor_rpg_profile, id = 1)
  */
 export const defaultThorRpgProfile = {
@@ -40,9 +91,12 @@ export const defaultThorRpgProfile = {
     sta_stat: 10,
     vit_stat: 10,
     streak_days: 1,
-    boss_name: 'FENRIR MK-I',
-    boss_hp: 5000,
-    boss_max_hp: 5000,
+    boss_name: 'FENRIR MK-I (Cybernetic Wolf)',
+    boss_hp: 2500,
+    boss_max_hp: 2500,
+    boss_tier: 0,
+    ng_plus_cycle: 0,
+    defeated_bosses: [],
     last_active_date: new Date().toISOString().split('T')[0],
     daily_quests: createFreshDailyQuests(),
     unlocked_badges: [],
@@ -90,6 +144,9 @@ export async function loadThorRpgProfile() {
             if (typeof data.equipped_gear === 'string') {
                 try { data.equipped_gear = JSON.parse(data.equipped_gear); } catch(e) {}
             }
+            if (typeof data.defeated_bosses === 'string') {
+                try { data.defeated_bosses = JSON.parse(data.defeated_bosses); } catch(e) {}
+            }
             return { ...defaultThorRpgProfile, ...data };
         }
         return defaultThorRpgProfile;
@@ -128,7 +185,10 @@ export async function updateThorRpgProfile(profile) {
             last_active_date: profile.last_active_date || new Date().toISOString().split('T')[0],
             daily_quests: profile.daily_quests || createFreshDailyQuests(),
             unlocked_badges: profile.unlocked_badges || [],
-            equipped_gear: profile.equipped_gear || ['recruit_exo_suit']
+            equipped_gear: profile.equipped_gear || ['recruit_exo_suit'],
+            defeated_bosses: profile.defeated_bosses || [],
+            boss_tier: profile.boss_tier || 0,
+            ng_plus_cycle: profile.ng_plus_cycle || 0
         };
 
         const { data, error } = await supabaseClient
@@ -152,6 +212,43 @@ export async function updateThorRpgProfile(profile) {
         console.error('Error updateThorRpgProfile:', err);
         return null;
     }
+}
+
+/**
+ * Helper Logika Transisi Boss & New Game+ (Ragnarok Protocol)
+ */
+export function handleBossDefeat(profile) {
+    if (!profile) return profile;
+    const p = { ...profile };
+    p.boss_hp = 0;
+    p.boss_kill_count = (p.boss_kill_count || 0) + 1;
+
+    if (!Array.isArray(p.defeated_bosses)) p.defeated_bosses = [];
+    const defeatedName = p.boss_name || BOSS_ROSTER[0].name;
+    p.defeated_bosses.push(defeatedName);
+
+    const currentTier = (typeof p.boss_tier === 'number') ? p.boss_tier : 0;
+
+    if (currentTier >= BOSS_ROSTER.length - 1) {
+        // Semua 5 Boss dikalahkan! Masuk ke NEW GAME+ (RAGNAROK PROTOCOL)
+        p.ng_plus_cycle = (p.ng_plus_cycle || 0) + 1;
+        p.boss_tier = 0;
+        const multiplier = Math.pow(2, p.ng_plus_cycle);
+        const nextBoss = BOSS_ROSTER[0];
+        p.boss_max_hp = nextBoss.maxHp * multiplier;
+        p.boss_hp = p.boss_max_hp;
+        p.boss_name = `[OVERDRIVE] ${nextBoss.name}`;
+    } else {
+        // Boss Tier berikutnya pada siklus saat ini
+        p.boss_tier = currentTier + 1;
+        const nextBoss = BOSS_ROSTER[p.boss_tier];
+        const multiplier = Math.pow(2, p.ng_plus_cycle || 0);
+        p.boss_max_hp = nextBoss.maxHp * multiplier;
+        p.boss_hp = p.boss_max_hp;
+        p.boss_name = (p.ng_plus_cycle > 0 ? '[OVERDRIVE] ' : '') + nextBoss.name;
+    }
+
+    return p;
 }
 
 /**
