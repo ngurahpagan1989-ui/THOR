@@ -26,6 +26,27 @@
         <span id="toast-msg">SYSTEM READY</span>
     </div>
 
+    <!-- ================= SYSTEM RPG HOLOGRAPHIC MODAL (SOLO LEVELING STYLE) ================= -->
+    <div id="rpg-system-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md transition-all duration-300">
+        <div class="relative bg-zinc-950 border-2 border-cyan-500/80 rounded-3xl p-6 w-full max-w-sm shadow-[0_0_50px_rgba(6,182,212,0.4)] text-center font-mono overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div class="absolute -top-12 -right-12 w-36 h-36 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-12 -left-12 w-36 h-36 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-400 text-cyan-400 text-[10px] font-black tracking-widest uppercase mb-3">
+                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+                <span id="rpg-modal-tag">[SYSTEM NOTIFICATION]</span>
+            </div>
+
+            <div id="rpg-modal-icon" class="text-4xl my-2 animate-bounce">⚡</div>
+            <h3 id="rpg-modal-title" class="text-xl font-black text-white tracking-wide mb-2 uppercase">LEVEL UP!</h3>
+            <p id="rpg-modal-desc" class="text-xs text-zinc-300 mb-6 leading-relaxed whitespace-pre-line">System rank has been updated. All vital stats restored to maximum efficiency.</p>
+
+            <button onclick="tutupRpgSystemModal()" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 active:scale-[0.98] text-white font-extrabold py-3 px-4 rounded-xl transition duration-150 shadow-lg shadow-cyan-950 border border-cyan-400 text-xs tracking-wider uppercase">
+                ACKNOWLEDGE COMMAND
+            </button>
+        </div>
+    </div>
+
     <!-- ================= LAYAR LOGIN TACTICAL ================= -->
     <div id="login-view" class="bg-zinc-950 p-8 rounded-3xl shadow-[0_0_50px_-10px_rgba(14,165,233,0.15)] w-full max-w-sm text-center border border-zinc-800/80 relative overflow-hidden">
         <div class="absolute -top-10 -right-10 w-32 h-32 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -64,7 +85,116 @@
             </div>
         </div>
 
-        <!-- Filter Tanggal (Tactical HUD) -->
+        <!-- ================= TACTICAL RPG CHARACTER HUD (SOLO LEVELING / CYBERPUNK HUD) ================= -->
+        <div class="px-5 pt-4 pb-3 border-b border-zinc-800/80 bg-gradient-to-b from-zinc-950 via-zinc-900/50 to-zinc-950">
+            
+            <!-- Character Header -->
+            <div class="flex items-center justify-between mb-3 font-mono">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-2xl bg-zinc-900 border border-cyan-500/50 flex items-center justify-center text-cyan-400 text-xl font-black shadow-[0_0_15px_-3px_rgba(6,182,212,0.3)]">
+                        ⚡
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span id="rpg-player-name" class="font-black text-sm text-white tracking-wide">OPERATOR</span>
+                            <span id="rpg-level-badge" class="bg-cyan-500/20 text-cyan-300 border border-cyan-400/60 font-black text-[10px] px-2 py-0.5 rounded-md shadow-sm">LV. 1</span>
+                        </div>
+                        <div class="flex items-center gap-1 mt-0.5">
+                            <span id="rpg-rank-badge" class="bg-purple-950/60 text-purple-300 border border-purple-500/40 text-[9px] font-black px-1.5 py-0.5 rounded tracking-wider">[TACTICAL RECRUIT]</span>
+                            <span id="rpg-streak-badge" class="bg-orange-950/50 text-orange-400 border border-orange-500/40 text-[9px] font-bold px-1.5 py-0.5 rounded">🔥 1 DAY</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="text-[9px] text-zinc-500 uppercase tracking-widest block font-bold">SYSTEM STATUS</span>
+                    <span class="text-[10px] text-emerald-400 font-bold flex items-center justify-end gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> SYNC ACTIVE
+                    </span>
+                </div>
+            </div>
+
+            <!-- Gauges: HP & EXP Bars -->
+            <div class="space-y-2 mb-3.5 font-mono text-[10px]">
+                <!-- HP Bar (Emerald Glow) -->
+                <div>
+                    <div class="flex justify-between font-bold mb-1">
+                        <span class="text-emerald-400 flex items-center gap-1">
+                            <span>💚</span> HP (VITALITY)
+                        </span>
+                        <span id="rpg-hp-text" class="text-zinc-300">100 / 100</span>
+                    </div>
+                    <div class="h-2.5 w-full bg-zinc-900 border border-zinc-800 rounded-full overflow-hidden p-0.5">
+                        <div id="rpg-hp-bar" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <!-- EXP Bar (Cyan Glow) -->
+                <div>
+                    <div class="flex justify-between font-bold mb-1">
+                        <span class="text-cyan-400 flex items-center gap-1">
+                            <span>⚡</span> EXP PROGRESS
+                        </span>
+                        <span id="rpg-exp-text" class="text-zinc-300">0 / 100 (0%)</span>
+                    </div>
+                    <div class="h-2.5 w-full bg-zinc-900 border border-zinc-800 rounded-full overflow-hidden p-0.5">
+                        <div id="rpg-exp-bar" class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Core Combat Stats Grid (STR, STA, VIT) -->
+            <div class="grid grid-cols-3 gap-2 mb-3 text-center font-mono">
+                <div class="bg-zinc-900/60 border border-amber-500/30 rounded-2xl p-2 shadow-[0_0_15px_-3px_rgba(245,158,11,0.1)]">
+                    <p class="text-[9px] text-amber-400 font-black uppercase tracking-widest flex items-center justify-center gap-1">
+                        <span>⚔️</span> STR
+                    </p>
+                    <p id="rpg-str-val" class="font-black text-white text-base mt-0.5">10</p>
+                    <span class="text-[8px] text-zinc-500 block uppercase">LOAD VOLUME</span>
+                </div>
+                <div class="bg-zinc-900/60 border border-cyan-500/30 rounded-2xl p-2 shadow-[0_0_15px_-3px_rgba(6,182,212,0.1)]">
+                    <p class="text-[9px] text-cyan-400 font-black uppercase tracking-widest flex items-center justify-center gap-1">
+                        <span>⚡</span> STA
+                    </p>
+                    <p id="rpg-sta-val" class="font-black text-white text-base mt-0.5">10</p>
+                    <span class="text-[8px] text-zinc-500 block uppercase">MET CARDIO</span>
+                </div>
+                <div class="bg-zinc-900/60 border border-emerald-500/30 rounded-2xl p-2 shadow-[0_0_15px_-3px_rgba(16,185,129,0.1)]">
+                    <p class="text-[9px] text-emerald-400 font-black uppercase tracking-widest flex items-center justify-center gap-1">
+                        <span>🛡️</span> VIT
+                    </p>
+                    <p id="rpg-vit-val" class="font-black text-white text-base mt-0.5">10</p>
+                    <span class="text-[8px] text-zinc-500 block uppercase">BIO-FUEL</span>
+                </div>
+            </div>
+
+            <!-- Weekly Boss Raid Module -->
+            <div class="bg-gradient-to-r from-rose-950/40 via-zinc-900/80 to-zinc-950 border border-rose-500/40 rounded-2xl p-3 shadow-[0_0_20px_-5px_rgba(244,63,94,0.2)] font-mono">
+                <div class="flex items-center justify-between mb-1.5">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                        <span class="text-[9px] font-black text-rose-400 uppercase tracking-widest">WEEKLY RAID BOSS</span>
+                    </div>
+                    <span class="text-[9px] text-zinc-500 font-bold">TRUE DAMAGE TARGET</span>
+                </div>
+                
+                <div class="flex items-center justify-between mb-1">
+                    <span id="rpg-boss-name" class="font-black text-white text-xs tracking-wider flex items-center gap-1.5">
+                        <span class="text-rose-500">👾</span> FENRIR MK-I
+                    </span>
+                    <span id="rpg-boss-hp-text" class="text-rose-400 font-bold text-[10px]">5,000 / 5,000 HP (100%)</span>
+                </div>
+
+                <div class="h-2.5 w-full bg-zinc-950 border border-zinc-800 rounded-full overflow-hidden p-0.5">
+                    <div id="rpg-boss-hp-bar" class="h-full bg-gradient-to-r from-rose-600 via-red-500 to-amber-500 rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(244,63,94,0.5)]" style="width: 100%;"></div>
+                </div>
+
+                <div class="flex justify-between items-center text-[8px] text-zinc-500 mt-1.5">
+                    <span>🔥 Burn Cal: 1 KCAL = 1 DMG</span>
+                    <span>🏋️ Lift Load: 10 KG = 1 DMG</span>
+                </div>
+            </div>
+
+        </div>
         <div class="bg-zinc-900/60 px-5 py-2.5 border-b border-zinc-800/80 flex items-center justify-between text-xs text-zinc-400 font-mono">
             <span class="font-bold flex items-center gap-1.5 text-zinc-300">
                 <span class="text-cyan-400">⚡</span> TIMELINE:
@@ -211,6 +341,17 @@
                 </button>
             </div>
 
+            <!-- Tactical RPG System Appraisal Box -->
+            <div id="review-appraisal-box" class="mb-3.5 p-2.5 rounded-2xl bg-zinc-900/80 border border-zinc-800 font-mono text-[10px]">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-cyan-400 font-bold flex items-center gap-1 uppercase tracking-wider text-[9px]">
+                        <span>🛡️</span> SYSTEM APPRAISAL
+                    </span>
+                    <span id="review-buff-badge" class="bg-emerald-950/60 text-emerald-400 border border-emerald-500/40 text-[9px] px-1.5 py-0.5 rounded font-bold">BIO-FUEL</span>
+                </div>
+                <p id="review-appraisal-text" class="text-zinc-300 leading-snug">Scanned meal awaiting tactical assessment.</p>
+            </div>
+
             <!-- Portion Multipliers -->
             <div class="mb-4 font-mono">
                 <p class="text-[10px] font-bold text-zinc-500 mb-1.5 uppercase tracking-widest">PORTION SCALER:</p>
@@ -326,6 +467,21 @@
                     <button type="button" onclick="parseWorkoutAi()" id="btn-parse-ai" class="bg-cyan-600 hover:bg-cyan-500 active:scale-95 text-white font-bold px-3 py-2 rounded-xl text-[10px] transition shrink-0 border border-cyan-400">
                         PARSE
                     </button>
+                </div>
+
+                <!-- Tactical RPG Workout Appraisal Feedback -->
+                <div id="workout-appraisal-box" class="hidden mt-2 p-2 rounded-xl bg-cyan-950/40 border border-cyan-500/40 font-mono text-[10px]">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-cyan-400 font-bold flex items-center gap-1 uppercase tracking-wider text-[9px]">
+                            <span>⚔️</span> COMBAT APPRAISAL
+                        </span>
+                        <span id="workout-dmg-preview" class="bg-rose-950/80 text-rose-300 border border-rose-500/50 text-[9px] px-1.5 py-0.5 rounded font-bold">DMG PREVIEW</span>
+                    </div>
+                    <p id="workout-appraisal-text" class="text-zinc-300 leading-snug mb-1">Analyzing kinetic input...</p>
+                    <div class="flex gap-2 text-[9px] text-cyan-300/80">
+                        <span id="workout-exp-preview">EXP: +50</span>
+                        <span id="workout-stat-preview">• STAT GAIN: +1</span>
+                    </div>
                 </div>
             </div>
 
@@ -599,6 +755,291 @@
             setTimeout(() => toast.classList.add('opacity-0', 'pointer-events-none'), 3000);
         }
 
+        // --- 2B. THOR RPG SYSTEM STATE & PROFILE ENGINE ---
+        const defaultRpgProfile = {
+            id: 1,
+            player_name: 'NGURAH',
+            rank_title: '[TACTICAL RECRUIT]',
+            level: 1,
+            current_exp: 0,
+            max_exp: 100,
+            hp: 100,
+            max_hp: 100,
+            str_stat: 10,
+            sta_stat: 10,
+            vit_stat: 10,
+            streak_days: 1,
+            boss_name: 'FENRIR MK-I',
+            boss_hp: 5000,
+            boss_max_hp: 5000
+        };
+
+        let rpgProfile = { ...defaultRpgProfile };
+
+        const BOSS_REGISTRY = [
+            "FENRIR MK-I",
+            "JORMUNGANDR CYBER-BEAST",
+            "SURTUR TITAN ENGINE",
+            "HELA DREAD-PROTOCOL",
+            "YMIR GLACIAL CORE",
+            "NIDHOGG DEEP BORE",
+            "LOKI SHADOW OVERLORD"
+        ];
+
+        function calculateRankTitle(lvl) {
+            if (lvl >= 30) return '[GOD OF THUNDER]';
+            if (lvl >= 20) return '[ASGARDIAN COMMANDER]';
+            if (lvl >= 10) return '[CYBER BERSERKER]';
+            if (lvl >= 5) return '[VANGUARD OPERATOR]';
+            return '[TACTICAL RECRUIT]';
+        }
+
+        function updateStreakDays() {
+            const today = new Date().toISOString().split('T')[0];
+            const lastActive = localStorage.getItem('THOR_LAST_ACTIVE_DATE');
+            if (!lastActive) {
+                localStorage.setItem('THOR_LAST_ACTIVE_DATE', today);
+            } else if (lastActive !== today) {
+                const lastDate = new Date(lastActive);
+                const currDate = new Date(today);
+                const diffDays = Math.round((currDate - lastDate) / (1000 * 60 * 60 * 24));
+                if (diffDays === 1) {
+                    rpgProfile.streak_days = (rpgProfile.streak_days || 1) + 1;
+                } else if (diffDays > 1) {
+                    rpgProfile.streak_days = 1;
+                }
+                localStorage.setItem('THOR_LAST_ACTIVE_DATE', today);
+            }
+        }
+
+        function renderRpgHud() {
+            // Header Info
+            const playerNameEl = document.getElementById('rpg-player-name');
+            if (playerNameEl) playerNameEl.innerText = (rpgProfile.player_name || 'OPERATOR').toUpperCase();
+            
+            const lvlEl = document.getElementById('rpg-level-badge');
+            if (lvlEl) lvlEl.innerText = `LV. ${rpgProfile.level || 1}`;
+
+            const rankEl = document.getElementById('rpg-rank-badge');
+            if (rankEl) rankEl.innerText = rpgProfile.rank_title || calculateRankTitle(rpgProfile.level || 1);
+
+            const streakEl = document.getElementById('rpg-streak-badge');
+            if (streakEl) streakEl.innerText = `🔥 ${rpgProfile.streak_days || 1} DAYS`;
+
+            // HP Bar
+            const hp = Math.max(0, rpgProfile.hp || 0);
+            const maxHp = rpgProfile.max_hp || 100;
+            const hpPercent = Math.min(100, Math.round((hp / maxHp) * 100));
+            const hpBar = document.getElementById('rpg-hp-bar');
+            if (hpBar) hpBar.style.width = `${hpPercent}%`;
+            const hpText = document.getElementById('rpg-hp-text');
+            if (hpText) hpText.innerText = `${hp} / ${maxHp}`;
+
+            // EXP Bar
+            const curExp = Math.max(0, rpgProfile.current_exp || 0);
+            const maxExp = Math.max(1, rpgProfile.max_exp || 100);
+            const expPercent = Math.min(100, Math.round((curExp / maxExp) * 100));
+            const expBar = document.getElementById('rpg-exp-bar');
+            if (expBar) expBar.style.width = `${expPercent}%`;
+            const expText = document.getElementById('rpg-exp-text');
+            if (expText) expText.innerText = `${curExp} / ${maxExp} (${expPercent}%)`;
+
+            // Combat Stats
+            const strEl = document.getElementById('rpg-str-val');
+            if (strEl) strEl.innerText = rpgProfile.str_stat || 10;
+            const staEl = document.getElementById('rpg-sta-val');
+            if (staEl) staEl.innerText = rpgProfile.sta_stat || 10;
+            const vitEl = document.getElementById('rpg-vit-val');
+            if (vitEl) vitEl.innerText = rpgProfile.vit_stat || 10;
+
+            // Boss Raid Module
+            const bossNameEl = document.getElementById('rpg-boss-name');
+            if (bossNameEl) bossNameEl.innerHTML = `<span class="text-rose-500">👾</span> ${rpgProfile.boss_name || 'FENRIR MK-I'}`;
+
+            const bHp = Math.max(0, rpgProfile.boss_hp || 0);
+            const bMaxHp = Math.max(1, rpgProfile.boss_max_hp || 5000);
+            const bPercent = Math.min(100, Math.round((bHp / bMaxHp) * 100));
+            const bHpBar = document.getElementById('rpg-boss-hp-bar');
+            if (bHpBar) bHpBar.style.width = `${bPercent}%`;
+            const bHpText = document.getElementById('rpg-boss-hp-text');
+            if (bHpText) bHpText.innerText = `${bHp.toLocaleString()} / ${bMaxHp.toLocaleString()} HP (${bPercent}%)`;
+        }
+
+        async function loadRpgProfile() {
+            updateStreakDays();
+
+            // 1. Instant Cache Render
+            const cached = localStorage.getItem('THOR_RPG_PROFILE');
+            if (cached) {
+                try {
+                    rpgProfile = { ...defaultRpgProfile, ...JSON.parse(cached) };
+                    renderRpgHud();
+                } catch(e) {}
+            }
+
+            if (!supabaseClient) return;
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('thor_rpg_profile')
+                    .select('*')
+                    .eq('id', 1)
+                    .maybeSingle();
+
+                if (error) {
+                    console.warn('Supabase thor_rpg_profile query error, using local fallback:', error.message);
+                } else if (data) {
+                    rpgProfile = { ...defaultRpgProfile, ...data };
+                    localStorage.setItem('THOR_RPG_PROFILE', JSON.stringify(rpgProfile));
+                    renderRpgHud();
+                } else {
+                    // Inisialisasi baris id = 1 perdana di Supabase
+                    const { error: insErr } = await supabaseClient
+                        .from('thor_rpg_profile')
+                        .upsert([rpgProfile]);
+                    if (insErr) {
+                        console.warn('Initial insert thor_rpg_profile:', insErr.message);
+                    }
+                }
+            } catch (err) {
+                console.warn('Load RPG Profile Exception:', err);
+            }
+
+            renderRpgHud();
+        }
+
+        async function updateRpgState() {
+            // Local persistence & instant HUD update
+            localStorage.setItem('THOR_RPG_PROFILE', JSON.stringify(rpgProfile));
+            renderRpgHud();
+
+            if (!supabaseClient) return;
+
+            try {
+                const { error } = await supabaseClient
+                    .from('thor_rpg_profile')
+                    .upsert([{
+                        id: 1,
+                        player_name: rpgProfile.player_name,
+                        rank_title: rpgProfile.rank_title,
+                        level: rpgProfile.level,
+                        current_exp: rpgProfile.current_exp,
+                        max_exp: rpgProfile.max_exp,
+                        hp: rpgProfile.hp,
+                        max_hp: rpgProfile.max_hp,
+                        str_stat: rpgProfile.str_stat,
+                        sta_stat: rpgProfile.sta_stat,
+                        vit_stat: rpgProfile.vit_stat,
+                        streak_days: rpgProfile.streak_days,
+                        boss_name: rpgProfile.boss_name,
+                        boss_hp: rpgProfile.boss_hp,
+                        boss_max_hp: rpgProfile.boss_max_hp
+                    }]);
+
+                if (error) {
+                    console.warn('Supabase thor_rpg_profile sync failed:', error.message);
+                }
+            } catch (err) {
+                console.warn('Update RPG State Exception:', err);
+            }
+        }
+
+        function showRpgToast(title, desc = "") {
+            showToast(`${title} ${desc ? '• ' + desc : ''}`, "⚡");
+        }
+
+        function showRpgSystemModal(title, desc, tag = "[SYSTEM NOTIFICATION]", icon = "⚡") {
+            document.getElementById('rpg-modal-title').innerText = title;
+            document.getElementById('rpg-modal-desc').innerText = desc;
+            document.getElementById('rpg-modal-tag').innerText = tag;
+            document.getElementById('rpg-modal-icon').innerText = icon;
+            document.getElementById('rpg-system-modal').classList.remove('hidden');
+        }
+
+        function tutupRpgSystemModal() {
+            document.getElementById('rpg-system-modal').classList.add('hidden');
+        }
+
+        function tambahExp(amount, reason = "") {
+            if (amount <= 0) return;
+            rpgProfile.current_exp = (rpgProfile.current_exp || 0) + amount;
+            let didLevelUp = false;
+
+            while (rpgProfile.current_exp >= rpgProfile.max_exp) {
+                rpgProfile.current_exp -= rpgProfile.max_exp;
+                rpgProfile.level = (rpgProfile.level || 1) + 1;
+                rpgProfile.max_exp = rpgProfile.level * 100;
+                rpgProfile.hp = rpgProfile.max_hp; // Pulihkan HP penuh
+                rpgProfile.rank_title = calculateRankTitle(rpgProfile.level);
+                didLevelUp = true;
+            }
+
+            if (didLevelUp) {
+                playGoSignal();
+                playTacticalBeep(1600, 0.45, "sine");
+                showRpgSystemModal(
+                    "⚡ LEVEL UP!",
+                    `SELAMAT OPERATOR! LEVEL ${rpgProfile.level} TERCAPAI!\nRANK BARU: ${rpgProfile.rank_title}\nHP DIPULIHKAN PENUH KE 100%!`,
+                    "LEVEL UP ANNOUNCEMENT",
+                    "⚡"
+                );
+            } else {
+                showRpgToast(`+${amount} EXP GAINED`, reason || "ACTIVITY COMPLETED");
+            }
+        }
+
+        function dealBossDamage(dmg, source = "TACTICAL STRIKE") {
+            if (dmg <= 0) return;
+            rpgProfile.boss_hp = Math.max(0, (rpgProfile.boss_hp || 5000) - dmg);
+
+            if (rpgProfile.boss_hp <= 0) {
+                // Boss Defeated!
+                tambahExp(300, "BOSS DEFEATED BONUS");
+                playTacticalBeep(1800, 0.5, "sawtooth");
+                showRpgSystemModal(
+                    "💀 RAID BOSS DEFEATED!",
+                    `TARGET ${rpgProfile.boss_name} TELAH DIHANCURKAN!\nBONUS +300 EXP DIPEROLEH!\nMEMINDAI TARGET BARU...`,
+                    "RAID VICTORY",
+                    "🏆"
+                );
+
+                // Spawn boss berikutnya dengan +1000 HP
+                rpgProfile.boss_max_hp = (rpgProfile.boss_max_hp || 5000) + 1000;
+                rpgProfile.boss_hp = rpgProfile.boss_max_hp;
+
+                let curIdx = BOSS_REGISTRY.indexOf(rpgProfile.boss_name);
+                if (curIdx !== -1 && curIdx + 1 < BOSS_REGISTRY.length) {
+                    rpgProfile.boss_name = BOSS_REGISTRY[curIdx + 1];
+                } else {
+                    const nextNum = (parseInt((rpgProfile.boss_name.match(/MK-(\d+)/) || [0, 1])[1]) + 1);
+                    rpgProfile.boss_name = `FENRIR MK-${nextNum}`;
+                }
+            } else {
+                showRpgToast(`💥 ${dmg.toLocaleString()} TRUE DAMAGE!`, `Target: ${rpgProfile.boss_name}`);
+            }
+        }
+
+        function applyMealRpgEffect(nama, protein, calories, fat, carbs) {
+            // +20 EXP setiap scan & simpan makanan
+            tambahExp(20, "NUTRITION LOG");
+
+            const isJunkName = /(gorengan|junk food|junkfood|boba|soda|coca|cola|pepsi|fries|french fries|kentang goreng|burger|pizza|mie instan|indomie|martabak|donat|cake|kue manis|chips|keripik|biskuit|permen)/i.test(nama);
+            const isJunkMacros = (fat >= 35 && protein < 10) || (carbs >= 75 && protein < 5);
+
+            if (isJunkName || isJunkMacros) {
+                // Debuff -10 HP
+                rpgProfile.hp = Math.max(1, (rpgProfile.hp || 100) - 10);
+                showToast("⚠️ SUGAR/GREASE DEBUFF: HP -10", "⚠️");
+            } else if (protein >= 25) {
+                // +1 VIT, +10 HP (maks 100)
+                rpgProfile.vit_stat = (rpgProfile.vit_stat || 10) + 1;
+                rpgProfile.hp = Math.min(rpgProfile.max_hp || 100, (rpgProfile.hp || 100) + 10);
+                showToast("💚 BIO-FUEL ASSIMILATED: VIT +1, HP +10", "🛡️");
+            } else {
+                rpgProfile.hp = Math.min(rpgProfile.max_hp || 100, (rpgProfile.hp || 100) + 5);
+            }
+        }
+
         // --- 3. TACTICAL AUDIO & VOICE SYNTHESIZER ---
         let audioCtx = null;
 
@@ -818,17 +1259,21 @@
 
                 let prompt = "";
                 if (activeScanMode === 'label') {
-                    prompt = "Kamu adalah Nutrition Facts Label OCR analyzer. Analisis foto tabel Informasi Nilai Gizi / label kemasan ini. " +
-                             (contextHint ? `CATATAN DARI USER: "${contextHint}". ` : "") +
+                    prompt = "Kamu adalah [THOR BIO-NUTRITION TACTICAL APPRAISAL SYSTEM], AI OCR analisis nutrisi kemasan bergaya HUD Solo Leveling & Cyberpunk. " +
+                             "Analisis foto tabel Informasi Nilai Gizi / label kemasan ini. " +
+                             (contextHint ? `CATATAN DARI OPERATOR: "${contextHint}". ` : "") +
                              "Ekstrak data: nama produk, kalori (kcal), protein (g), karbohidrat (g), dan lemak (g). " +
+                             "Tentukan apakah ini ransum berenergi sehat atau junk food (tinggi gula/lemak jahat). " +
                              "WAJIB KELUARKAN HANYA JSON: " +
-                             '{"food_name": "Nama Produk Kemasan", "calories": 250, "protein_g": 10, "carbs_g": 30, "fat_g": 5}';
+                             '{"food_name": "Nama Produk Kemasan", "calories": 250, "protein_g": 10, "carbs_g": 30, "fat_g": 5, "is_healthy": true, "is_junk": false, "rpg_buff": "HP +5 | Fuel Ingested", "system_appraisal": "[LABEL VERIFIED] Data pabrik tervalidasi. Nutrisi siap diserap."}';
                 } else {
-                    prompt = "Kamu adalah nutrisionis ahli taktis. Analisis foto makanan/minuman ini. " +
-                             (contextHint ? `PERHATIAN! BAHAN TAK KASAT MATA DARI USER: "${contextHint}". Perhitungkan ini secara cermat ke dalam kalori & makro! ` : "") +
+                    prompt = "Kamu adalah [THOR BIO-NUTRITION TACTICAL APPRAISAL SYSTEM], AI pemindai biometrik nutrisi makanan bergaya HUD Solo Leveling & Cyberpunk. " +
+                             "Analisis foto makanan/minuman ini secara cermat. " +
+                             (contextHint ? `PERHATIAN! BAHAN TAK KASAT MATA DARI OPERATOR: "${contextHint}". Perhitungkan ini secara cermat ke dalam kalori & makro! ` : "") +
                              "Perkirakan nama item, kalori (kcal), protein (g), karbohidrat (g), dan lemak (g). " +
+                             "Evaluasi efek RPG: jika protein >= 25g, berikan buff VIT +1 & HP +10. Jika junk food/tinggi gula berlebih, berikan debuff HP -10. " +
                              "WAJIB KELUARKAN HANYA JSON: " +
-                             '{"food_name": "Nama Makanan", "calories": 250, "protein_g": 10, "carbs_g": 30, "fat_g": 5}';
+                             '{"food_name": "Nama Makanan", "calories": 300, "protein_g": 28, "carbs_g": 20, "fat_g": 8, "is_healthy": true, "is_junk": false, "rpg_buff": "VIT +1 & HP +10 (High Bio-Fuel)", "system_appraisal": "[APPRAISAL PASS] Komposisi protein optimal terdeteksi. Regenerasi sel otot diaktifkan."}';
                 }
 
                 const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
@@ -860,11 +1305,33 @@
                     calories: Number(aiData.calories) || 0,
                     protein: Number(aiData.protein_g) || 0,
                     carbs: Number(aiData.carbs_g) || 0,
-                    fat: Number(aiData.fat_g) || 0
+                    fat: Number(aiData.fat_g) || 0,
+                    is_healthy: !!aiData.is_healthy,
+                    is_junk: !!aiData.is_junk,
+                    rpg_buff: aiData.rpg_buff || "",
+                    system_appraisal: aiData.system_appraisal || ""
                 };
 
                 document.getElementById('review-thumb').src = previewUrl;
                 document.getElementById('review-food-name').value = aiData.food_name || (activeScanMode === 'label' ? "Packaged Item" : "Detected Fuel");
+
+                // Tampilkan Tactical Appraisal Box di Modal Review
+                const appraisalText = document.getElementById('review-appraisal-text');
+                const buffBadge = document.getElementById('review-buff-badge');
+                if (appraisalText && buffBadge) {
+                    appraisalText.innerText = aiData.system_appraisal || "[APPRAISAL PASS] Komposisi nutrisi berhasil dianalisis oleh radar biometrik.";
+                    if (aiData.is_junk) {
+                        buffBadge.className = "bg-rose-950/80 text-rose-300 border border-rose-500/50 text-[9px] px-1.5 py-0.5 rounded font-bold";
+                        buffBadge.innerText = "DEBUFF: HP -10";
+                    } else if (rawAiNutrition.protein >= 25) {
+                        buffBadge.className = "bg-emerald-950/80 text-emerald-300 border border-emerald-500/50 text-[9px] px-1.5 py-0.5 rounded font-bold";
+                        buffBadge.innerText = "BUFF: VIT +1, HP +10";
+                    } else {
+                        buffBadge.className = "bg-cyan-950/80 text-cyan-300 border border-cyan-500/50 text-[9px] px-1.5 py-0.5 rounded font-bold";
+                        buffBadge.innerText = "+20 EXP";
+                    }
+                }
+
                 resetChipsToDefault();
                 ubahPorsi(1.0);
 
@@ -922,6 +1389,8 @@
 
             if (error) showToast("INSERT FAILED: " + error.message, "❌");
             else {
+                applyMealRpgEffect(nama, protein, kalori, fat, carbs);
+                await updateRpgState();
                 tutupModal('modal-review-ai');
                 loadDataHarian(tanggalTerpilih);
                 showToast(`${nama.toUpperCase()} LOGGED (+${kalori} KCAL)`, "⚡");
@@ -1013,6 +1482,8 @@
             if (error) {
                 showToast("INSERT FAILED: " + error.message, "❌");
             } else {
+                applyMealRpgEffect(nama, pro, kalori, fat, carb);
+                await updateRpgState();
                 document.getElementById('input-makanan').value = '';
                 document.getElementById('input-kalori').value = '';
                 document.getElementById('input-pro-manual').value = '';
@@ -1285,10 +1756,15 @@
 
             try {
                 const berat = currentBeratNum || 75;
-                const prompt = `Kamu adalah tactical sports scientist. Ekstrak data workout dari kalimat: "${text}". ` +
-                               `Berat badan user: ${berat} kg. Klasifikasikan kategori "strength" atau "cardio". ` +
+                const prompt = `Kamu adalah [THOR COMBAT ENGINE], sistem taktis militer & RPG Combat Log analyzer bergaya HUD Solo Leveling. ` +
+                               `Analisis kalimat latihan fisik Player: "${text}". Berat badan Player: ${berat} kg. ` +
+                               `Klasifikasikan kategori "strength" atau "cardio". ` +
+                               `Hitung estimasi durasi, kalori terbakar (MET), beban, set, repetisi, jarak, total volume beban (kg = load_kg * sets * reps), True Damage ke Boss Mingguan, dan EXP. ` +
+                               `Rumus Konversi RPG: ` +
+                               `- exp_reward: 50 untuk strength, 40 untuk cardio. ` +
+                               `- boss_damage: untuk strength Math.floor(volume_kg / 10), untuk cardio (calories_burned * 1). ` +
                                `WAJIB RETURN HANYA JSON: ` +
-                               `{"category": "strength|cardio", "exercise_name": "Nama Gerakan", "distance_km": 0, "load_kg": 0, "sets": 0, "reps": 0, "duration_minutes": 30, "calories_burned": 180}`;
+                               `{"category": "strength", "exercise_name": "Nama Gerakan Latihan", "distance_km": 0, "load_kg": 20, "sets": 4, "reps": 10, "duration_minutes": 30, "calories_burned": 210, "volume_kg": 800, "boss_damage": 80, "exp_reward": 50, "tactical_analysis": "[COMBAT PASS] Kinetik otot teridentifikasi. 80 True Damage diarahkan ke Boss Mingguan."}`;
 
                 const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
 
@@ -1324,7 +1800,23 @@
                     if (data.calories_burned) document.getElementById('input-bakar-strength').value = data.calories_burned;
                 }
 
-                showToast("AI EXTRACTED WORKOUT!", "⚡");
+                // Tampilkan Feedback Combat Appraisal Box
+                const box = document.getElementById('workout-appraisal-box');
+                const textEl = document.getElementById('workout-appraisal-text');
+                const dmgEl = document.getElementById('workout-dmg-preview');
+                const expEl = document.getElementById('workout-exp-preview');
+                const statEl = document.getElementById('workout-stat-preview');
+
+                if (box && textEl && dmgEl) {
+                    box.classList.remove('hidden');
+                    textEl.innerText = data.tactical_analysis || "[COMBAT LOG] Gerakan berhasil dikonversi ke kalkulasi tempur.";
+                    const calcDmg = data.boss_damage || (data.category === 'strength' ? Math.floor(((data.load_kg || 0) * (data.sets || 1) * (data.reps || 1)) / 10) : (data.calories_burned || 100));
+                    dmgEl.innerText = `DMG PREVIEW: ${calcDmg}`;
+                    if (expEl) expEl.innerText = `EXP: +${data.exp_reward || (data.category === 'strength' ? 50 : 40)}`;
+                    if (statEl) statEl.innerText = data.category === 'strength' ? "• STR GAIN: +1" : "• STA GAIN: +1";
+                }
+
+                showToast("AI COMBAT ANALYSIS COMPLETE!", "⚡");
             } catch (err) {
                 showToast("AI PARSE FAILED: " + err.message, "❌");
             } finally {
@@ -1337,16 +1829,22 @@
             let nama = '';
             let kalori = 0;
             let durasi = 0;
+            const isStrength = (activeWorkoutTab === 'strength');
+            let volumeKg = 0;
 
-            if (activeWorkoutTab === 'strength') {
+            if (isStrength) {
                 nama = document.getElementById('input-olahraga-strength').value.trim();
                 kalori = parseInt(document.getElementById('input-bakar-strength').value) || 0;
                 durasi = parseInt(document.getElementById('input-durasi-strength').value) || 30;
-                const beban = document.getElementById('input-beban').value;
-                const sets = document.getElementById('input-sets').value;
-                const reps = document.getElementById('input-reps').value;
+                const beban = parseFloat(document.getElementById('input-beban').value) || 0;
+                const sets = parseInt(document.getElementById('input-sets').value) || 0;
+                const reps = parseInt(document.getElementById('input-reps').value) || 0;
 
                 if (!nama || !kalori) return showToast("INCOMPLETE STRENGTH FIELDS!", "⚠️");
+
+                if (beban > 0 && sets > 0 && reps > 0) {
+                    volumeKg = Math.round(beban * sets * reps);
+                }
 
                 let specs = [];
                 if (beban) specs.push(`${beban}kg`);
@@ -1379,6 +1877,35 @@
             if (error) {
                 showToast("INSERT FAILED: " + error.message, "❌");
             } else {
+                // --- RPG COMBAT REWARDS & CALCULATIONS ---
+                if (isStrength) {
+                    // +50 EXP per latihan beban
+                    tambahExp(50, "STRENGTH DRILL");
+
+                    // str_stat: +1 setiap kelipatan 500 kg volume angkatan (min +1 untuk beban)
+                    const strGain = Math.max(1, Math.floor(volumeKg / 500));
+                    rpgProfile.str_stat = (rpgProfile.str_stat || 10) + strGain;
+
+                    // True Damage ke Boss: (Total Volume kg / 10), atau jika volume 0 min kalori/2
+                    const bossDmg = volumeKg > 0 ? Math.floor(volumeKg / 10) : Math.max(10, Math.floor(kalori / 2));
+                    dealBossDamage(bossDmg, "KINETIC STRENGTH");
+                    showToast(`STR +${strGain} | VOLUME: ${volumeKg}kg`, "🏋️");
+                } else {
+                    // +40 EXP per sesi kardio
+                    tambahExp(40, "CARDIO MISSION");
+
+                    // sta_stat: +1 setiap 150 kkal terbakar
+                    const staGain = Math.max(1, Math.floor(kalori / 150));
+                    rpgProfile.sta_stat = (rpgProfile.sta_stat || 10) + staGain;
+
+                    // True Damage ke Boss: (Total Kalori Terbakar x 1)
+                    const bossDmg = kalori * 1;
+                    dealBossDamage(bossDmg, "MET CARDIO BURST");
+                    showToast(`STA +${staGain} | BURN: ${kalori} kcal`, "🏃");
+                }
+
+                await updateRpgState();
+
                 document.getElementById('input-olahraga-strength').value = '';
                 document.getElementById('input-olahraga-cardio').value = '';
                 document.getElementById('input-beban').value = '';
@@ -1386,11 +1913,13 @@
                 document.getElementById('input-reps').value = '';
                 document.getElementById('input-jarak').value = '';
                 document.getElementById('ai-workout-input').value = '';
+                const box = document.getElementById('workout-appraisal-box');
+                if (box) box.classList.add('hidden');
                 resetRestTimer();
                 resetCardioTimer();
                 tutupModal('modal-olahraga');
                 loadDataHarian(tanggalTerpilih);
-                showToast("WORKOUT COMMITTED", "🏃");
+                showToast("WORKOUT COMMITTED TO RPG", "⚡");
             }
         }
 
@@ -1548,6 +2077,9 @@
         }
 
         async function cekSesi() {
+            // Render dari cache terlebih dahulu
+            loadRpgProfile();
+
             const { data: { session } } = await supabaseClient.auth.getSession();
             const loginView = document.getElementById('login-view');
             const dashboardView = document.getElementById('dashboard-view');
@@ -1556,7 +2088,12 @@
                 currentUser = session.user;
                 loginView.classList.add('hidden');
                 dashboardView.classList.remove('hidden');
-                document.getElementById('user-name').innerText = session.user.user_metadata.full_name ? session.user.user_metadata.full_name.split(" ")[0].toUpperCase() : 'WARRIOR'; 
+                const fullName = session.user.user_metadata.full_name ? session.user.user_metadata.full_name.split(" ")[0].toUpperCase() : 'OPERATOR';
+                document.getElementById('user-name').innerText = fullName;
+                if (!rpgProfile.player_name || rpgProfile.player_name === 'OPERATOR') {
+                    rpgProfile.player_name = fullName;
+                }
+                await loadRpgProfile();
                 loadDataHarian(tanggalTerpilih); 
             } else {
                 loginView.classList.remove('hidden');
